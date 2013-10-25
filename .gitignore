@@ -11,3 +11,11 @@
 *.lai
 *.la
 *.a
+
+# Dev-Studio temporaries
+*.ncb
+*.suo
+*.user
+
+# Intermediates and other built files
+Build/
