@@ -217,6 +217,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Code\igThread.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Code\igThread.h"
 				>
 			</File>

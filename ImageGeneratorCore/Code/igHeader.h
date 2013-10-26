@@ -8,12 +8,16 @@
 #include <wx/filedlg.h>
 #include <wx/msgdlg.h>
 
+#include <list>
+
 class igPlugin;
 class igApp;
 class igFrame;
+class igThread;
 
 #include "igPlugin.h"
 #include "igApp.h"
 #include "igFrame.h"
+#include "igThread.h"
 
 // igHeader.h

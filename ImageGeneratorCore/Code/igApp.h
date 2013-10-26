@@ -13,6 +13,7 @@ public:
 
 	igPlugin* Plugin( void );
 	wxImage* Image( void );
+	wxCriticalSection* ImageCriticalSection( void );
 
 	bool LoadPlugin( const wxString& pluginPath );
 	bool UnloadPlugin( void );
@@ -20,13 +21,18 @@ public:
 	bool GenerateImage( void );
 	bool DeleteImage( void );
 
+	enum { COLOR_COMPONENTS_PER_PIXEL = 3 };
+
 private:
 
 	HMODULE pluginHandle;
 	igPlugin* plugin;
+	
 	unsigned char* imageData;
 	wxSize imageSize;
 	wxImage* image;
+	wxCriticalSection imageCriticalSection;
+
 	int threadCount;
 };
 

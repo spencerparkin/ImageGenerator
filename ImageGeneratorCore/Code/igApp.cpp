@@ -13,7 +13,7 @@ igApp::igApp( void )
 	pluginHandle = NULL;
 	imageData = 0;
 	imageSize.Set( 1024, 1024 );
-	threadCount = 1;
+	threadCount = 0;
 }
 
 //===========================================================================
@@ -31,6 +31,12 @@ igPlugin* igApp::Plugin( void )
 wxImage* igApp::Image( void )
 {
 	return image;
+}
+
+//===========================================================================
+wxCriticalSection* igApp::ImageCriticalSection( void )
+{
+	return &imageCriticalSection;
 }
 
 //===========================================================================
@@ -154,7 +160,7 @@ bool igApp::GenerateImage( void )
 
 		DeleteImage();
 
-		imageData = new unsigned char[ imageSize.GetWidth() * imageSize.GetHeight() * 3 ];
+		imageData = new unsigned char[ imageSize.GetWidth() * imageSize.GetHeight() * COLOR_COMPONENTS_PER_PIXEL ];
 		if( !imageData )
 			break;
 
@@ -163,8 +169,15 @@ bool igApp::GenerateImage( void )
 		if( !plugin->PreImageGeneration( image ) )
 			break;
 
-		//...kick off threads to generate the image...
-		//...wait here for all threads to complete...
+		if( threadCount == 0 )
+			threadCount = wxThread::GetCPUCount();
+
+		igThread::Manager manager;
+		if( !manager.KickOffThreads( threadCount ) )
+			break;
+		
+		if( !manager.WaitForThreads( false ) )
+			break;
 
 		if( !plugin->PostImageGeneration( image ) )
 			break;
