@@ -28,7 +28,7 @@ igThread::igThread( Manager* manager ) : wxThread( wxTHREAD_JOINABLE )
 	wxPoint point;
 	for( point.x = rect.x; point.x < rect.x + rect.width; point.x++ )
 	{
-		for( point.y = rect.y; point.y < rect.y + rect.width; point.y++ )
+		for( point.y = rect.y; point.y < rect.y + rect.height; point.y++ )
 		{
 			if( TestDestroy() )
 				return 0;
@@ -144,7 +144,6 @@ bool igThread::Manager::WaitForThreads( bool signalTermination /*= false*/ )
 		else
 			thread->Wait( wxTHREAD_WAIT_BLOCK );
 		
-		// TODO: This appears to work, but when I exit the application, I get an access violation.  Why?
 		plugin->DeleteImageGenerator( thread->imageGenerator );
 		delete thread;
 		threadList.erase( iter );

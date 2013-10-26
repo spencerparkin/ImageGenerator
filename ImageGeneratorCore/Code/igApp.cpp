@@ -164,7 +164,7 @@ bool igApp::GenerateImage( void )
 		if( !imageData )
 			break;
 
-		image = new wxImage( imageSize, imageData );
+		image = new wxImage( imageSize, imageData, true );
 
 		if( !plugin->PreImageGeneration( image ) )
 			break;
