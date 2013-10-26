@@ -7,6 +7,7 @@
 #include <wx/thread.h>
 #include <wx/filedlg.h>
 #include <wx/msgdlg.h>
+#include <wx/progdlg.h>
 
 #include <list>
 

@@ -25,6 +25,10 @@ igThread::igThread( Manager* manager ) : wxThread( wxTHREAD_JOINABLE )
 	wxSize size = image->GetSize();
 	imageCriticalSection->Leave();
 
+	int pixelsGenerated = 0;
+	int yieldsPerThread = 10;
+	int pixelsPerProgressUpdate = ( rect.width * rect.height ) / yieldsPerThread;
+
 	wxPoint point;
 	for( point.x = rect.x; point.x < rect.x + rect.width; point.x++ )
 	{
@@ -48,14 +52,30 @@ igThread::igThread( Manager* manager ) : wxThread( wxTHREAD_JOINABLE )
 			image->SetRGB( point.x, point.y, color.Red(), color.Green(), color.Blue() );
 			imageCriticalSection->Leave();
 		}
+
+		// Periodically send progress updates, but at a frequency that
+		// does not slow down our image generation process noticably.
+		pixelsGenerated += rect.height;
+		if( pixelsGenerated >= pixelsPerProgressUpdate )
+		{
+			Event* event = new Event( wxEVT_THREAD_PROGRESS_UPDATE, 0 );
+			event->pixelsGenerated = pixelsGenerated;
+			pixelsGenerated = 0;
+			manager->QueueEvent( event );
+			Yield();
+		}
 	}
 
 	return 0;
 }
 
 //===========================================================================
+const wxEventTypeTag< igThread::Event > igThread::wxEVT_THREAD_PROGRESS_UPDATE( wxNewEventType() );
+
+//===========================================================================
 igThread::Event::Event( wxEventType eventType, int id ) : wxThreadEvent( eventType, id )
 {
+	pixelsGenerated = 0;
 }
 
 //===========================================================================
@@ -67,19 +87,32 @@ igThread::Event::Event( wxEventType eventType, int id ) : wxThreadEvent( eventTy
 /*virtual*/ wxEvent* igThread::Event::Clone( void ) const
 {
 	Event* event = new Event( GetEventType(), GetId() );
-	//...
+	event->pixelsGenerated = pixelsGenerated;
 	return event;
 }
 
 //===========================================================================
 igThread::Manager::Manager( void )
 {
+	progressDialog = 0;
+	pixelsGenerated = 0;
+	progressUpdateNeeded = false;
+
+	Bind( wxEVT_THREAD_PROGRESS_UPDATE, &igThread::Manager::OnThreadProgressUpdate, this );
 }
 
 //===========================================================================
 igThread::Manager::~Manager( void )
 {
+	wxASSERT( progressDialog == 0 );
 	wxASSERT( threadList.size() == 0 );
+}
+
+//===========================================================================
+void igThread::Manager::OnThreadProgressUpdate( Event& event )
+{
+	pixelsGenerated += event.pixelsGenerated;
+	progressUpdateNeeded = true;
 }
 
 //===========================================================================
@@ -93,7 +126,14 @@ bool igThread::Manager::KickOffThreads( int threadCount )
 	if( !image )
 		return false;
 
-	int areaPerThread = ( image->GetWidth() * image->GetHeight() ) / threadCount;
+	int imageArea = image->GetWidth() * image->GetHeight();
+	progressDialog = new wxProgressDialog( "Image Generation In Progress", "Generating image...",
+											imageArea, 0, wxPD_APP_MODAL | wxPD_CAN_ABORT | wxPD_ESTIMATED_TIME );
+
+	pixelsGenerated = 0;
+	progressUpdateNeeded = false;
+
+	int areaPerThread = imageArea / threadCount;
 	wxRect rect( 0, 0, image->GetWidth(), image->GetHeight() );
 
 	bool success = true;
@@ -132,6 +172,8 @@ bool igThread::Manager::KickOffThreads( int threadCount )
 //===========================================================================
 bool igThread::Manager::WaitForThreads( bool signalTermination /*= false*/ )
 {
+	bool success = true;
+
 	igPlugin* plugin = wxGetApp().Plugin();
 
 	while( threadList.size() > 0 )
@@ -139,17 +181,39 @@ bool igThread::Manager::WaitForThreads( bool signalTermination /*= false*/ )
 		ThreadList::iterator iter = threadList.begin();
 		igThread* thread = *iter;
 		
-		if( signalTermination )
-			thread->Delete( 0, wxTHREAD_WAIT_BLOCK );
-		else
-			thread->Wait( wxTHREAD_WAIT_BLOCK );
+		// This loop is not as efficient as doing a "thread->Wait( wxTHREAD_WAIT_BLOCK )",
+		// but I would like to get some feed-back on how long the image generation process
+		// is taking.  Is there a better way to go about doing this?
+		while( thread->IsRunning() )
+		{
+			signalTermination = progressDialog->WasCancelled();
+			if( signalTermination )
+				thread->Delete( 0, wxTHREAD_WAIT_BLOCK );
+			else if( m_pendingEvents && !m_pendingEvents->IsEmpty() )
+			{
+				ProcessPendingEvents();
+				if( progressUpdateNeeded )
+				{
+					float percentage = float( pixelsGenerated ) / float( progressDialog->GetRange() ) * 100.f;
+					wxString message = wxString::Format( "Generating image: %1.2f%%", percentage );
+					progressDialog->Update( pixelsGenerated, message );
+					progressUpdateNeeded = false;
+				}
+			}
+		}
 		
 		plugin->DeleteImageGenerator( thread->imageGenerator );
 		delete thread;
 		threadList.erase( iter );
 	}
 
-	return true;
+	delete progressDialog;
+	progressDialog = 0;
+
+	if( signalTermination )
+		success = false;
+
+	return success;
 }
 
 //===========================================================================

@@ -25,7 +25,7 @@ FractalPlugin::FractalPlugin( void )
 	imagMin = -2.5;
 	imagMax = 2.5;
 
-	maxIters = 500;
+	maxIters = 5000;
 }
 
 //===========================================================================

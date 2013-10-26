@@ -16,7 +16,12 @@ public:
 		virtual ~Event( void );
 
 		virtual wxEvent* Clone( void ) const override;
+
+		int pixelsGenerated;
 	};
+
+	//===========================================================================
+	static const wxEventTypeTag< Event > wxEVT_THREAD_PROGRESS_UPDATE;
 
 	//===========================================================================
 	class Manager : public wxEvtHandler
@@ -31,10 +36,15 @@ public:
 
 	private:
 
+		void OnThreadProgressUpdate( Event& event );
+
 		static bool BiteOffRect( wxRect& biteRect, wxRect& bittenRect, int biteArea );
 
 		typedef std::list< igThread* > ThreadList;
 		ThreadList threadList;
+		wxProgressDialog* progressDialog;
+		int pixelsGenerated;
+		bool progressUpdateNeeded;
 	};
 
 	igThread( Manager* manager );
