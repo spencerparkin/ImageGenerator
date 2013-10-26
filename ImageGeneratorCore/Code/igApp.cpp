@@ -13,7 +13,7 @@ igApp::igApp( void )
 	pluginHandle = NULL;
 	imageData = 0;
 	imageSize.Set( 1024, 1024 );
-	threadCount = 0;
+	threadCount = 5;
 }
 
 //===========================================================================
@@ -44,6 +44,8 @@ wxCriticalSection* igApp::ImageCriticalSection( void )
 {
 	if( !wxApp::OnInit() )
 		return false;
+
+	wxInitAllImageHandlers();
 
 	igFrame* frame = new igFrame();
 	frame->Show();

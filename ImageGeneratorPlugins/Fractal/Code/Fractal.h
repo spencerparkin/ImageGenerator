@@ -9,7 +9,10 @@
 //===========================================================================
 class FractalPlugin : public igPlugin
 {
+	friend class ImageGenerator;
+
 public:
+
 	FractalPlugin( void );
 	virtual ~FractalPlugin( void );
 
@@ -33,6 +36,18 @@ public:
 
 	virtual igPlugin::ImageGenerator* NewImageGenerator( void ) override;
 	virtual void DeleteImageGenerator( igPlugin::ImageGenerator* imageGenerator ) override;
+
+private:
+
+	void GenerateColorTable( void );
+
+	wxColour* colorTable;
+	int colorTableSize;
+
+	double realMin, realMax;
+	double imagMin, imagMax;
+
+	int maxIters;
 };
 
 // Fractal.h

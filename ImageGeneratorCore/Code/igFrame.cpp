@@ -86,6 +86,21 @@ void igFrame::OnGenerateImage( wxCommandEvent& event )
 //===========================================================================
 void igFrame::OnSaveImage( wxCommandEvent& event )
 {
+	wxImage* image = wxGetApp().Image();
+	if( !image )
+		return;
+
+	wxFileDialog fileDialog( this, "Save generated image",
+								wxEmptyString, wxEmptyString,
+								"PNG file (*.png)|*.png",
+								wxFD_SAVE | wxFD_OVERWRITE_PROMPT );
+
+	if( fileDialog.ShowModal() == wxID_CANCEL )
+		return;
+
+	wxString imagePath = fileDialog.GetPath();
+	if( !image->SaveFile( imagePath, wxBITMAP_TYPE_PNG ) )
+		wxMessageBox( "Failed to save image \"" + imagePath + "\"." );
 }
 
 //===========================================================================
