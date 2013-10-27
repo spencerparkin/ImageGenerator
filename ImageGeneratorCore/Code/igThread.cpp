@@ -195,7 +195,7 @@ bool igThread::Manager::WaitForThreads( bool signalTermination /*= false*/ )
 				if( progressUpdateNeeded )
 				{
 					float percentage = float( pixelsGenerated ) / float( progressDialog->GetRange() ) * 100.f;
-					wxString message = wxString::Format( "Generating image: %1.2f%%", percentage );
+					wxString message = wxString::Format( "Generating image: %1.2f%% (%d threads working.)", percentage, threadList.size() );
 					progressDialog->Update( pixelsGenerated, message );
 					progressUpdateNeeded = false;
 				}
