@@ -224,6 +224,16 @@ void igFrame::OnExit( wxCommandEvent& event )
 //===========================================================================
 void igFrame::OnAbout( wxCommandEvent& event )
 {
+	wxAboutDialogInfo aboutDialogInfo;
+
+	aboutDialogInfo.SetName( "Image Generator" );
+	aboutDialogInfo.SetVersion( "v1.0" );
+	aboutDialogInfo.SetDescription( "Generate an image on multiple threads." );
+	aboutDialogInfo.SetCopyright( "Copyright (C) 2013" );
+	aboutDialogInfo.AddDeveloper( "Spencer T. Parkin" );
+	aboutDialogInfo.SetLicense( "MIT License" );
+
+	wxAboutBox( aboutDialogInfo );
 }
 
 // igFrame.cpp

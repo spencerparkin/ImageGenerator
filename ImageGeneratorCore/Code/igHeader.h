@@ -8,6 +8,7 @@
 #include <wx/filedlg.h>
 #include <wx/msgdlg.h>
 #include <wx/progdlg.h>
+#include <wx/aboutdlg.h>
 #include <wx/scrolwin.h>
 #include <wx/sizer.h>
 #include <wx/dc.h>
