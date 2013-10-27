@@ -1,6 +1,10 @@
 // igThread.h
 
 //===========================================================================
+// Here we implement a pre-farmed method of distributing the work-load of
+// generating a single image to multiple threads.  A, perhaps, better solution
+// to the problem would be an on-demand farming method where each thread is
+// given work at the rate at which it is able to complete the work it's given.
 class igThread : public wxThread
 {
 	friend class Manager;
