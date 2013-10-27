@@ -197,6 +197,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Code\igCanvas.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Code\igCanvas.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Code\igFrame.cpp"
 				>
 			</File>

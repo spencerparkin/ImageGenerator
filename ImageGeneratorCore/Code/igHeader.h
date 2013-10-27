@@ -8,6 +8,10 @@
 #include <wx/filedlg.h>
 #include <wx/msgdlg.h>
 #include <wx/progdlg.h>
+#include <wx/scrolwin.h>
+#include <wx/sizer.h>
+#include <wx/dc.h>
+#include <wx/utils.h>
 
 #include <list>
 
@@ -15,10 +19,12 @@ class igPlugin;
 class igApp;
 class igFrame;
 class igThread;
+class igCanvas;
 
 #include "igPlugin.h"
 #include "igApp.h"
 #include "igFrame.h"
 #include "igThread.h"
+#include "igCanvas.h"
 
 // igHeader.h

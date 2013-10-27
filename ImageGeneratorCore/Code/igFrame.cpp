@@ -19,28 +19,58 @@ igFrame::igFrame( void ) : wxFrame( 0, wxID_ANY, "Image Generator", wxDefaultPos
 	programMenu->AppendSeparator();
 	programMenu->Append( exitMenuItem );
 
+	wxMenu* zoomMenu = new wxMenu();
+	wxMenuItem* zoom25MenuItem = new wxMenuItem( zoomMenu, ID_Zoom25, "25%", "Show the image at 25% of its normal size.", wxITEM_CHECK );
+	wxMenuItem* zoom50MenuItem = new wxMenuItem( zoomMenu, ID_Zoom50, "50%", "Show the image at 50% of its normal size.", wxITEM_CHECK );
+	wxMenuItem* zoom100MenuItem = new wxMenuItem( zoomMenu, ID_Zoom100, "100%", "Show the image in its normal size.", wxITEM_CHECK );
+	wxMenuItem* zoom150MenuItem = new wxMenuItem( zoomMenu, ID_Zoom150, "150%", "Show the image at 150% of its normal size.", wxITEM_CHECK );
+	wxMenuItem* zoom200MenuItem = new wxMenuItem( zoomMenu, ID_Zoom200, "200%", "Show the image at 200% of its normal size.", wxITEM_CHECK );
+	zoomMenu->Append( zoom25MenuItem );
+	zoomMenu->Append( zoom50MenuItem );
+	zoomMenu->Append( zoom100MenuItem );
+	zoomMenu->Append( zoom150MenuItem );
+	zoomMenu->Append( zoom200MenuItem );
+
 	wxMenu* helpMenu = new wxMenu();
 	wxMenuItem* aboutMenuItem = new wxMenuItem( helpMenu, ID_About, "About", "Show the about-box." );
 	helpMenu->Append( aboutMenuItem );
 
 	wxMenuBar* menuBar = new wxMenuBar();
 	menuBar->Append( programMenu, "Program" );
+	menuBar->Append( zoomMenu, "Zoom" );
 	menuBar->Append( helpMenu, "Help" );
 	SetMenuBar( menuBar );
 
 	wxStatusBar* statusBar = new wxStatusBar( this );
 	SetStatusBar( statusBar );
 
+	canvas = new igCanvas( this );
+	canvas->SetScrollRate( 1, 1 );
+
+	wxBoxSizer* boxSizer = new wxBoxSizer( wxVERTICAL );
+	boxSizer->Add( canvas, 1, wxEXPAND | wxALL, 0 );
+	SetSizer( boxSizer );
+
 	Bind( wxEVT_MENU, &igFrame::OnLoadPlugin, this, ID_LoadPlugin );
 	Bind( wxEVT_MENU, &igFrame::OnUnloadPlugin, this, ID_UnloadPlugin );
 	Bind( wxEVT_MENU, &igFrame::OnGenerateImage, this, ID_GenerateImage );
 	Bind( wxEVT_MENU, &igFrame::OnSaveImage, this, ID_SaveImage );
+	Bind( wxEVT_MENU, &igFrame::OnZoom, this, ID_Zoom25 );
+	Bind( wxEVT_MENU, &igFrame::OnZoom, this, ID_Zoom50 );
+	Bind( wxEVT_MENU, &igFrame::OnZoom, this, ID_Zoom100 );
+	Bind( wxEVT_MENU, &igFrame::OnZoom, this, ID_Zoom150 );
+	Bind( wxEVT_MENU, &igFrame::OnZoom, this, ID_Zoom200 );
 	Bind( wxEVT_MENU, &igFrame::OnExit, this, ID_Exit );
 	Bind( wxEVT_MENU, &igFrame::OnAbout, this, ID_About );
 	Bind( wxEVT_UPDATE_UI, &igFrame::OnUpdateMenuItemUI, this, ID_LoadPlugin );
 	Bind( wxEVT_UPDATE_UI, &igFrame::OnUpdateMenuItemUI, this, ID_UnloadPlugin );
 	Bind( wxEVT_UPDATE_UI, &igFrame::OnUpdateMenuItemUI, this, ID_GenerateImage );
 	Bind( wxEVT_UPDATE_UI, &igFrame::OnUpdateMenuItemUI, this, ID_SaveImage );
+	Bind( wxEVT_UPDATE_UI, &igFrame::OnUpdateMenuItemUI, this, ID_Zoom25 );
+	Bind( wxEVT_UPDATE_UI, &igFrame::OnUpdateMenuItemUI, this, ID_Zoom50 );
+	Bind( wxEVT_UPDATE_UI, &igFrame::OnUpdateMenuItemUI, this, ID_Zoom100 );
+	Bind( wxEVT_UPDATE_UI, &igFrame::OnUpdateMenuItemUI, this, ID_Zoom150 );
+	Bind( wxEVT_UPDATE_UI, &igFrame::OnUpdateMenuItemUI, this, ID_Zoom200 );
 }
 
 //===========================================================================
@@ -81,6 +111,11 @@ void igFrame::OnGenerateImage( wxCommandEvent& event )
 {
 	if( !wxGetApp().GenerateImage() )
 		wxMessageBox( "Failed to generate image." );
+	else
+	{
+		canvas->InvalidateCachedBitmap();
+		canvas->Refresh();
+	}
 }
 
 //===========================================================================
@@ -104,6 +139,27 @@ void igFrame::OnSaveImage( wxCommandEvent& event )
 }
 
 //===========================================================================
+void igFrame::OnZoom( wxCommandEvent& event )
+{
+	igCanvas::Zoom zoom = igCanvas::ZOOM_100;
+	switch( event.GetId() )
+	{
+		case ID_Zoom25: zoom = igCanvas::ZOOM_25; break;
+		case ID_Zoom50: zoom = igCanvas::ZOOM_50; break;
+		case ID_Zoom100: zoom = igCanvas::ZOOM_100; break;
+		case ID_Zoom150: zoom = igCanvas::ZOOM_150; break;
+		case ID_Zoom200: zoom = igCanvas::ZOOM_200; break;
+	}
+
+	if( zoom != canvas->GetZoom() )
+	{
+		canvas->SetZoom( zoom );
+		canvas->InvalidateCachedBitmap();
+		canvas->Refresh();
+	}
+}
+
+//===========================================================================
 void igFrame::OnUpdateMenuItemUI( wxUpdateUIEvent& event )
 {
 	switch( event.GetId() )
@@ -122,6 +178,25 @@ void igFrame::OnUpdateMenuItemUI( wxUpdateUIEvent& event )
 		case ID_SaveImage:
 		{
 			event.Enable( wxGetApp().Image() ? true : false );
+			break;
+		}
+		case ID_Zoom25:
+		case ID_Zoom50:
+		case ID_Zoom100:
+		case ID_Zoom150:
+		case ID_Zoom200:
+		{
+			event.Enable( wxGetApp().Image() ? true : false );
+			
+			bool checked =
+					( event.GetId() == ID_Zoom25 && canvas->GetZoom() == igCanvas::ZOOM_25 ) ||
+					( event.GetId() == ID_Zoom50 && canvas->GetZoom() == igCanvas::ZOOM_50 ) ||
+					( event.GetId() == ID_Zoom100 && canvas->GetZoom() == igCanvas::ZOOM_100 ) ||
+					( event.GetId() == ID_Zoom150 && canvas->GetZoom() == igCanvas::ZOOM_150 ) ||
+					( event.GetId() == ID_Zoom200 && canvas->GetZoom() == igCanvas::ZOOM_200 );
+
+			event.Check( checked );
+
 			break;
 		}
 	}
