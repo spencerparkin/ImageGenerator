@@ -11,6 +11,9 @@ public:
 	virtual bool OnInit( void ) override;
 	virtual int OnExit( void ) override;
 
+	virtual void OnInitCmdLine( wxCmdLineParser& parser ) override;
+	virtual bool OnCmdLineParsed( wxCmdLineParser& parser ) override;
+
 	igPlugin* Plugin( void );
 	wxImage* Image( void );
 	wxCriticalSection* ImageCriticalSection( void );

@@ -8,6 +8,8 @@ public:
 	igFrame( void );
 	virtual ~igFrame( void );
 
+	void UpdateTitle( void );
+
 private:
 
 	enum

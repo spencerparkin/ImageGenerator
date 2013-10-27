@@ -19,6 +19,8 @@ public:
 	virtual bool Initialize( void ) = 0;
 	virtual bool Finalize( void ) = 0;
 
+	virtual wxString Name( void ) = 0;
+
 	virtual bool PreImageGeneration( wxImage* image ) { return true; };
 	virtual bool PostImageGeneration( wxImage* image ) { return true; };
 

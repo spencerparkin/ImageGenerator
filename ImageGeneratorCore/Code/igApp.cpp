@@ -22,6 +22,21 @@ igApp::igApp( void )
 }
 
 //===========================================================================
+/*virtual*/ void igApp::OnInitCmdLine( wxCmdLineParser& parser )
+{
+	parser.AddOption( "plugin", wxEmptyString, "Load the given plugin upon application start-up.", wxCMD_LINE_VAL_STRING );
+}
+
+//===========================================================================
+/*virtual*/ bool igApp::OnCmdLineParsed( wxCmdLineParser& parser )
+{
+	wxString pluginPath;
+	if( parser.Found( "plugin", &pluginPath ) )
+		LoadPlugin( pluginPath );
+	return true;
+}
+
+//===========================================================================
 igPlugin* igApp::Plugin( void )
 {
 	return plugin;
@@ -46,8 +61,9 @@ wxCriticalSection* igApp::ImageCriticalSection( void )
 		return false;
 
 	wxInitAllImageHandlers();
-
+	
 	igFrame* frame = new igFrame();
+	frame->UpdateTitle();
 	frame->Show();
 
 	return true;

@@ -19,6 +19,8 @@ public:
 	virtual bool Initialize( void ) override;
 	virtual bool Finalize( void ) override;
 
+	virtual wxString Name( void ) override;
+
 	virtual bool PreImageGeneration( wxImage* image ) override;
 	virtual bool PostImageGeneration( wxImage* image ) override;
 

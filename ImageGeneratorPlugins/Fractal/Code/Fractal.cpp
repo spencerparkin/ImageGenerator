@@ -50,6 +50,12 @@ FractalPlugin::FractalPlugin( void )
 }
 
 //===========================================================================
+/*virtual*/ wxString FractalPlugin::Name( void )
+{
+	return "Fractal";
+}
+
+//===========================================================================
 void FractalPlugin::GenerateColorTable( void )
 {
 	wxColour prominantColor[6];

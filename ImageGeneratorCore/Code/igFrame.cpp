@@ -79,6 +79,16 @@ igFrame::igFrame( void ) : wxFrame( 0, wxID_ANY, "Image Generator", wxDefaultPos
 }
 
 //===========================================================================
+void igFrame::UpdateTitle( void )
+{
+	igPlugin* plugin = wxGetApp().Plugin();
+	if( plugin )
+		SetTitle( plugin->Name() + " -- Image Generator" );
+	else
+		SetTitle( "Image Generator" );
+}
+
+//===========================================================================
 void igFrame::OnLoadPlugin( wxCommandEvent& event )
 {
 	if( wxGetApp().Plugin() )
@@ -95,6 +105,8 @@ void igFrame::OnLoadPlugin( wxCommandEvent& event )
 	wxString pluginPath = fileDialog.GetPath();
 	if( !wxGetApp().LoadPlugin( pluginPath ) )
 		wxMessageBox( "Failed to load plugin \"" + pluginPath + "\"." );
+	else
+		UpdateTitle();
 }
 
 //===========================================================================
@@ -104,6 +116,7 @@ void igFrame::OnUnloadPlugin( wxCommandEvent& event )
 		return;
 
 	wxGetApp().UnloadPlugin();
+	UpdateTitle();
 }
 
 //===========================================================================

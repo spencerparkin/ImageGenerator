@@ -12,6 +12,7 @@
 #include <wx/sizer.h>
 #include <wx/dc.h>
 #include <wx/utils.h>
+#include <wx/cmdline.h>
 
 #include <list>
 
