@@ -21,6 +21,8 @@ public:
 
 	private:
 
+		static bool BiteOffRect( wxRect& biteRect, wxRect& bittenRect, int biteArea );
+
 		wxSemaphore* semaphore;
 
 		typedef std::list< wxRect > RectList;

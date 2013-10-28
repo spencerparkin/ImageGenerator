@@ -28,6 +28,5 @@ class igCanvas;
 #include "igFrame.h"
 #include "igThread.h"
 #include "igCanvas.h"
-#include "igUtils.h"
 
 // igHeader.h

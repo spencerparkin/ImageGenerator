@@ -232,14 +232,6 @@
 				RelativePath=".\Code\igThread.h"
 				>
 			</File>
-			<File
-				RelativePath=".\Code\igUtils.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Code\igUtils.h"
-				>
-			</File>
 		</Filter>
 	</Files>
 	<Globals>

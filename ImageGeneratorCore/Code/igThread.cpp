@@ -100,6 +100,7 @@ bool igThread::Manager::GenerateImage( int threadCount, int imageAreaDivisor /*=
 	// Subdivide the image into a bunch of subregions.
 	rectList.clear();
 	int biteArea = image->GetWidth() * image->GetHeight() / imageAreaDivisor;
+	wxASSERT( biteArea != 0 );
 	wxRect bittenRect( 0, 0, image->GetWidth(), image->GetHeight() );
 	while( bittenRect.GetWidth() * bittenRect.GetHeight() > 0 )
 	{
@@ -191,6 +192,46 @@ bool igThread::Manager::GenerateImage( int threadCount, int imageAreaDivisor /*=
 	delete progressDialog;
 
 	return success;
+}
+
+//===========================================================================
+/*static*/ bool igThread::Manager::BiteOffRect( wxRect& biteRect, wxRect& bittenRect, int biteArea )
+{
+	if( biteArea <= 0 )
+		return false;
+
+	int area = bittenRect.width * bittenRect.height;
+	if( !area )
+		return false;
+
+	if( abs( area - biteArea ) < biteArea / 2 )
+	{
+		biteRect = bittenRect;
+		bittenRect.width = 0;
+		bittenRect.height = 0;
+		return true;
+	}
+	
+	if( bittenRect.width > bittenRect.height )
+	{
+		int width = biteArea / bittenRect.height;
+		bittenRect.width -= width;
+		biteRect.x = bittenRect.width;
+		biteRect.y = bittenRect.y;
+		biteRect.width = width;
+		biteRect.height = bittenRect.height;
+	}
+	else
+	{
+		int height = biteArea / bittenRect.width;
+		bittenRect.height -= height;
+		biteRect.x = bittenRect.x;
+		biteRect.y = bittenRect.height;
+		biteRect.width = bittenRect.width;
+		biteRect.height = height;
+	}
+
+	return true;
 }
 
 // igThread.cpp
