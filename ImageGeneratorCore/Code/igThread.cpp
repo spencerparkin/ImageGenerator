@@ -100,8 +100,6 @@ bool igThread::Manager::GenerateImage( int threadCount, int imageAreaDivisor /*=
 	if( threadCount == 0 )
 		threadCount = wxThread::GetCPUCount();
 
-	// TODO: We are leaking memory somewhere in this routine.  Where?  How?
-
 	// Subdivide the image into a bunch of subregions.
 	rectList.clear();
 	int biteArea = image->GetWidth() * image->GetHeight() / imageAreaDivisor;
@@ -144,13 +142,10 @@ bool igThread::Manager::GenerateImage( int threadCount, int imageAreaDivisor /*=
 	// Feed the subregions to the worker threads until all parts of the image have been filled in.
 	int rectCount = rectList.size();
 	int count = 0;
-	while( rectList.size() > 0 )
+	while( threadList.size() > 0 )
 	{
 		// Go to sleep until a worker thread runs out of work to do.
-		if( threadList.size() > 0 )
-			semaphore->Wait();
-		else
-			break;
+		semaphore->Wait();
 
 		// Find a thread that needs work to do.
 		igThread* thread = 0;
