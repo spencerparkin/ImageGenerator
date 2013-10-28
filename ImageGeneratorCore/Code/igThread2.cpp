@@ -57,7 +57,6 @@ igThread2::igThread2( Manager* manager, wxImage* image, igPlugin::ImageGenerator
 		// Wait to be signaled by the manager thread before continuing,
 		// at which point, we'll either have more work to do or need to quit.
 		semaphore->Wait();
-		int b = 0;
 	}
 	while( rect.width > 0 && rect.height > 0 );
 
