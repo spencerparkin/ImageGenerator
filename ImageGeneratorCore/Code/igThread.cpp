@@ -190,7 +190,7 @@ bool igThread::Manager::GenerateImage( int threadCount, int imageAreaDivisor /*=
 	}
 
 	delete semaphore;
-	semaphore;
+	semaphore = 0;
 
 	delete progressDialog;
 

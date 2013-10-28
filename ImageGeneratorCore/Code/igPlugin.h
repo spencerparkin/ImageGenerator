@@ -24,6 +24,8 @@ public:
 	virtual bool PreImageGeneration( wxImage* image ) { return true; };
 	virtual bool PostImageGeneration( wxImage* image ) { return true; };
 
+	virtual bool SubregionSelect( const wxRect& rect, const wxSize& size ) { return false; }
+
 	//===========================================================================
 	// The image generator framework will create an instance of this class
 	// per thread.  Individual worker threads will call upon such instances

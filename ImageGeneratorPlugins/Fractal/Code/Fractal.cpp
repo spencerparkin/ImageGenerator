@@ -116,6 +116,29 @@ void FractalPlugin::GenerateColorTable( void )
 }
 
 //===========================================================================
+/*virtual*/ bool FractalPlugin::SubregionSelect( const wxRect& rect, const wxSize& size )
+{
+	double realMinLerp = double( rect.x ) / double( size.x );
+	double realMaxLerp = double( rect.x + rect.width ) / double( size.x );
+
+	double imagMinLerp = 1.0 - double( rect.y + rect.height ) / double( size.y );
+	double imagMaxLerp = 1.0 - double( rect.y ) / double( size.y );
+
+	double realDelta = realMax - realMin;
+	realMax = realMin + realMaxLerp * realDelta;
+	realMin = realMin + realMinLerp * realDelta;
+
+	double imagDelta = imagMax - imagMin;
+	imagMax = imagMin + imagMaxLerp * imagDelta;
+	imagMin = imagMin + imagMinLerp * imagDelta;
+
+	// TODO: Fix the aspect ratio here of our window into the complex plane
+	//       so that it matches that of the given image size.
+
+	return true;
+}
+
+//===========================================================================
 FractalPlugin::ImageGenerator::ImageGenerator( FractalPlugin* fractalPlugin )
 {
 	this->fractalPlugin = fractalPlugin;
@@ -136,7 +159,7 @@ FractalPlugin::ImageGenerator::ImageGenerator( FractalPlugin* fractalPlugin )
 	double realZ = 0.0;
 	double imagZ = 0.0;
 	double realC = fractalPlugin->realMin + double( point.x ) / double( size.x ) * ( fractalPlugin->realMax - fractalPlugin->realMin );
-	double imagC = fractalPlugin->imagMin + double( point.y ) / double( size.y ) * ( fractalPlugin->imagMax - fractalPlugin->imagMin );
+	double imagC = fractalPlugin->imagMin + ( 1.0 - double( point.y ) / double( size.y ) ) * ( fractalPlugin->imagMax - fractalPlugin->imagMin );
 
 	int i;
 	for( i = 0; i < fractalPlugin->maxIters; i++ )

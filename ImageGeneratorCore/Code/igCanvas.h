@@ -26,10 +26,19 @@ public:
 
 private:
 
+	void OnMouseLeftDown( wxMouseEvent& event );
+	void OnMouseLeftUp( wxMouseEvent& event );
+	void OnMouseMotion( wxMouseEvent& event );
+
 	bool GenerateCachedBitmap( void );
+
+	wxPoint MouseToCanvas( const wxPoint& mousePos );
 
 	wxBitmap* cachedBitmap;
 	Zoom zoom;
+	bool rubberBanding;
+	wxRect newRubberBand;
+	wxRect oldRubberBand;
 };
 
 // igCanvas.h

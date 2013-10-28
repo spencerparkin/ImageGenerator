@@ -7,6 +7,15 @@ igCanvas::igCanvas( wxWindow* parent ) : wxScrolledCanvas( parent )
 {
 	zoom = ZOOM_100;
 	cachedBitmap = 0;
+	rubberBanding = false;
+	newRubberBand.x = oldRubberBand.x = 0;
+	newRubberBand.y = oldRubberBand.y = 0;
+	newRubberBand.width = oldRubberBand.width = 0;
+	newRubberBand.height = oldRubberBand.height = 0;
+
+	Bind( wxEVT_LEFT_DOWN, &igCanvas::OnMouseLeftDown, this );
+	Bind( wxEVT_LEFT_UP, &igCanvas::OnMouseLeftUp, this );
+	Bind( wxEVT_MOTION, &igCanvas::OnMouseMotion, this );
 }
 
 //===========================================================================
@@ -38,9 +47,74 @@ void igCanvas::InvalidateCachedBitmap( void )
 }
 
 //===========================================================================
+wxPoint igCanvas::MouseToCanvas( const wxPoint& mousePos )
+{
+	wxPoint viewStart = GetViewStart();
+	return mousePos + viewStart;
+}
+
+//===========================================================================
+void igCanvas::OnMouseLeftDown( wxMouseEvent& event )
+{
+	rubberBanding = true;
+
+	oldRubberBand.x = 0;
+	oldRubberBand.y = 0;
+	oldRubberBand.width = 0;
+	oldRubberBand.height = 0;
+
+	newRubberBand.SetLeftTop( MouseToCanvas( event.GetPosition() ) );
+	newRubberBand.SetWidth(0);
+	newRubberBand.SetHeight(0);
+
+	Refresh( false );
+}
+
+//===========================================================================
+void igCanvas::OnMouseLeftUp( wxMouseEvent& event )
+{
+	rubberBanding = false;
+	
+	wxImage* image = wxGetApp().Image();
+	igPlugin* plugin = wxGetApp().Plugin();
+	if( image && plugin && plugin->SubregionSelect( newRubberBand, image->GetSize() ) )
+		if( !wxGetApp().GenerateImage() )
+			wxMessageBox( "Failed to generate image." );
+		else
+			InvalidateCachedBitmap();
+	
+	Refresh();
+}
+
+//===========================================================================
+void igCanvas::OnMouseMotion( wxMouseEvent& event )
+{
+	if( rubberBanding )
+	{
+		newRubberBand.SetBottomRight( MouseToCanvas( event.GetPosition() ) );
+		Refresh( false );
+	}
+}
+
+//===========================================================================
 /*virtual*/ void igCanvas::OnDraw( wxDC& dc )
 {
-	if( GenerateCachedBitmap() )
+	if( rubberBanding )
+	{
+		wxRasterOperationMode rasterOperationMode = dc.GetLogicalFunction();
+		dc.SetLogicalFunction( wxXOR );
+
+		dc.SetPen( *wxWHITE_PEN );
+		dc.SetBrush( *wxBLACK_BRUSH );
+
+		dc.DrawRectangle( oldRubberBand );
+		dc.DrawRectangle( newRubberBand );
+
+		oldRubberBand = newRubberBand;
+
+		dc.SetLogicalFunction( rasterOperationMode );
+	}
+	else if( GenerateCachedBitmap() )
 	{
 		// TODO: Can we increase performance by only drawing the part of our
 		//       cached bitmap that overlaps the region of the window that

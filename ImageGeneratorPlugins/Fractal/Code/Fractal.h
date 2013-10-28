@@ -24,6 +24,8 @@ public:
 	virtual bool PreImageGeneration( wxImage* image ) override;
 	virtual bool PostImageGeneration( wxImage* image ) override;
 
+	virtual bool SubregionSelect( const wxRect& rect, const wxSize& size ) override;
+
 	//===========================================================================
 	class ImageGenerator : public igPlugin::ImageGenerator
 	{
