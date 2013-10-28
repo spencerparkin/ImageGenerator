@@ -16,7 +16,6 @@ igApp::igApp( void )
 	imageSize.Set( 1024, 1024 );
 
 	threadCount = 5;
-	threadModel = ON_DEMAND_FARMING;
 }
 
 //===========================================================================
@@ -193,21 +192,8 @@ bool igApp::GenerateImage( void )
 		if( threadCount == 0 )
 			threadCount = wxThread::GetCPUCount();
 
-		if( threadModel == PRE_FARMED )
-		{
-			igThread::Manager manager;
-			if( !manager.KickOffThreads( threadCount ) )
-				break;
-			if( !manager.WaitForThreads( false ) )
-				break;
-		}
-		else if( threadModel == ON_DEMAND_FARMING )
-		{
-			igThread2::Manager manager;
-			if( !manager.GenerateImage( threadCount ) )
-				break;
-		}
-		else
+		igThread2::Manager manager;
+		if( !manager.GenerateImage( threadCount ) )
 			break;
 
 		if( !plugin->PostImageGeneration( image ) )

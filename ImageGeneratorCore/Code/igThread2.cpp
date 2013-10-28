@@ -31,6 +31,8 @@ igThread2::igThread2( Manager* manager, wxImage* image, igPlugin::ImageGenerator
 	wxSize size = image->GetSize();
 	imageCriticalSection->Leave();
 
+	// We should probably be calling "TestDestroy()" in this loop and be
+	// doing "TryWait" calls instead of "Wait" calls on the semaphores.
 	do
 	{
 		// Fill in the subregion of the image that we have been given, if any.
@@ -126,8 +128,10 @@ bool igThread2::Manager::GenerateImage( int threadCount, int imageAreaDivisor /*
 		{
 			igThread2* thread = new igThread2( this, image, imageGenerator );
 			threadList.push_back( thread );
-			if( wxTHREAD_NO_ERROR != thread->Run() )
-				success = false;
+			wxThreadError threadError = thread->Run();
+			wxASSERT( threadError == wxTHREAD_NO_ERROR );
+			if( threadError != wxTHREAD_NO_ERROR )
+				success = false;	// I'm not sure we can recover from this unless we start doing "TryWait" on the semaphores.
 		}
 	}
 
