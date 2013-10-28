@@ -24,7 +24,16 @@ public:
 	bool GenerateImage( void );
 	bool DeleteImage( void );
 
-	enum { COLOR_COMPONENTS_PER_PIXEL = 3 };
+	enum { COMPONENTS_PER_PIXEL = 3 };
+
+	struct Options
+	{
+		int threadCount;
+		wxSize imageSize;
+	};
+
+	const Options& GetOptions( void );
+	void SetOptions( const Options& options );
 
 private:
 
@@ -32,11 +41,10 @@ private:
 	igPlugin* plugin;
 	
 	unsigned char* imageData;
-	wxSize imageSize;
 	wxImage* image;
 	wxCriticalSection imageCriticalSection;
 
-	int threadCount;
+	Options options;
 };
 
 //===========================================================================

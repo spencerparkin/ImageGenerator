@@ -97,6 +97,11 @@ bool igThread::Manager::GenerateImage( int threadCount, int imageAreaDivisor /*=
 	if( !plugin )
 		return false;
 
+	if( threadCount == 0 )
+		threadCount = wxThread::GetCPUCount();
+
+	// TODO: We are leaking memory somewhere in this routine.  Where?  How?
+
 	// Subdivide the image into a bunch of subregions.
 	rectList.clear();
 	int biteArea = image->GetWidth() * image->GetHeight() / imageAreaDivisor;
@@ -139,10 +144,13 @@ bool igThread::Manager::GenerateImage( int threadCount, int imageAreaDivisor /*=
 	// Feed the subregions to the worker threads until all parts of the image have been filled in.
 	int rectCount = rectList.size();
 	int count = 0;
-	while( rectList.size() > 0 || threadList.size() > 0 )
+	while( rectList.size() > 0 )
 	{
 		// Go to sleep until a worker thread runs out of work to do.
-		semaphore->Wait();
+		if( threadList.size() > 0 )
+			semaphore->Wait();
+		else
+			break;
 
 		// Find a thread that needs work to do.
 		igThread* thread = 0;
@@ -215,6 +223,8 @@ bool igThread::Manager::GenerateImage( int threadCount, int imageAreaDivisor /*=
 	if( bittenRect.width > bittenRect.height )
 	{
 		int width = biteArea / bittenRect.height;
+		if( width == 0 )
+			width = 1;
 		bittenRect.width -= width;
 		biteRect.x = bittenRect.width;
 		biteRect.y = bittenRect.y;
@@ -224,6 +234,8 @@ bool igThread::Manager::GenerateImage( int threadCount, int imageAreaDivisor /*=
 	else
 	{
 		int height = biteArea / bittenRect.width;
+		if( height == 0 )
+			height = 1;
 		bittenRect.height -= height;
 		biteRect.x = bittenRect.x;
 		biteRect.y = bittenRect.height;

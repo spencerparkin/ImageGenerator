@@ -16,6 +16,7 @@ private:
 	{
 		ID_LoadPlugin = wxID_HIGHEST,
 		ID_UnloadPlugin,
+		ID_Options,
 		ID_GenerateImage,
 		ID_SaveImage,
 		ID_Zoom25,
@@ -29,6 +30,7 @@ private:
 
 	void OnLoadPlugin( wxCommandEvent& event );
 	void OnUnloadPlugin( wxCommandEvent& event );
+	void OnOptions( wxCommandEvent& event );
 	void OnGenerateImage( wxCommandEvent& event );
 	void OnSaveImage( wxCommandEvent& event );
 	void OnZoom( wxCommandEvent& event );

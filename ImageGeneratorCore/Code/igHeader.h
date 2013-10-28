@@ -14,6 +14,11 @@
 #include <wx/dc.h>
 #include <wx/utils.h>
 #include <wx/cmdline.h>
+#include <wx/dialog.h>
+#include <wx/statbox.h>
+#include <wx/textctrl.h>
+#include <wx/valnum.h>
+#include <wx/button.h>
 
 #include <list>
 
@@ -22,11 +27,13 @@ class igApp;
 class igFrame;
 class igThread;
 class igCanvas;
+class igOptionsDialog;
 
 #include "igPlugin.h"
 #include "igApp.h"
 #include "igFrame.h"
 #include "igThread.h"
 #include "igCanvas.h"
+#include "igOptions.h"
 
 // igHeader.h

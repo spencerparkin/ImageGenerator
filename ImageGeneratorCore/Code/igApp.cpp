@@ -13,9 +13,9 @@ igApp::igApp( void )
 	
 	image = 0;
 	imageData = 0;
-	imageSize.Set( 1024, 1024 );
 
-	threadCount = 5;
+	options.threadCount = 5;
+	options.imageSize.Set( 1024, 1024 );
 }
 
 //===========================================================================
@@ -57,10 +57,24 @@ wxCriticalSection* igApp::ImageCriticalSection( void )
 }
 
 //===========================================================================
+const igApp::Options& igApp::GetOptions( void )
+{
+	return options;
+}
+
+//===========================================================================
+void igApp::SetOptions( const Options& options )
+{
+	this->options = options;
+}
+
+//===========================================================================
 /*virtual*/ bool igApp::OnInit( void )
 {
 	if( !wxApp::OnInit() )
 		return false;
+
+	// TODO: Read app options from registry.
 
 	wxInitAllImageHandlers();
 	
@@ -78,6 +92,8 @@ wxCriticalSection* igApp::ImageCriticalSection( void )
 		UnloadPlugin();
 
 	DeleteImage();
+
+	// TODO: Write app options to registry.
 
 	return wxApp::OnExit();
 }
@@ -180,20 +196,17 @@ bool igApp::GenerateImage( void )
 
 		DeleteImage();
 
-		imageData = new unsigned char[ imageSize.GetWidth() * imageSize.GetHeight() * COLOR_COMPONENTS_PER_PIXEL ];
+		imageData = new unsigned char[ options.imageSize.GetWidth() * options.imageSize.GetHeight() * COMPONENTS_PER_PIXEL ];
 		if( !imageData )
 			break;
 
-		image = new wxImage( imageSize, imageData, true );
+		image = new wxImage( options.imageSize, imageData, true );
 
 		if( !plugin->PreImageGeneration( image ) )
 			break;
 
-		if( threadCount == 0 )
-			threadCount = wxThread::GetCPUCount();
-
 		igThread::Manager manager;
-		if( !manager.GenerateImage( threadCount ) )
+		if( !manager.GenerateImage( options.threadCount ) )
 			break;
 
 		if( !plugin->PostImageGeneration( image ) )

@@ -8,11 +8,14 @@ igFrame::igFrame( void ) : wxFrame( 0, wxID_ANY, "Image Generator", wxDefaultPos
 	wxMenu* programMenu = new wxMenu();
 	wxMenuItem* loadPluginMenuItem = new wxMenuItem( programMenu, ID_LoadPlugin, "Load Plugin", "Load an image generator plugin." );
 	wxMenuItem* unloadPluginMenuItem = new wxMenuItem( programMenu, ID_UnloadPlugin, "Unload Plugin", "Unload the currently loaded image generator plugin, if any." );
+	wxMenuItem* optionsMenuItem = new wxMenuItem( programMenu, ID_Options, "Options", "Show the options dialog box." );
 	wxMenuItem* generateImageMenuItem = new wxMenuItem( programMenu, ID_GenerateImage, "Generate Image", "Use the currently loaded image generator plugin, if any, to generate an image." );
 	wxMenuItem* saveImageMenuItem = new wxMenuItem( programMenu, ID_SaveImage, "Save Image", "Save the currently generated image, if any." );
 	wxMenuItem* exitMenuItem = new wxMenuItem( programMenu, ID_Exit, "Exit", "Exit this program." );
 	programMenu->Append( loadPluginMenuItem );
 	programMenu->Append( unloadPluginMenuItem );
+	programMenu->AppendSeparator();
+	programMenu->Append( optionsMenuItem );
 	programMenu->AppendSeparator();
 	programMenu->Append( generateImageMenuItem );
 	programMenu->Append( saveImageMenuItem );
@@ -53,6 +56,7 @@ igFrame::igFrame( void ) : wxFrame( 0, wxID_ANY, "Image Generator", wxDefaultPos
 
 	Bind( wxEVT_MENU, &igFrame::OnLoadPlugin, this, ID_LoadPlugin );
 	Bind( wxEVT_MENU, &igFrame::OnUnloadPlugin, this, ID_UnloadPlugin );
+	Bind( wxEVT_MENU, &igFrame::OnOptions, this, ID_Options );
 	Bind( wxEVT_MENU, &igFrame::OnGenerateImage, this, ID_GenerateImage );
 	Bind( wxEVT_MENU, &igFrame::OnSaveImage, this, ID_SaveImage );
 	Bind( wxEVT_MENU, &igFrame::OnZoom, this, ID_Zoom25 );
@@ -117,6 +121,14 @@ void igFrame::OnUnloadPlugin( wxCommandEvent& event )
 
 	wxGetApp().UnloadPlugin();
 	UpdateTitle();
+}
+
+//===========================================================================
+void igFrame::OnOptions( wxCommandEvent& event )
+{
+	igOptionsDialog optionsDialog( this, wxGetApp().GetOptions() );
+	if( wxID_OK == optionsDialog.ShowModal() )
+		wxGetApp().SetOptions( optionsDialog.Options() );
 }
 
 //===========================================================================
