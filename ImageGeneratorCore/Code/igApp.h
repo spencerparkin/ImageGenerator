@@ -26,6 +26,12 @@ public:
 
 	enum { COLOR_COMPONENTS_PER_PIXEL = 3 };
 
+	enum ThreadModel
+	{
+		PRE_FARMED,
+		ON_DEMAND_FARMING,
+	};
+
 private:
 
 	HMODULE pluginHandle;
@@ -36,6 +42,7 @@ private:
 	wxImage* image;
 	wxCriticalSection imageCriticalSection;
 
+	ThreadModel threadModel;
 	int threadCount;
 };
 

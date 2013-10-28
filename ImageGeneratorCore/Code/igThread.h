@@ -44,8 +44,6 @@ public:
 
 		void OnThreadProgressUpdate( Event& event );
 
-		static bool BiteOffRect( wxRect& biteRect, wxRect& bittenRect, int biteArea );
-
 		typedef std::list< igThread* > ThreadList;
 		ThreadList threadList;
 		wxProgressDialog* progressDialog;

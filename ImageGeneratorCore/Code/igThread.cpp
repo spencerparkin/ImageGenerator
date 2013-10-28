@@ -38,19 +38,19 @@ igThread::igThread( Manager* manager ) : wxThread( wxTHREAD_JOINABLE )
 				return 0;
 
 			wxColour color;
-			if( !imageGenerator->GeneratePixel( point, size, color ) )
-				return 0;
-
-			// A performance increase could probably be obtained by realizing that
-			// multiple threads can populate the same pixel buffer without the need
-			// to enter/leave a critical section at all, but for now, since I'm going
-			// through the wxImage class, I have to enter/leave such a section to be
-			// safe, because I can't guarentee the thread-safety of the wxImage class.
-			// In any case, since we'll be spending most of our time formulating the
-			// pixel instead of writing it, maybe it doesn't matter that much.
-			imageCriticalSection->Enter();
-			image->SetRGB( point.x, point.y, color.Red(), color.Green(), color.Blue() );
-			imageCriticalSection->Leave();
+			if( imageGenerator->GeneratePixel( point, size, color ) )
+			{
+				// A performance increase could probably be obtained by realizing that
+				// multiple threads can populate the same pixel buffer without the need
+				// to enter/leave a critical section at all, but for now, since I'm going
+				// through the wxImage class, I have to enter/leave such a section to be
+				// safe, because I can't guarentee the thread-safety of the wxImage class.
+				// In any case, since we'll be spending most of our time formulating the
+				// pixel instead of writing it, maybe it doesn't matter that much.
+				imageCriticalSection->Enter();
+				image->SetRGB( point.x, point.y, color.Red(), color.Green(), color.Blue() );
+				imageCriticalSection->Leave();
+			}
 		}
 
 		// Periodically send progress updates, but at a frequency that
@@ -195,7 +195,7 @@ bool igThread::Manager::WaitForThreads( bool signalTermination /*= false*/ )
 				if( progressUpdateNeeded )
 				{
 					float percentage = float( pixelsGenerated ) / float( progressDialog->GetRange() ) * 100.f;
-					wxString message = wxString::Format( "Generating image: %1.2f%% (%d threads working.)", percentage, threadList.size() );
+					wxString message = wxString::Format( "Generating image: %1.2f%% (%d thread(s) working...)", percentage, threadList.size() );
 					progressDialog->Update( pixelsGenerated, message );
 					progressUpdateNeeded = false;
 				}
@@ -214,43 +214,6 @@ bool igThread::Manager::WaitForThreads( bool signalTermination /*= false*/ )
 		success = false;
 
 	return success;
-}
-
-//===========================================================================
-/*static*/ bool igThread::Manager::BiteOffRect( wxRect& biteRect, wxRect& bittenRect, int biteArea )
-{
-	int area = bittenRect.width * bittenRect.height;
-	if( !area )
-		return false;
-
-	if( abs( area - biteArea ) < biteArea / 2 )
-	{
-		biteRect = bittenRect;
-		bittenRect.width = 0;
-		bittenRect.height = 0;
-		return true;
-	}
-	
-	if( bittenRect.width > bittenRect.height )
-	{
-		int width = biteArea / bittenRect.height;
-		bittenRect.width -= width;
-		biteRect.x = bittenRect.width;
-		biteRect.y = bittenRect.y;
-		biteRect.width = width;
-		biteRect.height = bittenRect.height;
-	}
-	else
-	{
-		int height = biteArea / bittenRect.width;
-		bittenRect.height -= height;
-		biteRect.x = bittenRect.x;
-		biteRect.y = bittenRect.height;
-		biteRect.width = bittenRect.width;
-		biteRect.height = height;
-	}
-
-	return true;
 }
 
 // igThread.cpp
