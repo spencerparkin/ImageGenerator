@@ -225,11 +225,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Code\igThread2.cpp"
+				RelativePath=".\Code\igThread.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Code\igThread2.h"
+				RelativePath=".\Code\igThread.h"
 				>
 			</File>
 			<File

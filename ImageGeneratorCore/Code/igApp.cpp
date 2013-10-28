@@ -192,7 +192,7 @@ bool igApp::GenerateImage( void )
 		if( threadCount == 0 )
 			threadCount = wxThread::GetCPUCount();
 
-		igThread2::Manager manager;
+		igThread::Manager manager;
 		if( !manager.GenerateImage( threadCount ) )
 			break;
 

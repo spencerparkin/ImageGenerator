@@ -1,7 +1,7 @@
-// igThread2.h
+// igThread.h
 
 //===========================================================================
-class igThread2 : public wxThread
+class igThread : public wxThread
 {
 	friend class Manager;
 
@@ -10,7 +10,7 @@ public:
 	//===========================================================================
 	class Manager
 	{
-		friend igThread2;
+		friend igThread;
 
 	public:
 
@@ -26,12 +26,12 @@ public:
 		typedef std::list< wxRect > RectList;
 		RectList rectList;
 
-		typedef std::list< igThread2* > ThreadList;
+		typedef std::list< igThread* > ThreadList;
 		ThreadList threadList;
 	};
 
-	igThread2( Manager* manager, wxImage* image, igPlugin::ImageGenerator* imageGenerator );
-	virtual ~igThread2( void );
+	igThread( Manager* manager, wxImage* image, igPlugin::ImageGenerator* imageGenerator );
+	virtual ~igThread( void );
 
 	// The thread is a shared resource between itself and the main
 	// thread, but I'm not always certain when I need to lock this
@@ -51,4 +51,4 @@ private:
 	/*volatile*/ wxRect rect;
 };
 
-// igThread2.h
+// igThread.h

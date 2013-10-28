@@ -20,13 +20,13 @@
 class igPlugin;
 class igApp;
 class igFrame;
-class igThread2;
+class igThread;
 class igCanvas;
 
 #include "igPlugin.h"
 #include "igApp.h"
 #include "igFrame.h"
-#include "igThread2.h"
+#include "igThread.h"
 #include "igCanvas.h"
 #include "igUtils.h"
 

@@ -1,9 +1,9 @@
-// igThread2.cpp
+// igThread.cpp
 
 #include "igHeader.h"
 
 //===========================================================================
-igThread2::igThread2( Manager* manager, wxImage* image, igPlugin::ImageGenerator* imageGenerator ) : wxThread( wxTHREAD_JOINABLE )
+igThread::igThread( Manager* manager, wxImage* image, igPlugin::ImageGenerator* imageGenerator ) : wxThread( wxTHREAD_JOINABLE )
 {
 	this->manager = manager;
 	this->image = image;
@@ -17,12 +17,12 @@ igThread2::igThread2( Manager* manager, wxImage* image, igPlugin::ImageGenerator
 }
 
 //===========================================================================
-/*virtual*/ igThread2::~igThread2( void )
+/*virtual*/ igThread::~igThread( void )
 {
 }
 
 //===========================================================================
-/*virtual*/ wxThread::ExitCode igThread2::Entry( void )
+/*virtual*/ wxThread::ExitCode igThread::Entry( void )
 {
 	semaphore = new wxSemaphore( 0, 1 );
 
@@ -76,18 +76,18 @@ igThread2::igThread2( Manager* manager, wxImage* image, igPlugin::ImageGenerator
 }
 
 //===========================================================================
-igThread2::Manager::Manager( void )
+igThread::Manager::Manager( void )
 {
 	semaphore = 0;
 }
 
 //===========================================================================
-igThread2::Manager::~Manager( void )
+igThread::Manager::~Manager( void )
 {
 }
 
 //===========================================================================
-bool igThread2::Manager::GenerateImage( int threadCount, int imageAreaDivisor /*= 100*/ )
+bool igThread::Manager::GenerateImage( int threadCount, int imageAreaDivisor /*= 100*/ )
 {
 	wxImage* image = wxGetApp().Image();
 	if( !image )
@@ -126,7 +126,7 @@ bool igThread2::Manager::GenerateImage( int threadCount, int imageAreaDivisor /*
 			success = false;
 		else
 		{
-			igThread2* thread = new igThread2( this, image, imageGenerator );
+			igThread* thread = new igThread( this, image, imageGenerator );
 			threadList.push_back( thread );
 			wxThreadError threadError = thread->Run();
 			wxASSERT( threadError == wxTHREAD_NO_ERROR );
@@ -144,7 +144,7 @@ bool igThread2::Manager::GenerateImage( int threadCount, int imageAreaDivisor /*
 		semaphore->Wait();
 
 		// Find a thread that needs work to do.
-		igThread2* thread = 0;
+		igThread* thread = 0;
 		for( ThreadList::iterator iter = threadList.begin(); iter != threadList.end() && !thread; iter++ )
 			if( ( *iter )->rect.width == 0 && ( *iter )->rect.height == 0 )
 				thread = *iter;
@@ -193,4 +193,4 @@ bool igThread2::Manager::GenerateImage( int threadCount, int imageAreaDivisor /*
 	return success;
 }
 
-// igThread2.cpp
+// igThread.cpp
