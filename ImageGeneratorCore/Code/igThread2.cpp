@@ -42,6 +42,13 @@ igThread2::igThread2( Manager* manager, wxImage* image, igPlugin::ImageGenerator
 				wxColour color;
 				if( imageGenerator->GeneratePixel( point, size, color ) )
 				{
+					// A performance increase could probably be obtained by realizing that
+					// multiple threads can populate the same pixel buffer without the need
+					// to enter/leave a critical section at all, but for now, since I'm going
+					// through the wxImage class, I have to enter/leave such a section to be
+					// safe, because I can't guarentee the thread-safety of the wxImage class.
+					// In any case, since we'll be spending most of our time formulating the
+					// pixel instead of writing it, maybe it doesn't matter that much.
 					imageCriticalSection->Enter();
 					image->SetRGB( point.x, point.y, color.Red(), color.Green(), color.Blue() );
 					imageCriticalSection->Leave();
@@ -150,7 +157,9 @@ bool igThread2::Manager::GenerateImage( int threadCount, int imageAreaDivisor /*
 		thread->rect = rect;
 		thread->semaphore->Post();
 
-		// If we told the thread that there is no more work to be done, we can delete the thread.
+		// If we had told the thread that there is no more work to be done, we can delete the thread.
+		// Notice that we use a local rectangle here, because after the semaphore post, the thread's
+		// rectangle may have changed back to zero area.
 		if( rect.width == 0 && rect.height == 0 )
 		{
 			wxThreadError threadError = thread->Delete( 0, wxTHREAD_WAIT_BLOCK );
@@ -160,13 +169,15 @@ bool igThread2::Manager::GenerateImage( int threadCount, int imageAreaDivisor /*
 			delete thread;
 			thread = 0;
 		}
-
-		// Take this opportunity to update our progress bar.
-		if( count < rectCount )
+		else
 		{
-			float percentage = float( ++count ) / float( rectCount ) * 100.f;
-			progressDialog->Update( count, wxString::Format( "Generating Image: %1.2f%%", percentage ) );
-			success = !progressDialog->WasCancelled();
+			// Take this opportunity to update our progress bar.
+			if( count < rectCount )
+			{
+				float percentage = float( ++count ) / float( rectCount ) * 100.f;
+				progressDialog->Update( count, wxString::Format( "Generating Image: %1.2f%%", percentage ) );
+				success = !progressDialog->WasCancelled();
+			}
 		}
 	}
 
