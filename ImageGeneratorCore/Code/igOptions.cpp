@@ -3,7 +3,8 @@
 #include "igHeader.h"
 
 //===========================================================================
-igOptionsDialog::igOptionsDialog( wxWindow* parent, const igApp::Options& options ) : wxDialog( parent, wxID_ANY, "Options" )
+igOptionsDialog::igOptionsDialog( wxWindow* parent, const igApp::Options& options ) :
+				wxDialog( parent, wxID_ANY, "Options", wxDefaultPosition, wxSize( 250, -1 ) )
 {
 	this->options = options;
 
@@ -18,21 +19,43 @@ igOptionsDialog::igOptionsDialog( wxWindow* parent, const igApp::Options& option
 	threadCountValidator.SetMax( 32 );
 
 	wxTextCtrl* imageWidthText = new wxTextCtrl( this, wxID_ANY, wxEmptyString,
-										wxPoint( 20, 20 ), wxDefaultSize, 0,
+										wxDefaultPosition, wxDefaultSize, 0,
 										imageWidthValidator );
 	wxTextCtrl* imageHeightText = new wxTextCtrl( this, wxID_ANY, wxEmptyString,
-										wxPoint( 150, 20 ), wxDefaultSize, 0,
+										wxDefaultPosition, wxDefaultSize, 0,
 										imageHeightValidator );
 	wxTextCtrl* threadCountText = new wxTextCtrl( this, wxID_ANY, wxEmptyString,
-										wxPoint( 20, 20 ), wxDefaultSize, 0,
+										wxDefaultPosition, wxDefaultSize, 0,
 										threadCountValidator );
 
-	wxStaticBoxSizer* imageStaticBox = new wxStaticBoxSizer( wxHORIZONTAL, this, "Image" );
-	imageStaticBox->Add( imageWidthText );
-	imageStaticBox->Add( imageHeightText );
+	wxStaticText* imageWidthLabel = new wxStaticText( this, wxID_ANY, "Width:",
+										wxDefaultPosition, wxSize( 50, -1 ),
+										wxALIGN_RIGHT );
+	wxStaticText* imageHeightLabel = new wxStaticText( this, wxID_ANY, "Height:",
+										wxDefaultPosition, wxSize( 50, -1 ),
+										wxALIGN_RIGHT );
+	wxStaticText* threadCountLabel = new wxStaticText( this, wxID_ANY, "Threads:",
+										wxDefaultPosition, wxSize( 50, -1 ),
+										wxALIGN_RIGHT );
 
-	wxStaticBoxSizer* threadStaticBox = new wxStaticBoxSizer( wxHORIZONTAL, this, "Thread" );
-	threadStaticBox->Add( threadCountText );
+	wxBoxSizer* widthBoxSizer = new wxBoxSizer( wxHORIZONTAL );
+	wxBoxSizer* heightBoxSizer = new wxBoxSizer( wxHORIZONTAL );
+
+	widthBoxSizer->Add( imageWidthLabel, 0, wxLEFT, 5 );
+	widthBoxSizer->Add( imageWidthText, 1, wxEXPAND );
+	heightBoxSizer->Add( imageHeightLabel, 0, wxLEFT, 5 );
+	heightBoxSizer->Add( imageHeightText, 1, wxEXPAND );
+
+	wxStaticBoxSizer* imageStaticBox = new wxStaticBoxSizer( wxVERTICAL, this, "Image" );
+	imageStaticBox->Add( widthBoxSizer );
+	imageStaticBox->Add( heightBoxSizer, 0, wxTOP, 5 );
+
+	wxBoxSizer* threadCountBoxSizer = new wxBoxSizer( wxHORIZONTAL );
+	threadCountBoxSizer->Add( threadCountLabel, 0, wxLEFT, 5 );
+	threadCountBoxSizer->Add( threadCountText, 1, wxEXPAND );
+
+	wxStaticBoxSizer* threadStaticBox = new wxStaticBoxSizer( wxVERTICAL, this, "Thread" );
+	threadStaticBox->Add( threadCountBoxSizer );
 
 	wxBoxSizer* boxSizer = new wxBoxSizer( wxVERTICAL );
 	boxSizer->Add( imageStaticBox, 1, wxEXPAND | wxALL, 10 );
@@ -40,7 +63,7 @@ igOptionsDialog::igOptionsDialog( wxWindow* parent, const igApp::Options& option
 
 	wxSizer* sizer = CreateSeparatedButtonSizer( wxOK | wxCANCEL );
 	if( sizer )
-		boxSizer->Add( sizer );
+		boxSizer->Add( sizer, 1, wxEXPAND | wxALL, 10 );
 	
 	SetSizer( boxSizer );
 }

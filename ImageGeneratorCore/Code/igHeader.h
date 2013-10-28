@@ -19,6 +19,7 @@
 #include <wx/textctrl.h>
 #include <wx/valnum.h>
 #include <wx/button.h>
+#include <wx/stattext.h>
 
 #include <list>
 
