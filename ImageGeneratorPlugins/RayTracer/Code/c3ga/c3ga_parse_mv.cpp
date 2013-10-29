@@ -33,7 +33,7 @@ DEALINGS IN THE SOFTWARE.
 #include "c3ga.h"
 
 #ifdef WIN32
-#define _snprintf __snprintf
+#define snprintf _snprintf
 #pragma warning(disable:4996) /* quit your whining already */
 #endif /* WIN32 */
 
@@ -223,7 +223,7 @@ bool parseEx(struct c3gaParseMultivectorData *PD, const std::string &_str, const
 		
 		/* require at least one +- if this is not the first term: */
 		if ((!firstLoop) && (cnt == 0)) {
-			_snprintf(PD->message, 256, "Expected '+' or '-' at %s, line %d, column %d", strSourceName, lineIdx+1, startIdx - currentLineStart +1);
+			snprintf(PD->message, 256, "Expected '+' or '-' at %s, line %d, column %d", strSourceName, lineIdx+1, startIdx - currentLineStart +1);
 			return false;
 		}
 
@@ -258,7 +258,7 @@ bool parseEx(struct c3gaParseMultivectorData *PD, const std::string &_str, const
 					startIdx = endIdx+1;
 				}
 				else {
-					_snprintf(PD->message, 256, "Expected basis vector at %s, line %d, column %d", strSourceName, lineIdx+1, startIdx - currentLineStart +1);
+					snprintf(PD->message, 256, "Expected basis vector at %s, line %d, column %d", strSourceName, lineIdx+1, startIdx - currentLineStart +1);
 					return false;
 				}
 			}
@@ -278,7 +278,7 @@ bool parseEx(struct c3gaParseMultivectorData *PD, const std::string &_str, const
 						startIdx = endIdx+1;
 					}
 					else {
-						_snprintf(PD->message, 256, "Expected basis vector at %s, line %d, column %d", strSourceName, lineIdx+1, startIdx - currentLineStart +1);
+						snprintf(PD->message, 256, "Expected basis vector at %s, line %d, column %d", strSourceName, lineIdx+1, startIdx - currentLineStart +1);
 						return false;
 					}
 
@@ -288,19 +288,19 @@ bool parseEx(struct c3gaParseMultivectorData *PD, const std::string &_str, const
 			}
 		} /* end of 'if number or bv' */
 		else if (token == T_BAD_CHARACTER) {
-			_snprintf(PD->message, 256, "Bad character at %s, line %d, column %d", strSourceName, lineIdx+1, startIdx - currentLineStart +1);
+			snprintf(PD->message, 256, "Bad character at %s, line %d, column %d", strSourceName, lineIdx+1, startIdx - currentLineStart +1);
 			return false;
 		}
 		else if (token == T_BAD_NUMBER) {
-			_snprintf(PD->message, 256, "Bad number at %s, line %d, column %d", strSourceName, lineIdx+1, startIdx - currentLineStart +1);
+			snprintf(PD->message, 256, "Bad number at %s, line %d, column %d", strSourceName, lineIdx+1, startIdx - currentLineStart +1);
 			return false;
 		}
 		else if (token == T_BAD_IDENTIFIER) {
-			_snprintf(PD->message, 256, "Bad identifier at %s, line %d, column %d", strSourceName, lineIdx+1, startIdx - currentLineStart +1);
+			snprintf(PD->message, 256, "Bad identifier at %s, line %d, column %d", strSourceName, lineIdx+1, startIdx - currentLineStart +1);
 			return false;
 		}
 		else {
-			_snprintf(PD->message, 256, "Unexpected token at %s, line %d, column %d", strSourceName, lineIdx+1, startIdx - currentLineStart +1);
+			snprintf(PD->message, 256, "Unexpected token at %s, line %d, column %d", strSourceName, lineIdx+1, startIdx - currentLineStart +1);
 			return false;
 		}
 

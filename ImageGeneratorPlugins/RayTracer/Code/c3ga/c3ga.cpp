@@ -192,7 +192,7 @@ void c3ga_setStringFormat(const char *what, const char *format) {
 
 
 #ifdef WIN32
-#define _snprintf __snprintf
+#define snprintf _snprintf
 #pragma warning(disable:4996) /* quit your whining already */
 #endif /* WIN32 */
 const char *c_str(const mv &V, char *str, int maxLength, const char *fp) 
@@ -206,13 +206,13 @@ const char *c_str(const mv &V, char *str, int maxLength, const char *fp)
 	if (fp == NULL) fp = c3ga_string_fp;
 
 	// start the string
-	l = _snprintf(tmpBuf, 256, "%s", c3ga_string_start);
+	l = snprintf(tmpBuf, 256, "%s", c3ga_string_start);
 	if (stdIdx + l <= maxLength) {
 		strcpy(str + stdIdx, tmpBuf);
 		stdIdx += l;
 	}
 	else {
-		_snprintf(str, maxLength, "toString_mv: buffer too small");
+		snprintf(str, maxLength, "toString_mv: buffer too small");
 		return str;
 	}
 
@@ -222,26 +222,26 @@ const char *c_str(const mv &V, char *str, int maxLength, const char *fp)
 			for (int j = 0; j < c3ga_groupSize[i]; j++) {
 				double coord = (double)c3ga_basisElementSignByIndex[ia] *c[k];
 				/* goal: print [+|-]V.m_c[k][* basisVector1 ^ ... ^ basisVectorN] */			
-				_snprintf(tmpFloatBuf, 256, fp, (double)fabs(coord)); // cast to double to force custom float types to Plain Old Data
+				snprintf(tmpFloatBuf, 256, fp, (double)fabs(coord)); // cast to double to force custom float types to Plain Old Data
 				if (atof(tmpFloatBuf) != 0.0) {
 					l = 0;
 
 					// print [+|-]
-					l += _snprintf(tmpBuf + l, 256-l, "%s", (coord >= 0.0) 
+					l += snprintf(tmpBuf + l, 256-l, "%s", (coord >= 0.0) 
 						? (cnt ? c3ga_string_plus : "")
 						: c3ga_string_minus);
 						
 					// print obj.m_c[k]
 					int dummyArg = 0; // prevents compiler warning on some platforms
-					l += _snprintf(tmpBuf + l, 256-l, tmpFloatBuf, dummyArg);
+					l += snprintf(tmpBuf + l, 256-l, tmpFloatBuf, dummyArg);
 
 					if (i) { // if not grade 0, print [* basisVector1 ^ ... ^ basisVectorN]
-						l += _snprintf(tmpBuf + l, 256-l, "%s", c3ga_string_mul);
+						l += snprintf(tmpBuf + l, 256-l, "%s", c3ga_string_mul);
 
 						// print all basis vectors
 						bei = 0;
 						while (c3ga_basisElements[ia][bei] >= 0) {
-							l += _snprintf(tmpBuf + l, 256-l, "%s%s", (bei) ? c3ga_string_wedge : "", 
+							l += snprintf(tmpBuf + l, 256-l, "%s%s", (bei) ? c3ga_string_wedge : "", 
 							 c3ga_basisVectorNames[c3ga_basisElements[ia][bei]]);
 							 bei++;
 						}
@@ -253,7 +253,7 @@ const char *c_str(const mv &V, char *str, int maxLength, const char *fp)
 						stdIdx += l;
 					}
 					else {
-						_snprintf(str, maxLength, "toString_mv: buffer too small");
+						snprintf(str, maxLength, "toString_mv: buffer too small");
 						return str;
 					}
 					cnt++;
@@ -267,18 +267,18 @@ const char *c_str(const mv &V, char *str, int maxLength, const char *fp)
     // if no coordinates printed: 0
 	l = 0;
 	if (cnt == 0) {
-		l += _snprintf(tmpBuf + l, 256-l, "0");
+		l += snprintf(tmpBuf + l, 256-l, "0");
 	}
 
     // end the string
-	l += _snprintf(tmpBuf + l, 256-l, "%s", c3ga_string_end);
+	l += snprintf(tmpBuf + l, 256-l, "%s", c3ga_string_end);
 	if (stdIdx + l <= maxLength) {
 		strcpy(str + stdIdx, tmpBuf);
 		stdIdx += l;
 		return str;
 	}
 	else {
-		_snprintf(str, maxLength, "toString(): buffer too small\n");
+		snprintf(str, maxLength, "toString(): buffer too small\n");
 		return str;
 	}
 }

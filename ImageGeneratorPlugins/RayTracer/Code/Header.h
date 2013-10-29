@@ -4,17 +4,19 @@
 #include <wx/colour.h>
 #include <wx/gdicmn.h>
 #include <wx/image.h>
+#include <wx/utils.h>
+
 #include <igPlugin.h>
 
 #include <list>
-#include <stdio.h>
+#include <math.h>
 
 #include "c3ga/c3ga.h"
 
-class RayTracerPlugin;
 class Scene;
+class RayTracerPlugin;
 
-#include "RayTracer.h"
 #include "Scene.h"
+#include "RayTracer.h"
 
 // Header.h

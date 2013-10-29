@@ -34,6 +34,8 @@ public:
 	class ImageGenerator
 	{
 	public:
+		ImageGenerator( void ) {}
+		virtual ~ImageGenerator( void ) {}
 
 		virtual bool GeneratePixel( const wxPoint& point, const wxSize& size, wxColour& color ) = 0;
 	};

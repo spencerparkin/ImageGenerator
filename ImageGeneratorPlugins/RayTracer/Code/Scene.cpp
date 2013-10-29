@@ -116,7 +116,15 @@ void Scene::CalculateSurfacePointIllumination( const SurfacePoint& surfacePoint,
 //===========================================================================
 Scene* Scene::Clone( void ) const
 {
-	return 0;
+	Scene* scene = new Scene();
+
+	for( LightList::const_iterator iter = lightList.begin(); iter != lightList.end(); iter++ )
+		scene->lightList.push_back( ( Light* )( *iter )->Clone() );
+
+	for( ObjectList::const_iterator iter = objectList.begin(); iter != objectList.end(); iter++ )
+		scene->objectList.push_back( ( Object* )( *iter )->Clone() );
+
+	return scene;
 }
 
 //===========================================================================

@@ -463,6 +463,9 @@ memAlloc="full">
   <function name="rc" arg1="vectorE3GA" arg2="vectorE3GA"/>
   <function name="rc" arg1="bivectorE3GA" arg2="vectorE3GA"/>
   
+  <function name="lc" arg1="bivectorE3GA" arg2="trivectorE3GA"/>
+  <function name="rc" arg1="trivectorE3GA" arg2="bivectorE3GA"/>
+  
   <function name="sp" arg1="mv" arg2="mv"/>
   <function name="lc" arg1="mv" arg2="mv"/>
   <function name="rc" arg1="mv" arg2="mv"/>

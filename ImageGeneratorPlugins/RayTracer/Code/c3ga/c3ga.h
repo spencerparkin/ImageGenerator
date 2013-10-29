@@ -67,6 +67,8 @@ DEALINGS IN THE SOFTWARE.
 #ifndef _C3GA_H_
 #define _C3GA_H_
 
+#define snprintf _snprintf
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -7486,6 +7488,10 @@ vectorE3GA lc(const vectorE3GA &a, const bivectorE3GA &b);
 double rc(const vectorE3GA &a, const vectorE3GA &b);
 /// Returns right contraction of bivectorE3GA and vectorE3GA.
 vectorE3GA rc(const bivectorE3GA &a, const vectorE3GA &b);
+/// Returns left contraction of bivectorE3GA and trivectorE3GA.
+vectorE3GA lc(const bivectorE3GA &a, const trivectorE3GA &b);
+/// Returns right contraction of trivectorE3GA and bivectorE3GA.
+vectorE3GA rc(const trivectorE3GA &a, const bivectorE3GA &b);
 /// Returns scalar product of mv and mv.
 double sp(const mv &a, const mv &b);
 /// Returns left contraction of mv and mv.
@@ -8416,6 +8422,14 @@ inline double operator>>(const vectorE3GA &a, const vectorE3GA &b) {
 }
 /// returns rc(a, b)
 inline vectorE3GA operator>>(const bivectorE3GA &a, const vectorE3GA &b) {
+	return rc(a, b);
+}
+/// returns lc(a, b)
+inline vectorE3GA operator<<(const bivectorE3GA &a, const trivectorE3GA &b) {
+	return lc(a, b);
+}
+/// returns rc(a, b)
+inline vectorE3GA operator>>(const trivectorE3GA &a, const bivectorE3GA &b) {
 	return rc(a, b);
 }
 /// returns sp(a, b)
@@ -15338,6 +15352,24 @@ inline vectorE3GA rc(const bivectorE3GA &a, const vectorE3GA &b)
 			(a.m_e1_e2*b.m_e2-a.m_e3_e1*b.m_e3), // e1
 			(-a.m_e1_e2*b.m_e1+a.m_e2_e3*b.m_e3), // e2
 			(-a.m_e2_e3*b.m_e2+a.m_e3_e1*b.m_e1) // e3
+		);
+
+}
+inline vectorE3GA lc(const bivectorE3GA &a, const trivectorE3GA &b)
+{
+	return vectorE3GA(vectorE3GA::coord_e1_e2_e3,
+			-a.m_e2_e3*b.m_e1_e2_e3, // e1
+			-a.m_e3_e1*b.m_e1_e2_e3, // e2
+			-a.m_e1_e2*b.m_e1_e2_e3 // e3
+		);
+
+}
+inline vectorE3GA rc(const trivectorE3GA &a, const bivectorE3GA &b)
+{
+	return vectorE3GA(vectorE3GA::coord_e1_e2_e3,
+			-a.m_e1_e2_e3*b.m_e2_e3, // e1
+			-a.m_e1_e2_e3*b.m_e3_e1, // e2
+			-a.m_e1_e2_e3*b.m_e1_e2 // e3
 		);
 
 }
