@@ -122,6 +122,7 @@ const char *g_c3gaTypenames[] =
 	"normalizedPoint",
 	"dualSphere",
 	"dualPlane",
+	"dualLine",
 	"freeVector",
 	"freeBivector",
 	"flatPoint",

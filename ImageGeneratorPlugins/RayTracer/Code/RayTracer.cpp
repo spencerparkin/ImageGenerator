@@ -30,6 +30,9 @@ RayTracerPlugin::RayTracerPlugin( void )
 {
 	scene = new Scene();
 
+	scene->AddLight( new AmbientLight( c3ga::vectorE3GA(
+						c3ga::vectorE3GA::coord_e1_e2_e3, 1.f, 1.f, 1.f ) ) );
+
 	// TODO: Populate the scene here with lights and objects.
 
 	//view.eye.set( c3ga::vectorE3GA::coord_e1_e2_e3, 30.0, 30.0, 30.0 );

@@ -14,7 +14,7 @@ public:
 	struct Ray
 	{
 		c3ga::vectorE3GA point;
-		c3ga::vectorE3GA direction;
+		c3ga::vectorE3GA direction;		// This should always be a unit-length vector.
 	};
 
 	//===========================================================================
@@ -26,7 +26,7 @@ public:
 		void Refract( const Ray& ray, Ray& refractionRay ) const;
 
 		c3ga::vectorE3GA point;
-		c3ga::vectorE3GA normal;
+		c3ga::vectorE3GA normal;		// This should always be a unit-length vector.
 		c3ga::vectorE3GA color;
 		double reflectionCoeficient;
 		double refractionCoeficient;
@@ -72,6 +72,9 @@ public:
 	};
 
 	typedef std::list< Light* > LightList;
+
+	void AddLight( Light* light );
+	void AddObject( Object* object );
 
 private:
 

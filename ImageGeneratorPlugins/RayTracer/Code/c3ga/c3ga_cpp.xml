@@ -91,7 +91,8 @@ memAlloc="full">
   
   <smv name="normalizedPoint" type="blade">no=1 e1 e2 e3 ni</smv>  
   <smv name="dualSphere" type="blade">no e1 e2 e3 ni</smv>
-  <smv name="dualPlane" type="blade">e1 e2 e3 ni</smv>  
+  <smv name="dualPlane" type="blade">e1 e2 e3 ni</smv>
+  <smv name="dualLine" type="blade">e1^e2 e1^e3 e1^ni e2^e3 e2^ni e3^ni</smv>
   <smv name="freeVector" type="blade">e1^ni e2^ni e3^ni</smv>
   <smv name="freeBivector" type="blade">e1^e2^ni e2^e3^ni e3^e1^ni</smv>
   <smv name="flatPoint" type="blade">e1^ni e2^ni e3^ni no^ni</smv>  
@@ -201,6 +202,7 @@ memAlloc="full">
   <function name="applyUnitVersor" arg1="rotorE3GA" arg2="vectorE3GA"/>
   <function name="applyUnitVersor" arg1="rotorE3GA" arg2="normalizedPoint"/>
   <function name="applyUnitVersor" arg1="rotorE3GA" arg2="dualSphere"/>
+  <function name="applyUnitVersor" arg1="rotorE3GA" arg2="dualLine"/>
   <function name="applyUnitVersor" arg1="rotorE3GA" arg2="bivectorE3GA"/>
   <function name="applyUnitVersor" arg1="rotorE3GA" arg2="line"/>
   <function name="applyUnitVersor" arg1="rotorE3GA" arg2="plane"/>
@@ -213,6 +215,7 @@ memAlloc="full">
   <function name="applyUnitVersor" arg1="evenVersor" arg2="vectorE3GA"/>
   <function name="applyUnitVersor" arg1="evenVersor" arg2="normalizedPoint"/>
   <function name="applyUnitVersor" arg1="evenVersor" arg2="dualSphere"/>
+  <function name="applyUnitVersor" arg1="evenVersor" arg2="dualLine"/>
   <function name="applyUnitVersor" arg1="evenVersor" arg2="bivectorE3GA"/>
   <function name="applyUnitVersor" arg1="evenVersor" arg2="line"/>
   <function name="applyUnitVersor" arg1="evenVersor" arg2="sphere"/>
@@ -223,6 +226,7 @@ memAlloc="full">
   <function name="applyUnitVersor" arg1="oddVersor" arg2="vectorE3GA"/>
   <function name="applyUnitVersor" arg1="oddVersor" arg2="normalizedPoint"/>
   <function name="applyUnitVersor" arg1="oddVersor" arg2="dualSphere"/>
+  <function name="applyUnitVersor" arg1="oddVersor" arg2="dualLine"/>
   <function name="applyUnitVersor" arg1="oddVersor" arg2="bivectorE3GA"/>
   <function name="applyUnitVersor" arg1="oddVersor" arg2="line"/>
   <function name="applyUnitVersor" arg1="oddVersor" arg2="plane"/>
@@ -230,6 +234,7 @@ memAlloc="full">
   <function name="applyVersor" arg1="rotorE3GA" arg2="vectorE3GA"/>
   <function name="applyVersor" arg1="rotorE3GA" arg2="normalizedPoint"  metric="euclidean"/>
   <function name="applyVersor" arg1="rotorE3GA" arg2="dualSphere"/>
+  <function name="applyVersor" arg1="rotorE3GA" arg2="dualLine"/>
   <function name="applyVersor" arg1="rotorE3GA" arg2="bivectorE3GA"/>
   <function name="applyVersor" arg1="rotorE3GA" arg2="line"/>
   <function name="applyVersor" arg1="rotorE3GA" arg2="plane"/>
@@ -242,6 +247,7 @@ memAlloc="full">
   <function name="applyVersor" arg1="evenVersor" arg2="vectorE3GA"/>
   <function name="applyVersor" arg1="evenVersor" arg2="normalizedPoint"/>
   <function name="applyVersor" arg1="evenVersor" arg2="dualSphere"/>
+  <function name="applyVersor" arg1="evenVersor" arg2="dualLine"/>
   <function name="applyVersor" arg1="evenVersor" arg2="bivectorE3GA"/>
   <function name="applyVersor" arg1="evenVersor" arg2="line"/>
   <function name="applyVersor" arg1="evenVersor" arg2="sphere"/>
@@ -252,6 +258,7 @@ memAlloc="full">
   <function name="applyVersor" arg1="oddVersor" arg2="vectorE3GA"  metric="euclidean"/>
   <function name="applyVersor" arg1="oddVersor" arg2="normalizedPoint"/>
   <function name="applyVersor" arg1="oddVersor" arg2="dualSphere"/>
+  <function name="applyVersor" arg1="oddVersor" arg2="dualLine"/>
   <function name="applyVersor" arg1="oddVersor" arg2="bivectorE3GA"/>
   <function name="applyVersor" arg1="oddVersor" arg2="line"/>
   <function name="applyVersor" arg1="oddVersor" arg2="plane"/>
@@ -259,6 +266,7 @@ memAlloc="full">
   <function name="applyVersorWI" arg1="rotorE3GA" arg2="vectorE3GA" arg3="rotorE3GA"/>
   <function name="applyVersorWI" arg1="rotorE3GA" arg2="normalizedPoint" arg3="rotorE3GA"/>
   <function name="applyVersorWI" arg1="rotorE3GA" arg2="dualSphere" arg3="rotorE3GA"/>
+  <function name="applyVersorWI" arg1="rotorE3GA" arg2="dualLine" arg3="rotorE3GA"/>
   <function name="applyVersorWI" arg1="rotorE3GA" arg2="bivectorE3GA" arg3="rotorE3GA"/>
   <function name="applyVersorWI" arg1="rotorE3GA" arg2="line" arg3="rotorE3GA"/>
   <function name="applyVersorWI" arg1="rotorE3GA" arg2="plane" arg3="rotorE3GA"/>
@@ -302,6 +310,8 @@ memAlloc="full">
   <function name="undual" arg1="plane" />
   <function name="dual" arg1="circle" metric="euclidean"/>
   <function name="undual" arg1="circle" metric="euclidean"/>
+  <function name="dual" arg1="line" metric="euclidean"/>
+  <function name="undual" arg1="line" metric="euclidean"/>
   <function name="dual" arg1="e1" />
   <function name="undual" arg1="I3" />
   <function name="dual" arg1="I5" />
@@ -371,6 +381,7 @@ memAlloc="full">
   <function name="gp" arg1="plane" arg2="oddVersor"/>
   <function name="gp" arg1="bivectorE3GA" arg2="bivectorE3GA"/>
   <function name="gp" arg1="evenVersor" arg2="dualSphere"/>
+  <function name="gp" arg1="evenVersor" arg2="dualLine"/>
   <function name="gp" arg1="normalizedPoint" arg2="normalizedPoint"/>
   <function name="gp" arg1="flatPoint" arg2="oddVersor"/>
   <function name="gp" arg1="e1" arg2="e2"/>

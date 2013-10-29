@@ -214,6 +214,30 @@
 					>
 				</File>
 			</Filter>
+			<Filter
+				Name="Lights"
+				>
+				<File
+					RelativePath=".\Code\Lights\AmbientLight.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Code\Lights\AmbientLight.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="Objects"
+				>
+				<File
+					RelativePath=".\Code\Objects\Sphere.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Code\Objects\Sphere.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 	</Files>
 	<Globals>

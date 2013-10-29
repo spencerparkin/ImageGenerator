@@ -15,6 +15,18 @@ Scene::~Scene( void )
 }
 
 //===========================================================================
+void Scene::AddLight( Light* light )
+{
+	lightList.push_back( light );
+}
+
+//===========================================================================
+void Scene::AddObject( Object* object )
+{
+	objectList.push_back( object );
+}
+
+//===========================================================================
 Scene::RayBounceDepthCounter::RayBounceDepthCounter( const Scene* scene )
 {
 	this->scene = scene;

@@ -171,6 +171,7 @@ class mvE3GA;
 class normalizedPoint;
 class dualSphere;
 class dualPlane;
+class dualLine;
 class freeVector;
 class freeBivector;
 class flatPoint;
@@ -304,6 +305,8 @@ public:
 	inline mv(const dualSphere&A)  {set(A);}
 	/// Converts a dualPlane to a mv.
 	inline mv(const dualPlane&A)  {set(A);}
+	/// Converts a dualLine to a mv.
+	inline mv(const dualLine&A)  {set(A);}
 	/// Converts a freeVector to a mv.
 	inline mv(const freeVector&A)  {set(A);}
 	/// Converts a freeBivector to a mv.
@@ -384,6 +387,8 @@ public:
 	inline mv &operator=(const dualSphere &A) {set(A); return *this;}
 	/// Assignment operator (mv).
 	inline mv &operator=(const dualPlane &A) {set(A); return *this;}
+	/// Assignment operator (mv).
+	inline mv &operator=(const dualLine &A) {set(A); return *this;}
 	/// Assignment operator (mv).
 	inline mv &operator=(const freeVector &A) {set(A); return *this;}
 	/// Assignment operator (mv).
@@ -472,6 +477,8 @@ public:
 	void set(const dualSphere &A);
 	/// Sets this mv to the value of dualPlane A
 	void set(const dualPlane &A);
+	/// Sets this mv to the value of dualLine A
+	void set(const dualLine &A);
 	/// Sets this mv to the value of freeVector A
 	void set(const freeVector &A);
 	/// Sets this mv to the value of freeBivector A
@@ -3806,6 +3813,174 @@ public:
 	inline double get_scalar() const { return 0.0;}
 }; // end of class dualPlane
 
+/// This class can hold a specialized multivector of type dualLine.
+/// 
+/// The coordinates are stored in type double.
+/// 
+/// The variable non-zero coordinates are:
+///   - coordinate e1^e2  (array index: E1_E2 = 0)
+///   - coordinate e1^e3  (array index: E1_E3 = 1)
+///   - coordinate e1^ni  (array index: E1_NI = 2)
+///   - coordinate e2^e3  (array index: E2_E3 = 3)
+///   - coordinate e2^ni  (array index: E2_NI = 4)
+///   - coordinate e3^ni  (array index: E3_NI = 5)
+/// 
+/// The type has no constant coordinates.
+/// 
+/// 
+class dualLine
+{
+public:
+	/// The e1^e2 coordinate.
+	double m_e1_e2;
+	/// The e1^e3 coordinate.
+	double m_e1_e3;
+	/// The e1^ni coordinate.
+	double m_e1_ni;
+	/// The e2^e3 coordinate.
+	double m_e2_e3;
+	/// The e2^ni coordinate.
+	double m_e2_ni;
+	/// The e3^ni coordinate.
+	double m_e3_ni;
+public:
+
+	/// Floating point type used by dualLine 
+	typedef double Float;
+	/// Array indices of dualLine coordinates.
+	typedef enum {
+		/// index of coordinate for e1^e2 in dualLine
+		E1_E2 = 0, 
+		/// index of coordinate for e1^e3 in dualLine
+		E1_E3 = 1, 
+		/// index of coordinate for e1^ni in dualLine
+		E1_NI = 2, 
+		/// index of coordinate for e2^e3 in dualLine
+		E2_E3 = 3, 
+		/// index of coordinate for e2^ni in dualLine
+		E2_NI = 4, 
+		/// index of coordinate for e3^ni in dualLine
+		E3_NI = 5, 
+	} ArrayIndex;
+	typedef enum {
+		/// the order of coordinates (this is the type of the first argument of coordinate-handling functions)
+		coord_e1e2_e1e3_e1ni_e2e3_e2ni_e3ni
+	} CoordinateOrder;
+
+	/// Constructs a new dualLine with variable coordinates set to 0.
+	inline dualLine() {set();}
+
+	/// Copy constructor.
+	inline dualLine(const dualLine &A) {set(A);}
+
+
+
+	/// Constructs a new dualLine from mv.
+	/// \param A The value to copy. Coordinates that cannot be represented
+	/// are silently dropped.
+	/// \param filler This argument can have any value; it's role
+	/// is only to prevent the compiler from using this constructor as a converter.
+	inline dualLine(mv &A, int filler) {set(A);}
+
+	/// Constructs a new dualLine. Coordinate values come from 'A'.
+	inline dualLine(const CoordinateOrder co, const double A[6]) {set(co, A);}
+	
+	/// Constructs a new dualLine with each coordinate specified.
+	inline dualLine(const CoordinateOrder co,  double e1_e2, double e1_e3, double e1_ni, double e2_e3, double e2_ni, double e3_ni) {
+		set(co, e1_e2, e1_e3, e1_ni, e2_e3, e2_ni, e3_ni);
+	}
+
+	/// Assignment operator (dualLine).
+	inline dualLine &operator=(const dualLine &A) {if (this != &A) {set(A);} return *this;}
+	
+		
+
+	/// Assignment operator (mv).
+	inline dualLine &operator=(const mv &A) {set(A); return *this;}
+
+
+	/// Sets variable coordinates of 'this' to 0.
+	void set();
+	/// Sets this to 'A'.
+	void set(const dualLine &A);
+
+
+	/// Sets this to 'A'.
+	/// \param A The value to copy. Coordinates that cannot be represented
+	/// are silently dropped.
+	void set(const mv &A);
+
+
+	/// Sets this to 'A'.
+	void set(const CoordinateOrder, const double A[6]);
+	
+	/// Sets this to coordinates specified.
+	void set(const CoordinateOrder,  double e1_e2, double e1_e3, double e1_ni, double e2_e3, double e2_ni, double e3_ni);
+
+	/// returns the absolute largest coordinate.
+	double largestCoordinate() const;
+	/// returns the absolute largest coordinate, and the corresponding basis blade bitmap.
+	double largestBasisBlade(unsigned int &bm) const;
+	
+
+	/// Returns a string representation (const char*) of this multivector.
+	/// Not multi-threading safe.
+	/// \param fp how floats are printed (e.g., "%f");
+	inline const char * c_str(const char *fp = NULL) const {
+		static char buf[2048]; // not MT-safe
+		return ::c3ga::c_str(*this, buf, 2048, fp);
+	}
+	
+	/// Returns a string representation (const char*) of this multivector using %f.
+	/// Not multi-threading safe.
+	inline const char * c_str_f() const {return c_str("%f");}
+	/// Returns a string representation (const char*) of this multivector using %e
+	/// Not multi-threading safe.
+	inline const char * c_str_e() const {return c_str("%e");}
+	/// Returns a string representation (const char*) of this multivector using %e20 (which is lossless for doubles)
+	/// Not multi-threading safe.
+	inline const char * c_str_e20() const {return c_str("%2.20e");}
+
+	/// Returns a string representation (const char*) of this multivector.
+	inline std::string toString(const char *fp = NULL) const {
+		return ::c3ga::toString(*this, fp);
+	}
+	
+	/// Returns a string representation (const char*) of this multivector using %f.
+	inline std::string toString_f() const {return toString("%f");}
+	/// Returns a string representation (const char*) of this multivector using %e.
+	inline std::string toString_e() const {return toString("%e");}
+	/// Returns a string representation (const char*) of this multivector using %e20.
+	inline std::string toString_e20() const {return toString("%2.20e");}
+
+	/// Returns the e1^e2 coordinate.
+	inline double get_e1_e2() const { return m_e1_e2;}
+	/// Sets the e1^e2 coordinate.
+	inline void set_e1_e2(double e1_e2) { m_e1_e2 = e1_e2;}
+	/// Returns the e1^e3 coordinate.
+	inline double get_e1_e3() const { return m_e1_e3;}
+	/// Sets the e1^e3 coordinate.
+	inline void set_e1_e3(double e1_e3) { m_e1_e3 = e1_e3;}
+	/// Returns the e1^ni coordinate.
+	inline double get_e1_ni() const { return m_e1_ni;}
+	/// Sets the e1^ni coordinate.
+	inline void set_e1_ni(double e1_ni) { m_e1_ni = e1_ni;}
+	/// Returns the e2^e3 coordinate.
+	inline double get_e2_e3() const { return m_e2_e3;}
+	/// Sets the e2^e3 coordinate.
+	inline void set_e2_e3(double e2_e3) { m_e2_e3 = e2_e3;}
+	/// Returns the e2^ni coordinate.
+	inline double get_e2_ni() const { return m_e2_ni;}
+	/// Sets the e2^ni coordinate.
+	inline void set_e2_ni(double e2_ni) { m_e2_ni = e2_ni;}
+	/// Returns the e3^ni coordinate.
+	inline double get_e3_ni() const { return m_e3_ni;}
+	/// Sets the e3^ni coordinate.
+	inline void set_e3_ni(double e3_ni) { m_e3_ni = e3_ni;}
+	/// Returns the scalar coordinate (which is always 0).
+	inline double get_scalar() const { return 0.0;}
+}; // end of class dualLine
+
 /// This class can hold a specialized multivector of type freeVector.
 /// 
 /// The coordinates are stored in type double.
@@ -6827,6 +7002,10 @@ inline double _Float(const dualSphere &x) {return _double(x); };
 double _double(const dualPlane &x);
 /// Returns scalar part of  dualPlane
 inline double _Float(const dualPlane &x) {return _double(x); };
+/// Returns scalar part of  dualLine
+double _double(const dualLine &x);
+/// Returns scalar part of  dualLine
+inline double _Float(const dualLine &x) {return _double(x); };
 /// Returns scalar part of  freeVector
 double _double(const freeVector &x);
 /// Returns scalar part of  freeVector
@@ -6995,6 +7174,9 @@ dualSphere applyUnitVersor(const rotorE3GA &a, const normalizedPoint &b);
 dualSphere applyUnitVersor(const rotorE3GA &a, const dualSphere &b);
 /// Returns a * b * reverse(a) using default metric. Only gives the correct result when the versor has a positive squared norm.
 /// 
+dualLine applyUnitVersor(const rotorE3GA &a, const dualLine &b);
+/// Returns a * b * reverse(a) using default metric. Only gives the correct result when the versor has a positive squared norm.
+/// 
 bivectorE3GA applyUnitVersor(const rotorE3GA &a, const bivectorE3GA &b);
 /// Returns a * b * reverse(a) using default metric. Only gives the correct result when the versor has a positive squared norm.
 /// 
@@ -7028,6 +7210,9 @@ dualSphere applyUnitVersor(const evenVersor &a, const normalizedPoint &b);
 dualSphere applyUnitVersor(const evenVersor &a, const dualSphere &b);
 /// Returns a * b * reverse(a) using default metric. Only gives the correct result when the versor has a positive squared norm.
 /// 
+pointPair applyUnitVersor(const evenVersor &a, const dualLine &b);
+/// Returns a * b * reverse(a) using default metric. Only gives the correct result when the versor has a positive squared norm.
+/// 
 pointPair applyUnitVersor(const evenVersor &a, const bivectorE3GA &b);
 /// Returns a * b * reverse(a) using default metric. Only gives the correct result when the versor has a positive squared norm.
 /// 
@@ -7055,6 +7240,9 @@ dualSphere applyUnitVersor(const oddVersor &a, const normalizedPoint &b);
 dualSphere applyUnitVersor(const oddVersor &a, const dualSphere &b);
 /// Returns a * b * reverse(a) using default metric. Only gives the correct result when the versor has a positive squared norm.
 /// 
+pointPair applyUnitVersor(const oddVersor &a, const dualLine &b);
+/// Returns a * b * reverse(a) using default metric. Only gives the correct result when the versor has a positive squared norm.
+/// 
 pointPair applyUnitVersor(const oddVersor &a, const bivectorE3GA &b);
 /// Returns a * b * reverse(a) using default metric. Only gives the correct result when the versor has a positive squared norm.
 /// 
@@ -7068,6 +7256,8 @@ vectorE3GA applyVersor(const rotorE3GA &a, const vectorE3GA &b);
 dualSphere applyVersor(const rotorE3GA &a, const normalizedPoint &b);
 /// Returns a * b * inverse(a) using default metric.
 dualSphere applyVersor(const rotorE3GA &a, const dualSphere &b);
+/// Returns a * b * inverse(a) using default metric.
+dualLine applyVersor(const rotorE3GA &a, const dualLine &b);
 /// Returns a * b * inverse(a) using default metric.
 bivectorE3GA applyVersor(const rotorE3GA &a, const bivectorE3GA &b);
 /// Returns a * b * inverse(a) using default metric.
@@ -7091,6 +7281,8 @@ dualSphere applyVersor(const evenVersor &a, const normalizedPoint &b);
 /// Returns a * b * inverse(a) using default metric.
 dualSphere applyVersor(const evenVersor &a, const dualSphere &b);
 /// Returns a * b * inverse(a) using default metric.
+pointPair applyVersor(const evenVersor &a, const dualLine &b);
+/// Returns a * b * inverse(a) using default metric.
 pointPair applyVersor(const evenVersor &a, const bivectorE3GA &b);
 /// Returns a * b * inverse(a) using default metric.
 circle applyVersor(const evenVersor &a, const line &b);
@@ -7109,6 +7301,8 @@ dualSphere applyVersor(const oddVersor &a, const normalizedPoint &b);
 /// Returns a * b * inverse(a) using default metric.
 dualSphere applyVersor(const oddVersor &a, const dualSphere &b);
 /// Returns a * b * inverse(a) using default metric.
+pointPair applyVersor(const oddVersor &a, const dualLine &b);
+/// Returns a * b * inverse(a) using default metric.
 pointPair applyVersor(const oddVersor &a, const bivectorE3GA &b);
 /// Returns a * b * inverse(a) using default metric.
 circle applyVersor(const oddVersor &a, const line &b);
@@ -7123,6 +7317,9 @@ dualSphere applyVersorWI(const rotorE3GA &a, const normalizedPoint &b, const rot
 /// Returns a * b * reverse(a) using default metric. Only gives the correct result when the versor has a positive squared norm.
 /// 
 dualSphere applyVersorWI(const rotorE3GA &a, const dualSphere &b, const rotorE3GA &c);
+/// Returns a * b * reverse(a) using default metric. Only gives the correct result when the versor has a positive squared norm.
+/// 
+dualLine applyVersorWI(const rotorE3GA &a, const dualLine &b, const rotorE3GA &c);
 /// Returns a * b * reverse(a) using default metric. Only gives the correct result when the versor has a positive squared norm.
 /// 
 bivectorE3GA applyVersorWI(const rotorE3GA &a, const bivectorE3GA &b, const rotorE3GA &c);
@@ -7206,6 +7403,10 @@ dualPlane undual(const plane &a);
 pointPair dual(const circle &a);
 /// Returns undual of circle using euclidean metric.
 pointPair undual(const circle &a);
+/// Returns dual of line using euclidean metric.
+pointPair dual(const line &a);
+/// Returns undual of line using euclidean metric.
+pointPair undual(const line &a);
 /// Returns dual of e1_t using default metric.
 plane dual(const e1_t &a);
 /// Returns undual of I3_t using default metric.
@@ -7330,6 +7531,8 @@ oddVersor gp(const plane &a, const oddVersor &b);
 rotorE3GA gp(const bivectorE3GA &a, const bivectorE3GA &b);
 /// Returns geometric product of evenVersor and dualSphere.
 oddVersor gp(const evenVersor &a, const dualSphere &b);
+/// Returns geometric product of evenVersor and dualLine.
+evenVersor gp(const evenVersor &a, const dualLine &b);
 /// Returns geometric product of normalizedPoint and normalizedPoint.
 evenVersor gp(const normalizedPoint &a, const normalizedPoint &b);
 /// Returns geometric product of flatPoint and oddVersor.
@@ -8219,6 +8422,10 @@ inline pointPair operator*(const circle &a) {
 	return dual(a);
 }
 /// returns dual(a)
+inline pointPair operator*(const line &a) {
+	return dual(a);
+}
+/// returns dual(a)
 inline plane operator*(const e1_t &a) {
 	return dual(a);
 }
@@ -8325,6 +8532,14 @@ inline rotorE3GA operator*(const bivectorE3GA &a, const bivectorE3GA &b) {
 /// returns gp(a, b)
 inline oddVersor operator*(const evenVersor &a, const dualSphere &b) {
 	return gp(a, b);
+}
+/// returns gp(a, b)
+inline evenVersor operator*(const evenVersor &a, const dualLine &b) {
+	return gp(a, b);
+}
+/// returns (a = gp(a, b))
+inline evenVersor &operator*=(evenVersor &a, const dualLine &b) {
+	return (a = gp(a, b));
 }
 /// returns gp(a, b)
 inline evenVersor operator*(const normalizedPoint &a, const normalizedPoint &b) {
@@ -9453,6 +9668,32 @@ inline void dualPlane::set(const mv &src) {
 		m_ni = 0.0;
 	}
 }
+inline void dualLine::set(const mv &src) {
+	const double *ptr = src.getC();
+
+	if (src.gu() & 1) {
+		ptr += 1;
+	}
+	if (src.gu() & 2) {
+		ptr += 5;
+	}
+	if (src.gu() & 4) {
+		m_e1_e2 = ptr[2];
+		m_e1_e3 = ptr[4];
+		m_e1_ni = ptr[7];
+		m_e2_e3 = ptr[5];
+		m_e2_ni = ptr[8];
+		m_e3_ni = ptr[9];
+	}
+	else {
+		m_e1_e2 = 0.0;
+		m_e1_e3 = 0.0;
+		m_e1_ni = 0.0;
+		m_e2_e3 = 0.0;
+		m_e2_ni = 0.0;
+		m_e3_ni = 0.0;
+	}
+}
 inline void freeVector::set(const mv &src) {
 	const double *ptr = src.getC();
 
@@ -10070,6 +10311,17 @@ inline void mv::set(const dualPlane &src) {
 	ptr[3] = src.m_e3;
 	ptr[4] = src.m_ni;
 }
+inline void mv::set(const dualLine &src) {
+	setGroupUsage(4);
+	double *ptr = m_c;
+	ptr[0] = ptr[1] = ptr[3] = ptr[6] = 0.0;
+	ptr[2] = src.m_e1_e2;
+	ptr[4] = src.m_e1_e3;
+	ptr[5] = src.m_e2_e3;
+	ptr[7] = src.m_e1_ni;
+	ptr[8] = src.m_e2_ni;
+	ptr[9] = src.m_e3_ni;
+}
 inline void mv::set(const freeVector &src) {
 	setGroupUsage(4);
 	double *ptr = m_c;
@@ -10302,6 +10554,11 @@ inline void dualPlane::set()
 	m_e1 = m_e2 = m_e3 = m_ni = 0.0;
 
 }
+inline void dualLine::set()
+{
+	m_e1_e2 = m_e1_e3 = m_e1_ni = m_e2_e3 = m_e2_ni = m_e3_ni = 0.0;
+
+}
 inline void freeVector::set()
 {
 	m_e1_ni = m_e2_ni = m_e3_ni = 0.0;
@@ -10508,6 +10765,16 @@ inline void dualPlane::set(const CoordinateOrder co, const double _e1, const dou
 	m_e2 = _e2;
 	m_e3 = _e3;
 	m_ni = _ni;
+
+}
+inline void dualLine::set(const CoordinateOrder co, const double _e1_e2, const double _e1_e3, const double _e1_ni, const double _e2_e3, const double _e2_ni, const double _e3_ni)
+{
+	m_e1_e2 = _e1_e2;
+	m_e1_e3 = _e1_e3;
+	m_e1_ni = _e1_ni;
+	m_e2_e3 = _e2_e3;
+	m_e2_ni = _e2_ni;
+	m_e3_ni = _e3_ni;
 
 }
 inline void freeVector::set(const CoordinateOrder co, const double _e1_ni, const double _e2_ni, const double _e3_ni)
@@ -10747,6 +11014,16 @@ inline void dualPlane::set(const CoordinateOrder co, const double *A)
 	m_e2 = A[1];
 	m_e3 = A[2];
 	m_ni = A[3];
+
+}
+inline void dualLine::set(const CoordinateOrder co, const double *A)
+{
+	m_e1_e2 = A[0];
+	m_e1_e3 = A[1];
+	m_e1_ni = A[2];
+	m_e2_e3 = A[3];
+	m_e2_ni = A[4];
+	m_e3_ni = A[5];
 
 }
 inline void freeVector::set(const CoordinateOrder co, const double *A)
@@ -11026,6 +11303,16 @@ inline void dualPlane::set(const dualPlane &a)
 	m_e2 = a.m_e2;
 	m_e3 = a.m_e3;
 	m_ni = a.m_ni;
+
+}
+inline void dualLine::set(const dualLine &a)
+{
+	m_e1_e2 = a.m_e1_e2;
+	m_e1_e3 = a.m_e1_e3;
+	m_e1_ni = a.m_e1_ni;
+	m_e2_e3 = a.m_e2_e3;
+	m_e2_ni = a.m_e2_ni;
+	m_e3_ni = a.m_e3_ni;
 
 }
 inline void freeVector::set(const freeVector &a)
@@ -11437,6 +11724,25 @@ inline double dualPlane::largestBasisBlade(unsigned int &bm) const {
 	if (::fabs(m_ni) > maxValue) { maxValue = ::fabs(m_ni); bm = 16; }
 	return maxValue;
 }
+inline double dualLine::largestCoordinate() const {
+	double maxValue = ::fabs(m_e1_e2);
+	if (::fabs(m_e1_e3) > maxValue) { maxValue = ::fabs(m_e1_e3); }
+	if (::fabs(m_e1_ni) > maxValue) { maxValue = ::fabs(m_e1_ni); }
+	if (::fabs(m_e2_e3) > maxValue) { maxValue = ::fabs(m_e2_e3); }
+	if (::fabs(m_e2_ni) > maxValue) { maxValue = ::fabs(m_e2_ni); }
+	if (::fabs(m_e3_ni) > maxValue) { maxValue = ::fabs(m_e3_ni); }
+	return maxValue;
+}
+inline double dualLine::largestBasisBlade(unsigned int &bm) const {
+	double maxValue = ::fabs(m_e1_e2);
+	bm = 0;
+	if (::fabs(m_e1_e3) > maxValue) { maxValue = ::fabs(m_e1_e3); bm = 10; }
+	if (::fabs(m_e1_ni) > maxValue) { maxValue = ::fabs(m_e1_ni); bm = 18; }
+	if (::fabs(m_e2_e3) > maxValue) { maxValue = ::fabs(m_e2_e3); bm = 12; }
+	if (::fabs(m_e2_ni) > maxValue) { maxValue = ::fabs(m_e2_ni); bm = 20; }
+	if (::fabs(m_e3_ni) > maxValue) { maxValue = ::fabs(m_e3_ni); bm = 24; }
+	return maxValue;
+}
 inline double freeVector::largestCoordinate() const {
 	double maxValue = ::fabs(m_e1_ni);
 	if (::fabs(m_e2_ni) > maxValue) { maxValue = ::fabs(m_e2_ni); }
@@ -11788,6 +12094,9 @@ inline double _double(const dualSphere &x) {
 	return 0.0;
 }
 inline double _double(const dualPlane &x) {
+	return 0.0;
+}
+inline double _double(const dualLine &x) {
 	return 0.0;
 }
 inline double _double(const freeVector &x) {
@@ -12910,6 +13219,17 @@ inline dualSphere applyUnitVersor(const rotorE3GA &a, const dualSphere &b)
 			(a.m_e1_e2*a.m_e1_e2*b.m_ni+a.m_e2_e3*a.m_e2_e3*b.m_ni+a.m_e3_e1*a.m_e3_e1*b.m_ni+a.m_scalar*a.m_scalar*b.m_ni) // ni
 		);
 }
+inline dualLine applyUnitVersor(const rotorE3GA &a, const dualLine &b)
+{
+	return dualLine(dualLine::coord_e1e2_e1e3_e1ni_e2e3_e2ni_e3ni,
+			(a.m_e1_e2*a.m_e1_e2*b.m_e1_e2+2.0*a.m_e1_e2*a.m_e2_e3*b.m_e2_e3+-2.0*a.m_e1_e2*a.m_e3_e1*b.m_e1_e3-a.m_e2_e3*a.m_e2_e3*b.m_e1_e2+2.0*a.m_e2_e3*a.m_scalar*b.m_e1_e3-a.m_e3_e1*a.m_e3_e1*b.m_e1_e2+2.0*a.m_e3_e1*a.m_scalar*b.m_e2_e3+a.m_scalar*a.m_scalar*b.m_e1_e2), // e1_e2
+			(-a.m_e1_e2*a.m_e1_e2*b.m_e1_e3+-2.0*a.m_e1_e2*a.m_e3_e1*b.m_e1_e2+2.0*a.m_e1_e2*a.m_scalar*b.m_e2_e3-a.m_e2_e3*a.m_e2_e3*b.m_e1_e3+-2.0*a.m_e2_e3*a.m_e3_e1*b.m_e2_e3+-2.0*a.m_e2_e3*a.m_scalar*b.m_e1_e2+a.m_e3_e1*a.m_e3_e1*b.m_e1_e3+a.m_scalar*a.m_scalar*b.m_e1_e3), // e1_e3
+			(-a.m_e1_e2*a.m_e1_e2*b.m_e1_ni+2.0*a.m_e1_e2*a.m_e2_e3*b.m_e3_ni+2.0*a.m_e1_e2*a.m_scalar*b.m_e2_ni+a.m_e2_e3*a.m_e2_e3*b.m_e1_ni+2.0*a.m_e2_e3*a.m_e3_e1*b.m_e2_ni-a.m_e3_e1*a.m_e3_e1*b.m_e1_ni+-2.0*a.m_e3_e1*a.m_scalar*b.m_e3_ni+a.m_scalar*a.m_scalar*b.m_e1_ni), // e1_ni
+			(-a.m_e1_e2*a.m_e1_e2*b.m_e2_e3+2.0*a.m_e1_e2*a.m_e2_e3*b.m_e1_e2+-2.0*a.m_e1_e2*a.m_scalar*b.m_e1_e3+a.m_e2_e3*a.m_e2_e3*b.m_e2_e3+-2.0*a.m_e2_e3*a.m_e3_e1*b.m_e1_e3-a.m_e3_e1*a.m_e3_e1*b.m_e2_e3+-2.0*a.m_e3_e1*a.m_scalar*b.m_e1_e2+a.m_scalar*a.m_scalar*b.m_e2_e3), // e2_e3
+			(-a.m_e1_e2*a.m_e1_e2*b.m_e2_ni+2.0*a.m_e1_e2*a.m_e3_e1*b.m_e3_ni+-2.0*a.m_e1_e2*a.m_scalar*b.m_e1_ni-a.m_e2_e3*a.m_e2_e3*b.m_e2_ni+2.0*a.m_e2_e3*a.m_e3_e1*b.m_e1_ni+2.0*a.m_e2_e3*a.m_scalar*b.m_e3_ni+a.m_e3_e1*a.m_e3_e1*b.m_e2_ni+a.m_scalar*a.m_scalar*b.m_e2_ni), // e2_ni
+			(a.m_e1_e2*a.m_e1_e2*b.m_e3_ni+2.0*a.m_e1_e2*a.m_e2_e3*b.m_e1_ni+2.0*a.m_e1_e2*a.m_e3_e1*b.m_e2_ni-a.m_e2_e3*a.m_e2_e3*b.m_e3_ni+-2.0*a.m_e2_e3*a.m_scalar*b.m_e2_ni-a.m_e3_e1*a.m_e3_e1*b.m_e3_ni+2.0*a.m_e3_e1*a.m_scalar*b.m_e1_ni+a.m_scalar*a.m_scalar*b.m_e3_ni) // e3_ni
+		);
+}
 inline bivectorE3GA applyUnitVersor(const rotorE3GA &a, const bivectorE3GA &b)
 {
 	return bivectorE3GA(bivectorE3GA::coord_e1e2_e2e3_e3e1,
@@ -13009,6 +13329,21 @@ inline dualSphere applyUnitVersor(const evenVersor &a, const dualSphere &b)
 			(-a.m_e1_e2*a.m_e1_e2*b.m_e2+2.0*a.m_e1_e2*a.m_e1_ni*b.m_no+2.0*a.m_e1_e2*a.m_e3_e1*b.m_e3+-2.0*a.m_e1_e2*a.m_no_e1*b.m_ni+-2.0*a.m_e1_e2*a.m_scalar*b.m_e1+-2.0*a.m_e1_e2_e3_ni*a.m_e3_e1*b.m_no+2.0*a.m_e1_e2_e3_ni*a.m_no_e1*b.m_e3+-2.0*a.m_e1_e2_e3_ni*a.m_no_e1_e2_e3*b.m_e2+-2.0*a.m_e1_e2_e3_ni*a.m_no_e1_e3_ni*b.m_no+-2.0*a.m_e1_e2_e3_ni*a.m_no_e3*b.m_e1+2.0*a.m_e1_ni*a.m_no_e1*b.m_e2+2.0*a.m_e1_ni*a.m_no_e1_e2_e3*b.m_e3+-2.0*a.m_e1_ni*a.m_no_e1_e2_ni*b.m_no+-2.0*a.m_e1_ni*a.m_no_e2*b.m_e1-a.m_e2_e3*a.m_e2_e3*b.m_e2+2.0*a.m_e2_e3*a.m_e3_e1*b.m_e1+-2.0*a.m_e2_e3*a.m_e3_ni*b.m_no+2.0*a.m_e2_e3*a.m_no_e3*b.m_ni+2.0*a.m_e2_e3*a.m_scalar*b.m_e3+-2.0*a.m_e2_ni*a.m_no_e1*b.m_e1+-2.0*a.m_e2_ni*a.m_no_e2*b.m_e2+-2.0*a.m_e2_ni*a.m_no_e3*b.m_e3+2.0*a.m_e2_ni*a.m_no_ni*b.m_no+-2.0*a.m_e2_ni*a.m_scalar*b.m_no+a.m_e3_e1*a.m_e3_e1*b.m_e2+2.0*a.m_e3_e1*a.m_no_e1_e2_e3*b.m_ni+-2.0*a.m_e3_ni*a.m_no_e1_e2_e3*b.m_e1+-2.0*a.m_e3_ni*a.m_no_e2*b.m_e3+2.0*a.m_e3_ni*a.m_no_e2_e3_ni*b.m_no+2.0*a.m_e3_ni*a.m_no_e3*b.m_e2+-2.0*a.m_no_e1*a.m_no_e1_e2_ni*b.m_ni+-2.0*a.m_no_e1_e2_e3*a.m_no_e1_e3_ni*b.m_ni+a.m_no_e1_e2_ni*a.m_no_e1_e2_ni*b.m_e2+2.0*a.m_no_e1_e2_ni*a.m_no_e1_e3_ni*b.m_e3+2.0*a.m_no_e1_e2_ni*a.m_no_ni*b.m_e1-a.m_no_e1_e3_ni*a.m_no_e1_e3_ni*b.m_e2+2.0*a.m_no_e1_e3_ni*a.m_no_e2_e3_ni*b.m_e1+2.0*a.m_no_e2*a.m_no_ni*b.m_ni+2.0*a.m_no_e2*a.m_scalar*b.m_ni+a.m_no_e2_e3_ni*a.m_no_e2_e3_ni*b.m_e2+2.0*a.m_no_e2_e3_ni*a.m_no_e3*b.m_ni+-2.0*a.m_no_e2_e3_ni*a.m_no_ni*b.m_e3-a.m_no_ni*a.m_no_ni*b.m_e2+a.m_scalar*a.m_scalar*b.m_e2), // e2
 			(a.m_e1_e2*a.m_e1_e2*b.m_e3+-2.0*a.m_e1_e2*a.m_e1_e2_e3_ni*b.m_no+2.0*a.m_e1_e2*a.m_e2_e3*b.m_e1+2.0*a.m_e1_e2*a.m_e3_e1*b.m_e2+2.0*a.m_e1_e2*a.m_no_e1_e2_e3*b.m_ni+-2.0*a.m_e1_e2_e3_ni*a.m_no_e1*b.m_e2+-2.0*a.m_e1_e2_e3_ni*a.m_no_e1_e2_e3*b.m_e3+2.0*a.m_e1_e2_e3_ni*a.m_no_e1_e2_ni*b.m_no+2.0*a.m_e1_e2_e3_ni*a.m_no_e2*b.m_e1+-2.0*a.m_e1_ni*a.m_e3_e1*b.m_no+2.0*a.m_e1_ni*a.m_no_e1*b.m_e3+-2.0*a.m_e1_ni*a.m_no_e1_e2_e3*b.m_e2+-2.0*a.m_e1_ni*a.m_no_e1_e3_ni*b.m_no+-2.0*a.m_e1_ni*a.m_no_e3*b.m_e1-a.m_e2_e3*a.m_e2_e3*b.m_e3+2.0*a.m_e2_e3*a.m_e2_ni*b.m_no+-2.0*a.m_e2_e3*a.m_no_e2*b.m_ni+-2.0*a.m_e2_e3*a.m_scalar*b.m_e2+2.0*a.m_e2_ni*a.m_no_e1_e2_e3*b.m_e1+2.0*a.m_e2_ni*a.m_no_e2*b.m_e3+-2.0*a.m_e2_ni*a.m_no_e2_e3_ni*b.m_no+-2.0*a.m_e2_ni*a.m_no_e3*b.m_e2-a.m_e3_e1*a.m_e3_e1*b.m_e3+2.0*a.m_e3_e1*a.m_no_e1*b.m_ni+2.0*a.m_e3_e1*a.m_scalar*b.m_e1+-2.0*a.m_e3_ni*a.m_no_e1*b.m_e1+-2.0*a.m_e3_ni*a.m_no_e2*b.m_e2+-2.0*a.m_e3_ni*a.m_no_e3*b.m_e3+2.0*a.m_e3_ni*a.m_no_ni*b.m_no+-2.0*a.m_e3_ni*a.m_scalar*b.m_no+-2.0*a.m_no_e1*a.m_no_e1_e3_ni*b.m_ni+2.0*a.m_no_e1_e2_e3*a.m_no_e1_e2_ni*b.m_ni-a.m_no_e1_e2_ni*a.m_no_e1_e2_ni*b.m_e3+2.0*a.m_no_e1_e2_ni*a.m_no_e1_e3_ni*b.m_e2+-2.0*a.m_no_e1_e2_ni*a.m_no_e2_e3_ni*b.m_e1+a.m_no_e1_e3_ni*a.m_no_e1_e3_ni*b.m_e3+2.0*a.m_no_e1_e3_ni*a.m_no_ni*b.m_e1+-2.0*a.m_no_e2*a.m_no_e2_e3_ni*b.m_ni+a.m_no_e2_e3_ni*a.m_no_e2_e3_ni*b.m_e3+2.0*a.m_no_e2_e3_ni*a.m_no_ni*b.m_e2+2.0*a.m_no_e3*a.m_no_ni*b.m_ni+2.0*a.m_no_e3*a.m_scalar*b.m_ni-a.m_no_ni*a.m_no_ni*b.m_e3+a.m_scalar*a.m_scalar*b.m_e3), // e3
 			(a.m_e1_e2*a.m_e1_e2*b.m_ni+-2.0*a.m_e1_e2*a.m_e1_e2_e3_ni*b.m_e3+-2.0*a.m_e1_e2*a.m_e1_ni*b.m_e2+2.0*a.m_e1_e2*a.m_e2_ni*b.m_e1+2.0*a.m_e1_e2*a.m_no_e1_e2_ni*b.m_ni+2.0*a.m_e1_e2_e3_ni*a.m_e1_e2_e3_ni*b.m_no+-2.0*a.m_e1_e2_e3_ni*a.m_e2_e3*b.m_e1+-2.0*a.m_e1_e2_e3_ni*a.m_e3_e1*b.m_e2+-2.0*a.m_e1_e2_e3_ni*a.m_no_e1_e2_ni*b.m_e3+2.0*a.m_e1_e2_e3_ni*a.m_no_e1_e3_ni*b.m_e2+-2.0*a.m_e1_e2_e3_ni*a.m_no_e2_e3_ni*b.m_e1+2.0*a.m_e1_ni*a.m_e1_ni*b.m_no+2.0*a.m_e1_ni*a.m_e3_e1*b.m_e3+-2.0*a.m_e1_ni*a.m_no_e1_e2_ni*b.m_e2+-2.0*a.m_e1_ni*a.m_no_e1_e3_ni*b.m_e3+-2.0*a.m_e1_ni*a.m_no_ni*b.m_e1+-2.0*a.m_e1_ni*a.m_scalar*b.m_e1+a.m_e2_e3*a.m_e2_e3*b.m_ni+-2.0*a.m_e2_e3*a.m_e2_ni*b.m_e3+2.0*a.m_e2_e3*a.m_e3_ni*b.m_e2+2.0*a.m_e2_e3*a.m_no_e2_e3_ni*b.m_ni+2.0*a.m_e2_ni*a.m_e2_ni*b.m_no+2.0*a.m_e2_ni*a.m_no_e1_e2_ni*b.m_e1+-2.0*a.m_e2_ni*a.m_no_e2_e3_ni*b.m_e3+-2.0*a.m_e2_ni*a.m_no_ni*b.m_e2+-2.0*a.m_e2_ni*a.m_scalar*b.m_e2+a.m_e3_e1*a.m_e3_e1*b.m_ni+-2.0*a.m_e3_e1*a.m_e3_ni*b.m_e1+-2.0*a.m_e3_e1*a.m_no_e1_e3_ni*b.m_ni+2.0*a.m_e3_ni*a.m_e3_ni*b.m_no+2.0*a.m_e3_ni*a.m_no_e1_e3_ni*b.m_e1+2.0*a.m_e3_ni*a.m_no_e2_e3_ni*b.m_e2+-2.0*a.m_e3_ni*a.m_no_ni*b.m_e3+-2.0*a.m_e3_ni*a.m_scalar*b.m_e3+a.m_no_e1_e2_ni*a.m_no_e1_e2_ni*b.m_ni+a.m_no_e1_e3_ni*a.m_no_e1_e3_ni*b.m_ni+a.m_no_e2_e3_ni*a.m_no_e2_e3_ni*b.m_ni+a.m_no_ni*a.m_no_ni*b.m_ni+2.0*a.m_no_ni*a.m_scalar*b.m_ni+a.m_scalar*a.m_scalar*b.m_ni) // ni
+		);
+}
+inline pointPair applyUnitVersor(const evenVersor &a, const dualLine &b)
+{
+	return pointPair(pointPair::coord_noe1_noe2_noe3_e1e2_e2e3_e3e1_e1ni_e2ni_e3ni_noni,
+			(2.0*a.m_e1_e2*a.m_no_e1*b.m_e1_e2+2.0*a.m_e1_e2*a.m_no_e1_e2_e3*b.m_e1_e3+-2.0*a.m_e1_e2*a.m_no_e3*b.m_e2_e3+2.0*a.m_e2_e3*a.m_no_e1*b.m_e2_e3+-2.0*a.m_e2_e3*a.m_no_e2*b.m_e1_e3+2.0*a.m_e2_e3*a.m_no_e3*b.m_e1_e2+-2.0*a.m_e3_e1*a.m_no_e1*b.m_e1_e3+2.0*a.m_e3_e1*a.m_no_e1_e2_e3*b.m_e1_e2+-2.0*a.m_e3_e1*a.m_no_e2*b.m_e2_e3+2.0*a.m_no_e1*a.m_no_e1*b.m_e1_ni+-2.0*a.m_no_e1*a.m_no_e1_e2_ni*b.m_e1_e2+-2.0*a.m_no_e1*a.m_no_e1_e3_ni*b.m_e1_e3+4.0*a.m_no_e1*a.m_no_e2*b.m_e2_ni+-2.0*a.m_no_e1*a.m_no_e2_e3_ni*b.m_e2_e3+4.0*a.m_no_e1*a.m_no_e3*b.m_e3_ni+2.0*a.m_no_e1_e2_e3*a.m_no_e1_e2_e3*b.m_e1_ni+-2.0*a.m_no_e1_e2_e3*a.m_no_e1_e2_ni*b.m_e1_e3+2.0*a.m_no_e1_e2_e3*a.m_no_e1_e3_ni*b.m_e1_e2+4.0*a.m_no_e1_e2_e3*a.m_no_e2*b.m_e3_ni+-4.0*a.m_no_e1_e2_e3*a.m_no_e3*b.m_e2_ni+2.0*a.m_no_e1_e2_e3*a.m_no_ni*b.m_e2_e3+-2.0*a.m_no_e1_e2_e3*a.m_scalar*b.m_e2_e3+2.0*a.m_no_e1_e2_ni*a.m_no_e3*b.m_e2_e3+-2.0*a.m_no_e1_e3_ni*a.m_no_e2*b.m_e2_e3+-2.0*a.m_no_e2*a.m_no_e2*b.m_e1_ni+2.0*a.m_no_e2*a.m_no_e2_e3_ni*b.m_e1_e3+2.0*a.m_no_e2*a.m_no_ni*b.m_e1_e2+-2.0*a.m_no_e2*a.m_scalar*b.m_e1_e2+-2.0*a.m_no_e2_e3_ni*a.m_no_e3*b.m_e1_e2+-2.0*a.m_no_e3*a.m_no_e3*b.m_e1_ni+2.0*a.m_no_e3*a.m_no_ni*b.m_e1_e3+-2.0*a.m_no_e3*a.m_scalar*b.m_e1_e3), // no_e1
+			(2.0*a.m_e1_e2*a.m_no_e1_e2_e3*b.m_e2_e3+2.0*a.m_e1_e2*a.m_no_e2*b.m_e1_e2+2.0*a.m_e1_e2*a.m_no_e3*b.m_e1_e3+2.0*a.m_e2_e3*a.m_no_e1*b.m_e1_e3+-2.0*a.m_e2_e3*a.m_no_e1_e2_e3*b.m_e1_e2+2.0*a.m_e2_e3*a.m_no_e2*b.m_e2_e3+2.0*a.m_e3_e1*a.m_no_e1*b.m_e2_e3+-2.0*a.m_e3_e1*a.m_no_e2*b.m_e1_e3+2.0*a.m_e3_e1*a.m_no_e3*b.m_e1_e2+-2.0*a.m_no_e1*a.m_no_e1*b.m_e2_ni+-4.0*a.m_no_e1*a.m_no_e1_e2_e3*b.m_e3_ni+2.0*a.m_no_e1*a.m_no_e1_e3_ni*b.m_e2_e3+4.0*a.m_no_e1*a.m_no_e2*b.m_e1_ni+-2.0*a.m_no_e1*a.m_no_e2_e3_ni*b.m_e1_e3+-2.0*a.m_no_e1*a.m_no_ni*b.m_e1_e2+2.0*a.m_no_e1*a.m_scalar*b.m_e1_e2+2.0*a.m_no_e1_e2_e3*a.m_no_e1_e2_e3*b.m_e2_ni+-2.0*a.m_no_e1_e2_e3*a.m_no_e1_e2_ni*b.m_e2_e3+2.0*a.m_no_e1_e2_e3*a.m_no_e2_e3_ni*b.m_e1_e2+4.0*a.m_no_e1_e2_e3*a.m_no_e3*b.m_e1_ni+-2.0*a.m_no_e1_e2_e3*a.m_no_ni*b.m_e1_e3+2.0*a.m_no_e1_e2_e3*a.m_scalar*b.m_e1_e3+-2.0*a.m_no_e1_e2_ni*a.m_no_e2*b.m_e1_e2+-2.0*a.m_no_e1_e2_ni*a.m_no_e3*b.m_e1_e3+-2.0*a.m_no_e1_e3_ni*a.m_no_e2*b.m_e1_e3+2.0*a.m_no_e1_e3_ni*a.m_no_e3*b.m_e1_e2+2.0*a.m_no_e2*a.m_no_e2*b.m_e2_ni+-2.0*a.m_no_e2*a.m_no_e2_e3_ni*b.m_e2_e3+4.0*a.m_no_e2*a.m_no_e3*b.m_e3_ni+-2.0*a.m_no_e3*a.m_no_e3*b.m_e2_ni+2.0*a.m_no_e3*a.m_no_ni*b.m_e2_e3+-2.0*a.m_no_e3*a.m_scalar*b.m_e2_e3), // no_e2
+			(2.0*a.m_e1_e2*a.m_no_e1*b.m_e2_e3+-2.0*a.m_e1_e2*a.m_no_e2*b.m_e1_e3+2.0*a.m_e1_e2*a.m_no_e3*b.m_e1_e2+-2.0*a.m_e2_e3*a.m_no_e1*b.m_e1_e2+-2.0*a.m_e2_e3*a.m_no_e1_e2_e3*b.m_e1_e3+2.0*a.m_e2_e3*a.m_no_e3*b.m_e2_e3+-2.0*a.m_e3_e1*a.m_no_e1_e2_e3*b.m_e2_e3+-2.0*a.m_e3_e1*a.m_no_e2*b.m_e1_e2+-2.0*a.m_e3_e1*a.m_no_e3*b.m_e1_e3+-2.0*a.m_no_e1*a.m_no_e1*b.m_e3_ni+4.0*a.m_no_e1*a.m_no_e1_e2_e3*b.m_e2_ni+-2.0*a.m_no_e1*a.m_no_e1_e2_ni*b.m_e2_e3+2.0*a.m_no_e1*a.m_no_e2_e3_ni*b.m_e1_e2+4.0*a.m_no_e1*a.m_no_e3*b.m_e1_ni+-2.0*a.m_no_e1*a.m_no_ni*b.m_e1_e3+2.0*a.m_no_e1*a.m_scalar*b.m_e1_e3+2.0*a.m_no_e1_e2_e3*a.m_no_e1_e2_e3*b.m_e3_ni+-2.0*a.m_no_e1_e2_e3*a.m_no_e1_e3_ni*b.m_e2_e3+-4.0*a.m_no_e1_e2_e3*a.m_no_e2*b.m_e1_ni+2.0*a.m_no_e1_e2_e3*a.m_no_e2_e3_ni*b.m_e1_e3+2.0*a.m_no_e1_e2_e3*a.m_no_ni*b.m_e1_e2+-2.0*a.m_no_e1_e2_e3*a.m_scalar*b.m_e1_e2+2.0*a.m_no_e1_e2_ni*a.m_no_e2*b.m_e1_e3+-2.0*a.m_no_e1_e2_ni*a.m_no_e3*b.m_e1_e2+-2.0*a.m_no_e1_e3_ni*a.m_no_e2*b.m_e1_e2+-2.0*a.m_no_e1_e3_ni*a.m_no_e3*b.m_e1_e3+-2.0*a.m_no_e2*a.m_no_e2*b.m_e3_ni+4.0*a.m_no_e2*a.m_no_e3*b.m_e2_ni+-2.0*a.m_no_e2*a.m_no_ni*b.m_e2_e3+2.0*a.m_no_e2*a.m_scalar*b.m_e2_e3+-2.0*a.m_no_e2_e3_ni*a.m_no_e3*b.m_e2_e3+2.0*a.m_no_e3*a.m_no_e3*b.m_e3_ni), // no_e3
+			(a.m_e1_e2*a.m_e1_e2*b.m_e1_e2+2.0*a.m_e1_e2*a.m_e2_e3*b.m_e2_e3+-2.0*a.m_e1_e2*a.m_e3_e1*b.m_e1_e3+2.0*a.m_e1_e2*a.m_no_e1*b.m_e1_ni+2.0*a.m_e1_e2*a.m_no_e2*b.m_e2_ni+2.0*a.m_e1_e2*a.m_no_e3*b.m_e3_ni+-2.0*a.m_e1_e2_e3_ni*a.m_no_e1*b.m_e1_e3+2.0*a.m_e1_e2_e3_ni*a.m_no_e1_e2_e3*b.m_e1_e2+-2.0*a.m_e1_e2_e3_ni*a.m_no_e2*b.m_e2_e3+-2.0*a.m_e1_ni*a.m_no_e1*b.m_e1_e2+-2.0*a.m_e1_ni*a.m_no_e1_e2_e3*b.m_e1_e3+2.0*a.m_e1_ni*a.m_no_e3*b.m_e2_e3-a.m_e2_e3*a.m_e2_e3*b.m_e1_e2+-2.0*a.m_e2_e3*a.m_no_e1*b.m_e3_ni+2.0*a.m_e2_e3*a.m_no_e1_e2_e3*b.m_e2_ni+2.0*a.m_e2_e3*a.m_no_e3*b.m_e1_ni+2.0*a.m_e2_e3*a.m_scalar*b.m_e1_e3+-2.0*a.m_e2_ni*a.m_no_e1_e2_e3*b.m_e2_e3+-2.0*a.m_e2_ni*a.m_no_e2*b.m_e1_e2+-2.0*a.m_e2_ni*a.m_no_e3*b.m_e1_e3-a.m_e3_e1*a.m_e3_e1*b.m_e1_e2+-2.0*a.m_e3_e1*a.m_no_e1_e2_e3*b.m_e1_ni+-2.0*a.m_e3_e1*a.m_no_e2*b.m_e3_ni+2.0*a.m_e3_e1*a.m_no_e3*b.m_e2_ni+2.0*a.m_e3_e1*a.m_scalar*b.m_e2_e3+2.0*a.m_e3_ni*a.m_no_e1*b.m_e2_e3+-2.0*a.m_e3_ni*a.m_no_e2*b.m_e1_e3+2.0*a.m_e3_ni*a.m_no_e3*b.m_e1_e2+2.0*a.m_no_e1*a.m_no_e1_e2_ni*b.m_e1_ni+-2.0*a.m_no_e1*a.m_no_e2_e3_ni*b.m_e3_ni+-2.0*a.m_no_e1*a.m_no_ni*b.m_e2_ni+-2.0*a.m_no_e1*a.m_scalar*b.m_e2_ni+2.0*a.m_no_e1_e2_e3*a.m_no_e1_e3_ni*b.m_e1_ni+2.0*a.m_no_e1_e2_e3*a.m_no_e2_e3_ni*b.m_e2_ni+-2.0*a.m_no_e1_e2_e3*a.m_no_ni*b.m_e3_ni+-2.0*a.m_no_e1_e2_e3*a.m_scalar*b.m_e3_ni-a.m_no_e1_e2_ni*a.m_no_e1_e2_ni*b.m_e1_e2+-2.0*a.m_no_e1_e2_ni*a.m_no_e1_e3_ni*b.m_e1_e3+2.0*a.m_no_e1_e2_ni*a.m_no_e2*b.m_e2_ni+-2.0*a.m_no_e1_e2_ni*a.m_no_e2_e3_ni*b.m_e2_e3+2.0*a.m_no_e1_e2_ni*a.m_no_e3*b.m_e3_ni+a.m_no_e1_e3_ni*a.m_no_e1_e3_ni*b.m_e1_e2+2.0*a.m_no_e1_e3_ni*a.m_no_e2*b.m_e3_ni+-2.0*a.m_no_e1_e3_ni*a.m_no_e3*b.m_e2_ni+2.0*a.m_no_e1_e3_ni*a.m_no_ni*b.m_e2_e3+2.0*a.m_no_e2*a.m_no_ni*b.m_e1_ni+2.0*a.m_no_e2*a.m_scalar*b.m_e1_ni+a.m_no_e2_e3_ni*a.m_no_e2_e3_ni*b.m_e1_e2+2.0*a.m_no_e2_e3_ni*a.m_no_e3*b.m_e1_ni+-2.0*a.m_no_e2_e3_ni*a.m_no_ni*b.m_e1_e3-a.m_no_ni*a.m_no_ni*b.m_e1_e2+a.m_scalar*a.m_scalar*b.m_e1_e2), // e1_e2
+			(-a.m_e1_e2*a.m_e1_e2*b.m_e2_e3+2.0*a.m_e1_e2*a.m_e2_e3*b.m_e1_e2+2.0*a.m_e1_e2*a.m_no_e1*b.m_e3_ni+-2.0*a.m_e1_e2*a.m_no_e1_e2_e3*b.m_e2_ni+-2.0*a.m_e1_e2*a.m_no_e3*b.m_e1_ni+-2.0*a.m_e1_e2*a.m_scalar*b.m_e1_e3+2.0*a.m_e1_e2_e3_ni*a.m_no_e1_e2_e3*b.m_e2_e3+2.0*a.m_e1_e2_e3_ni*a.m_no_e2*b.m_e1_e2+2.0*a.m_e1_e2_e3_ni*a.m_no_e3*b.m_e1_e3+2.0*a.m_e1_ni*a.m_no_e1*b.m_e2_e3+-2.0*a.m_e1_ni*a.m_no_e2*b.m_e1_e3+2.0*a.m_e1_ni*a.m_no_e3*b.m_e1_e2+a.m_e2_e3*a.m_e2_e3*b.m_e2_e3+-2.0*a.m_e2_e3*a.m_e3_e1*b.m_e1_e3+2.0*a.m_e2_e3*a.m_no_e1*b.m_e1_ni+2.0*a.m_e2_e3*a.m_no_e2*b.m_e2_ni+2.0*a.m_e2_e3*a.m_no_e3*b.m_e3_ni+-2.0*a.m_e2_ni*a.m_no_e1*b.m_e1_e3+2.0*a.m_e2_ni*a.m_no_e1_e2_e3*b.m_e1_e2+-2.0*a.m_e2_ni*a.m_no_e2*b.m_e2_e3-a.m_e3_e1*a.m_e3_e1*b.m_e2_e3+2.0*a.m_e3_e1*a.m_no_e1*b.m_e2_ni+2.0*a.m_e3_e1*a.m_no_e1_e2_e3*b.m_e3_ni+-2.0*a.m_e3_e1*a.m_no_e2*b.m_e1_ni+-2.0*a.m_e3_e1*a.m_scalar*b.m_e1_e2+2.0*a.m_e3_ni*a.m_no_e1*b.m_e1_e2+2.0*a.m_e3_ni*a.m_no_e1_e2_e3*b.m_e1_e3+-2.0*a.m_e3_ni*a.m_no_e3*b.m_e2_e3+2.0*a.m_no_e1*a.m_no_e1_e2_ni*b.m_e3_ni+-2.0*a.m_no_e1*a.m_no_e1_e3_ni*b.m_e2_ni+2.0*a.m_no_e1*a.m_no_e2_e3_ni*b.m_e1_ni+-2.0*a.m_no_e1_e2_e3*a.m_no_e1_e2_ni*b.m_e2_ni+-2.0*a.m_no_e1_e2_e3*a.m_no_e1_e3_ni*b.m_e3_ni+-2.0*a.m_no_e1_e2_e3*a.m_no_ni*b.m_e1_ni+-2.0*a.m_no_e1_e2_e3*a.m_scalar*b.m_e1_ni+a.m_no_e1_e2_ni*a.m_no_e1_e2_ni*b.m_e2_e3+-2.0*a.m_no_e1_e2_ni*a.m_no_e2_e3_ni*b.m_e1_e2+-2.0*a.m_no_e1_e2_ni*a.m_no_e3*b.m_e1_ni+2.0*a.m_no_e1_e2_ni*a.m_no_ni*b.m_e1_e3+a.m_no_e1_e3_ni*a.m_no_e1_e3_ni*b.m_e2_e3+2.0*a.m_no_e1_e3_ni*a.m_no_e2*b.m_e1_ni+-2.0*a.m_no_e1_e3_ni*a.m_no_e2_e3_ni*b.m_e1_e3+-2.0*a.m_no_e1_e3_ni*a.m_no_ni*b.m_e1_e2+2.0*a.m_no_e2*a.m_no_e2_e3_ni*b.m_e2_ni+-2.0*a.m_no_e2*a.m_no_ni*b.m_e3_ni+-2.0*a.m_no_e2*a.m_scalar*b.m_e3_ni-a.m_no_e2_e3_ni*a.m_no_e2_e3_ni*b.m_e2_e3+2.0*a.m_no_e2_e3_ni*a.m_no_e3*b.m_e3_ni+2.0*a.m_no_e3*a.m_no_ni*b.m_e2_ni+2.0*a.m_no_e3*a.m_scalar*b.m_e2_ni-a.m_no_ni*a.m_no_ni*b.m_e2_e3+a.m_scalar*a.m_scalar*b.m_e2_e3), // e2_e3
+			-(-a.m_e1_e2*a.m_e1_e2*b.m_e1_e3+-2.0*a.m_e1_e2*a.m_e3_e1*b.m_e1_e2+-2.0*a.m_e1_e2*a.m_no_e1_e2_e3*b.m_e1_ni+-2.0*a.m_e1_e2*a.m_no_e2*b.m_e3_ni+2.0*a.m_e1_e2*a.m_no_e3*b.m_e2_ni+2.0*a.m_e1_e2*a.m_scalar*b.m_e2_e3+2.0*a.m_e1_e2_e3_ni*a.m_no_e1*b.m_e1_e2+2.0*a.m_e1_e2_e3_ni*a.m_no_e1_e2_e3*b.m_e1_e3+-2.0*a.m_e1_e2_e3_ni*a.m_no_e3*b.m_e2_e3+-2.0*a.m_e1_ni*a.m_no_e1*b.m_e1_e3+2.0*a.m_e1_ni*a.m_no_e1_e2_e3*b.m_e1_e2+-2.0*a.m_e1_ni*a.m_no_e2*b.m_e2_e3-a.m_e2_e3*a.m_e2_e3*b.m_e1_e3+-2.0*a.m_e2_e3*a.m_e3_e1*b.m_e2_e3+2.0*a.m_e2_e3*a.m_no_e1*b.m_e2_ni+2.0*a.m_e2_e3*a.m_no_e1_e2_e3*b.m_e3_ni+-2.0*a.m_e2_e3*a.m_no_e2*b.m_e1_ni+-2.0*a.m_e2_e3*a.m_scalar*b.m_e1_e2+-2.0*a.m_e2_ni*a.m_no_e1*b.m_e2_e3+2.0*a.m_e2_ni*a.m_no_e2*b.m_e1_e3+-2.0*a.m_e2_ni*a.m_no_e3*b.m_e1_e2+a.m_e3_e1*a.m_e3_e1*b.m_e1_e3+-2.0*a.m_e3_e1*a.m_no_e1*b.m_e1_ni+-2.0*a.m_e3_e1*a.m_no_e2*b.m_e2_ni+-2.0*a.m_e3_e1*a.m_no_e3*b.m_e3_ni+-2.0*a.m_e3_ni*a.m_no_e1_e2_e3*b.m_e2_e3+-2.0*a.m_e3_ni*a.m_no_e2*b.m_e1_e2+-2.0*a.m_e3_ni*a.m_no_e3*b.m_e1_e3+2.0*a.m_no_e1*a.m_no_e1_e3_ni*b.m_e1_ni+2.0*a.m_no_e1*a.m_no_e2_e3_ni*b.m_e2_ni+-2.0*a.m_no_e1*a.m_no_ni*b.m_e3_ni+-2.0*a.m_no_e1*a.m_scalar*b.m_e3_ni+-2.0*a.m_no_e1_e2_e3*a.m_no_e1_e2_ni*b.m_e1_ni+2.0*a.m_no_e1_e2_e3*a.m_no_e2_e3_ni*b.m_e3_ni+2.0*a.m_no_e1_e2_e3*a.m_no_ni*b.m_e2_ni+2.0*a.m_no_e1_e2_e3*a.m_scalar*b.m_e2_ni+a.m_no_e1_e2_ni*a.m_no_e1_e2_ni*b.m_e1_e3+-2.0*a.m_no_e1_e2_ni*a.m_no_e1_e3_ni*b.m_e1_e2+-2.0*a.m_no_e1_e2_ni*a.m_no_e2*b.m_e3_ni+2.0*a.m_no_e1_e2_ni*a.m_no_e3*b.m_e2_ni+-2.0*a.m_no_e1_e2_ni*a.m_no_ni*b.m_e2_e3-a.m_no_e1_e3_ni*a.m_no_e1_e3_ni*b.m_e1_e3+2.0*a.m_no_e1_e3_ni*a.m_no_e2*b.m_e2_ni+-2.0*a.m_no_e1_e3_ni*a.m_no_e2_e3_ni*b.m_e2_e3+2.0*a.m_no_e1_e3_ni*a.m_no_e3*b.m_e3_ni+-2.0*a.m_no_e2*a.m_no_e2_e3_ni*b.m_e1_ni+a.m_no_e2_e3_ni*a.m_no_e2_e3_ni*b.m_e1_e3+2.0*a.m_no_e2_e3_ni*a.m_no_ni*b.m_e1_e2+2.0*a.m_no_e3*a.m_no_ni*b.m_e1_ni+2.0*a.m_no_e3*a.m_scalar*b.m_e1_ni-a.m_no_ni*a.m_no_ni*b.m_e1_e3+a.m_scalar*a.m_scalar*b.m_e1_e3), // e3_e1
+			(-a.m_e1_e2*a.m_e1_e2*b.m_e1_ni+2.0*a.m_e1_e2*a.m_e1_e2_e3_ni*b.m_e1_e3+2.0*a.m_e1_e2*a.m_e1_ni*b.m_e1_e2+2.0*a.m_e1_e2*a.m_e2_e3*b.m_e3_ni+-2.0*a.m_e1_e2*a.m_e3_ni*b.m_e2_e3+-2.0*a.m_e1_e2*a.m_no_e1_e2_ni*b.m_e1_ni+2.0*a.m_e1_e2*a.m_no_e2_e3_ni*b.m_e3_ni+2.0*a.m_e1_e2*a.m_no_ni*b.m_e2_ni+2.0*a.m_e1_e2*a.m_scalar*b.m_e2_ni+2.0*a.m_e1_e2_e3_ni*a.m_e3_e1*b.m_e1_e2+2.0*a.m_e1_e2_e3_ni*a.m_no_e1_e2_ni*b.m_e1_e3+-2.0*a.m_e1_e2_e3_ni*a.m_no_e1_e3_ni*b.m_e1_e2+-2.0*a.m_e1_e2_e3_ni*a.m_no_ni*b.m_e2_e3+-2.0*a.m_e1_e2_e3_ni*a.m_scalar*b.m_e2_e3+2.0*a.m_e1_ni*a.m_e2_e3*b.m_e2_e3+-2.0*a.m_e1_ni*a.m_e3_e1*b.m_e1_e3+2.0*a.m_e1_ni*a.m_no_e1_e2_ni*b.m_e1_e2+2.0*a.m_e1_ni*a.m_no_e1_e3_ni*b.m_e1_e3+2.0*a.m_e1_ni*a.m_no_e2_e3_ni*b.m_e2_e3+a.m_e2_e3*a.m_e2_e3*b.m_e1_ni+-2.0*a.m_e2_e3*a.m_e2_ni*b.m_e1_e3+2.0*a.m_e2_e3*a.m_e3_e1*b.m_e2_ni+2.0*a.m_e2_e3*a.m_e3_ni*b.m_e1_e2+2.0*a.m_e2_e3*a.m_no_e1_e2_ni*b.m_e3_ni+-2.0*a.m_e2_e3*a.m_no_e1_e3_ni*b.m_e2_ni+2.0*a.m_e2_e3*a.m_no_e2_e3_ni*b.m_e1_ni+-2.0*a.m_e2_ni*a.m_e3_e1*b.m_e2_e3+2.0*a.m_e2_ni*a.m_no_e1_e3_ni*b.m_e2_e3+-2.0*a.m_e2_ni*a.m_no_e2_e3_ni*b.m_e1_e3+-2.0*a.m_e2_ni*a.m_no_ni*b.m_e1_e2+-2.0*a.m_e2_ni*a.m_scalar*b.m_e1_e2-a.m_e3_e1*a.m_e3_e1*b.m_e1_ni+2.0*a.m_e3_e1*a.m_no_e1_e3_ni*b.m_e1_ni+2.0*a.m_e3_e1*a.m_no_e2_e3_ni*b.m_e2_ni+-2.0*a.m_e3_e1*a.m_no_ni*b.m_e3_ni+-2.0*a.m_e3_e1*a.m_scalar*b.m_e3_ni+-2.0*a.m_e3_ni*a.m_no_e1_e2_ni*b.m_e2_e3+2.0*a.m_e3_ni*a.m_no_e2_e3_ni*b.m_e1_e2+-2.0*a.m_e3_ni*a.m_no_ni*b.m_e1_e3+-2.0*a.m_e3_ni*a.m_scalar*b.m_e1_e3-a.m_no_e1_e2_ni*a.m_no_e1_e2_ni*b.m_e1_ni+2.0*a.m_no_e1_e2_ni*a.m_no_e2_e3_ni*b.m_e3_ni+2.0*a.m_no_e1_e2_ni*a.m_no_ni*b.m_e2_ni+2.0*a.m_no_e1_e2_ni*a.m_scalar*b.m_e2_ni-a.m_no_e1_e3_ni*a.m_no_e1_e3_ni*b.m_e1_ni+-2.0*a.m_no_e1_e3_ni*a.m_no_e2_e3_ni*b.m_e2_ni+2.0*a.m_no_e1_e3_ni*a.m_no_ni*b.m_e3_ni+2.0*a.m_no_e1_e3_ni*a.m_scalar*b.m_e3_ni+a.m_no_e2_e3_ni*a.m_no_e2_e3_ni*b.m_e1_ni+a.m_no_ni*a.m_no_ni*b.m_e1_ni+2.0*a.m_no_ni*a.m_scalar*b.m_e1_ni+a.m_scalar*a.m_scalar*b.m_e1_ni), // e1_ni
+			(-a.m_e1_e2*a.m_e1_e2*b.m_e2_ni+2.0*a.m_e1_e2*a.m_e1_e2_e3_ni*b.m_e2_e3+2.0*a.m_e1_e2*a.m_e2_ni*b.m_e1_e2+2.0*a.m_e1_e2*a.m_e3_e1*b.m_e3_ni+2.0*a.m_e1_e2*a.m_e3_ni*b.m_e1_e3+-2.0*a.m_e1_e2*a.m_no_e1_e2_ni*b.m_e2_ni+-2.0*a.m_e1_e2*a.m_no_e1_e3_ni*b.m_e3_ni+-2.0*a.m_e1_e2*a.m_no_ni*b.m_e1_ni+-2.0*a.m_e1_e2*a.m_scalar*b.m_e1_ni+-2.0*a.m_e1_e2_e3_ni*a.m_e2_e3*b.m_e1_e2+2.0*a.m_e1_e2_e3_ni*a.m_no_e1_e2_ni*b.m_e2_e3+-2.0*a.m_e1_e2_e3_ni*a.m_no_e2_e3_ni*b.m_e1_e2+2.0*a.m_e1_e2_e3_ni*a.m_no_ni*b.m_e1_e3+2.0*a.m_e1_e2_e3_ni*a.m_scalar*b.m_e1_e3+2.0*a.m_e1_ni*a.m_e2_e3*b.m_e1_e3+2.0*a.m_e1_ni*a.m_e3_e1*b.m_e2_e3+-2.0*a.m_e1_ni*a.m_no_e1_e3_ni*b.m_e2_e3+2.0*a.m_e1_ni*a.m_no_e2_e3_ni*b.m_e1_e3+2.0*a.m_e1_ni*a.m_no_ni*b.m_e1_e2+2.0*a.m_e1_ni*a.m_scalar*b.m_e1_e2-a.m_e2_e3*a.m_e2_e3*b.m_e2_ni+2.0*a.m_e2_e3*a.m_e2_ni*b.m_e2_e3+2.0*a.m_e2_e3*a.m_e3_e1*b.m_e1_ni+-2.0*a.m_e2_e3*a.m_no_e1_e3_ni*b.m_e1_ni+-2.0*a.m_e2_e3*a.m_no_e2_e3_ni*b.m_e2_ni+2.0*a.m_e2_e3*a.m_no_ni*b.m_e3_ni+2.0*a.m_e2_e3*a.m_scalar*b.m_e3_ni+-2.0*a.m_e2_ni*a.m_e3_e1*b.m_e1_e3+2.0*a.m_e2_ni*a.m_no_e1_e2_ni*b.m_e1_e2+2.0*a.m_e2_ni*a.m_no_e1_e3_ni*b.m_e1_e3+2.0*a.m_e2_ni*a.m_no_e2_e3_ni*b.m_e2_e3+a.m_e3_e1*a.m_e3_e1*b.m_e2_ni+2.0*a.m_e3_e1*a.m_e3_ni*b.m_e1_e2+2.0*a.m_e3_e1*a.m_no_e1_e2_ni*b.m_e3_ni+-2.0*a.m_e3_e1*a.m_no_e1_e3_ni*b.m_e2_ni+2.0*a.m_e3_e1*a.m_no_e2_e3_ni*b.m_e1_ni+2.0*a.m_e3_ni*a.m_no_e1_e2_ni*b.m_e1_e3+-2.0*a.m_e3_ni*a.m_no_e1_e3_ni*b.m_e1_e2+-2.0*a.m_e3_ni*a.m_no_ni*b.m_e2_e3+-2.0*a.m_e3_ni*a.m_scalar*b.m_e2_e3-a.m_no_e1_e2_ni*a.m_no_e1_e2_ni*b.m_e2_ni+-2.0*a.m_no_e1_e2_ni*a.m_no_e1_e3_ni*b.m_e3_ni+-2.0*a.m_no_e1_e2_ni*a.m_no_ni*b.m_e1_ni+-2.0*a.m_no_e1_e2_ni*a.m_scalar*b.m_e1_ni+a.m_no_e1_e3_ni*a.m_no_e1_e3_ni*b.m_e2_ni+-2.0*a.m_no_e1_e3_ni*a.m_no_e2_e3_ni*b.m_e1_ni-a.m_no_e2_e3_ni*a.m_no_e2_e3_ni*b.m_e2_ni+2.0*a.m_no_e2_e3_ni*a.m_no_ni*b.m_e3_ni+2.0*a.m_no_e2_e3_ni*a.m_scalar*b.m_e3_ni+a.m_no_ni*a.m_no_ni*b.m_e2_ni+2.0*a.m_no_ni*a.m_scalar*b.m_e2_ni+a.m_scalar*a.m_scalar*b.m_e2_ni), // e2_ni
+			(a.m_e1_e2*a.m_e1_e2*b.m_e3_ni+2.0*a.m_e1_e2*a.m_e1_ni*b.m_e2_e3+2.0*a.m_e1_e2*a.m_e2_e3*b.m_e1_ni+-2.0*a.m_e1_e2*a.m_e2_ni*b.m_e1_e3+2.0*a.m_e1_e2*a.m_e3_e1*b.m_e2_ni+2.0*a.m_e1_e2*a.m_e3_ni*b.m_e1_e2+2.0*a.m_e1_e2*a.m_no_e1_e2_ni*b.m_e3_ni+-2.0*a.m_e1_e2*a.m_no_e1_e3_ni*b.m_e2_ni+2.0*a.m_e1_e2*a.m_no_e2_e3_ni*b.m_e1_ni+-2.0*a.m_e1_e2_e3_ni*a.m_e2_e3*b.m_e1_e3+-2.0*a.m_e1_e2_e3_ni*a.m_e3_e1*b.m_e2_e3+2.0*a.m_e1_e2_e3_ni*a.m_no_e1_e3_ni*b.m_e2_e3+-2.0*a.m_e1_e2_e3_ni*a.m_no_e2_e3_ni*b.m_e1_e3+-2.0*a.m_e1_e2_e3_ni*a.m_no_ni*b.m_e1_e2+-2.0*a.m_e1_e2_e3_ni*a.m_scalar*b.m_e1_e2+-2.0*a.m_e1_ni*a.m_e2_e3*b.m_e1_e2+2.0*a.m_e1_ni*a.m_no_e1_e2_ni*b.m_e2_e3+-2.0*a.m_e1_ni*a.m_no_e2_e3_ni*b.m_e1_e2+2.0*a.m_e1_ni*a.m_no_ni*b.m_e1_e3+2.0*a.m_e1_ni*a.m_scalar*b.m_e1_e3-a.m_e2_e3*a.m_e2_e3*b.m_e3_ni+2.0*a.m_e2_e3*a.m_e3_ni*b.m_e2_e3+2.0*a.m_e2_e3*a.m_no_e1_e2_ni*b.m_e1_ni+-2.0*a.m_e2_e3*a.m_no_e2_e3_ni*b.m_e3_ni+-2.0*a.m_e2_e3*a.m_no_ni*b.m_e2_ni+-2.0*a.m_e2_e3*a.m_scalar*b.m_e2_ni+-2.0*a.m_e2_ni*a.m_e3_e1*b.m_e1_e2+-2.0*a.m_e2_ni*a.m_no_e1_e2_ni*b.m_e1_e3+2.0*a.m_e2_ni*a.m_no_e1_e3_ni*b.m_e1_e2+2.0*a.m_e2_ni*a.m_no_ni*b.m_e2_e3+2.0*a.m_e2_ni*a.m_scalar*b.m_e2_e3-a.m_e3_e1*a.m_e3_e1*b.m_e3_ni+-2.0*a.m_e3_e1*a.m_e3_ni*b.m_e1_e3+2.0*a.m_e3_e1*a.m_no_e1_e2_ni*b.m_e2_ni+2.0*a.m_e3_e1*a.m_no_e1_e3_ni*b.m_e3_ni+2.0*a.m_e3_e1*a.m_no_ni*b.m_e1_ni+2.0*a.m_e3_e1*a.m_scalar*b.m_e1_ni+2.0*a.m_e3_ni*a.m_no_e1_e2_ni*b.m_e1_e2+2.0*a.m_e3_ni*a.m_no_e1_e3_ni*b.m_e1_e3+2.0*a.m_e3_ni*a.m_no_e2_e3_ni*b.m_e2_e3+a.m_no_e1_e2_ni*a.m_no_e1_e2_ni*b.m_e3_ni+-2.0*a.m_no_e1_e2_ni*a.m_no_e1_e3_ni*b.m_e2_ni+2.0*a.m_no_e1_e2_ni*a.m_no_e2_e3_ni*b.m_e1_ni-a.m_no_e1_e3_ni*a.m_no_e1_e3_ni*b.m_e3_ni+-2.0*a.m_no_e1_e3_ni*a.m_no_ni*b.m_e1_ni+-2.0*a.m_no_e1_e3_ni*a.m_scalar*b.m_e1_ni-a.m_no_e2_e3_ni*a.m_no_e2_e3_ni*b.m_e3_ni+-2.0*a.m_no_e2_e3_ni*a.m_no_ni*b.m_e2_ni+-2.0*a.m_no_e2_e3_ni*a.m_scalar*b.m_e2_ni+a.m_no_ni*a.m_no_ni*b.m_e3_ni+2.0*a.m_no_ni*a.m_scalar*b.m_e3_ni+a.m_scalar*a.m_scalar*b.m_e3_ni), // e3_ni
+			(2.0*a.m_e1_e2*a.m_no_e1*b.m_e2_ni+2.0*a.m_e1_e2*a.m_no_e1_e2_e3*b.m_e3_ni+-2.0*a.m_e1_e2*a.m_no_e1_e3_ni*b.m_e2_e3+-2.0*a.m_e1_e2*a.m_no_e2*b.m_e1_ni+2.0*a.m_e1_e2*a.m_no_e2_e3_ni*b.m_e1_e3+2.0*a.m_e1_e2*a.m_no_ni*b.m_e1_e2+-2.0*a.m_e1_e2_e3_ni*a.m_no_e1*b.m_e2_e3+2.0*a.m_e1_e2_e3_ni*a.m_no_e2*b.m_e1_e3+-2.0*a.m_e1_e2_e3_ni*a.m_no_e3*b.m_e1_e2+2.0*a.m_e1_ni*a.m_no_e1_e2_e3*b.m_e2_e3+2.0*a.m_e1_ni*a.m_no_e2*b.m_e1_e2+2.0*a.m_e1_ni*a.m_no_e3*b.m_e1_e3+2.0*a.m_e2_e3*a.m_no_e1_e2_e3*b.m_e1_ni+-2.0*a.m_e2_e3*a.m_no_e1_e2_ni*b.m_e1_e3+2.0*a.m_e2_e3*a.m_no_e1_e3_ni*b.m_e1_e2+2.0*a.m_e2_e3*a.m_no_e2*b.m_e3_ni+-2.0*a.m_e2_e3*a.m_no_e3*b.m_e2_ni+2.0*a.m_e2_e3*a.m_no_ni*b.m_e2_e3+-2.0*a.m_e2_ni*a.m_no_e1*b.m_e1_e2+-2.0*a.m_e2_ni*a.m_no_e1_e2_e3*b.m_e1_e3+2.0*a.m_e2_ni*a.m_no_e3*b.m_e2_e3+-2.0*a.m_e3_e1*a.m_no_e1*b.m_e3_ni+2.0*a.m_e3_e1*a.m_no_e1_e2_e3*b.m_e2_ni+-2.0*a.m_e3_e1*a.m_no_e1_e2_ni*b.m_e2_e3+2.0*a.m_e3_e1*a.m_no_e2_e3_ni*b.m_e1_e2+2.0*a.m_e3_e1*a.m_no_e3*b.m_e1_ni+-2.0*a.m_e3_e1*a.m_no_ni*b.m_e1_e3+-2.0*a.m_e3_ni*a.m_no_e1*b.m_e1_e3+2.0*a.m_e3_ni*a.m_no_e1_e2_e3*b.m_e1_e2+-2.0*a.m_e3_ni*a.m_no_e2*b.m_e2_e3+2.0*a.m_no_e1*a.m_no_e1_e2_ni*b.m_e2_ni+2.0*a.m_no_e1*a.m_no_e1_e3_ni*b.m_e3_ni+2.0*a.m_no_e1*a.m_no_ni*b.m_e1_ni+2.0*a.m_no_e1*a.m_scalar*b.m_e1_ni+2.0*a.m_no_e1_e2_e3*a.m_no_e1_e2_ni*b.m_e3_ni+-2.0*a.m_no_e1_e2_e3*a.m_no_e1_e3_ni*b.m_e2_ni+2.0*a.m_no_e1_e2_e3*a.m_no_e2_e3_ni*b.m_e1_ni+-2.0*a.m_no_e1_e2_ni*a.m_no_e2*b.m_e1_ni+-2.0*a.m_no_e1_e2_ni*a.m_scalar*b.m_e1_e2+-2.0*a.m_no_e1_e3_ni*a.m_no_e3*b.m_e1_ni+-2.0*a.m_no_e1_e3_ni*a.m_scalar*b.m_e1_e3+2.0*a.m_no_e2*a.m_no_e2_e3_ni*b.m_e3_ni+2.0*a.m_no_e2*a.m_no_ni*b.m_e2_ni+2.0*a.m_no_e2*a.m_scalar*b.m_e2_ni+-2.0*a.m_no_e2_e3_ni*a.m_no_e3*b.m_e2_ni+-2.0*a.m_no_e2_e3_ni*a.m_scalar*b.m_e2_e3+2.0*a.m_no_e3*a.m_no_ni*b.m_e3_ni+2.0*a.m_no_e3*a.m_scalar*b.m_e3_ni) // no_ni
 		);
 }
 inline pointPair applyUnitVersor(const evenVersor &a, const bivectorE3GA &b)
@@ -13118,6 +13453,21 @@ inline dualSphere applyUnitVersor(const oddVersor &a, const dualSphere &b)
 			(-a.m_e1*a.m_e1*b.m_ni+2.0*a.m_e1*a.m_e1_e2_ni*b.m_e2+2.0*a.m_e1*a.m_e1_e3_ni*b.m_e3+2.0*a.m_e1*a.m_ni*b.m_e1+2.0*a.m_e1*a.m_no_e1_ni*b.m_ni-a.m_e1_e2_e3*a.m_e1_e2_e3*b.m_ni+2.0*a.m_e1_e2_e3*a.m_e1_e2_ni*b.m_e3+-2.0*a.m_e1_e2_e3*a.m_e1_e3_ni*b.m_e2+2.0*a.m_e1_e2_e3*a.m_e2_e3_ni*b.m_e1+2.0*a.m_e1_e2_e3*a.m_no_e1_e2_e3_ni*b.m_ni+-2.0*a.m_e1_e2_ni*a.m_e1_e2_ni*b.m_no+-2.0*a.m_e1_e2_ni*a.m_e2*b.m_e1+-2.0*a.m_e1_e2_ni*a.m_no_e1_e2_e3_ni*b.m_e3+-2.0*a.m_e1_e2_ni*a.m_no_e1_ni*b.m_e2+2.0*a.m_e1_e2_ni*a.m_no_e2_ni*b.m_e1+-2.0*a.m_e1_e3_ni*a.m_e1_e3_ni*b.m_no+-2.0*a.m_e1_e3_ni*a.m_e3*b.m_e1+2.0*a.m_e1_e3_ni*a.m_no_e1_e2_e3_ni*b.m_e2+-2.0*a.m_e1_e3_ni*a.m_no_e1_ni*b.m_e3+2.0*a.m_e1_e3_ni*a.m_no_e3_ni*b.m_e1-a.m_e2*a.m_e2*b.m_ni+2.0*a.m_e2*a.m_e2_e3_ni*b.m_e3+2.0*a.m_e2*a.m_ni*b.m_e2+2.0*a.m_e2*a.m_no_e2_ni*b.m_ni+-2.0*a.m_e2_e3_ni*a.m_e2_e3_ni*b.m_no+-2.0*a.m_e2_e3_ni*a.m_e3*b.m_e2+-2.0*a.m_e2_e3_ni*a.m_no_e1_e2_e3_ni*b.m_e1+-2.0*a.m_e2_e3_ni*a.m_no_e2_ni*b.m_e3+2.0*a.m_e2_e3_ni*a.m_no_e3_ni*b.m_e2-a.m_e3*a.m_e3*b.m_ni+2.0*a.m_e3*a.m_ni*b.m_e3+2.0*a.m_e3*a.m_no_e3_ni*b.m_ni+-2.0*a.m_ni*a.m_ni*b.m_no+-2.0*a.m_ni*a.m_no_e1_ni*b.m_e1+-2.0*a.m_ni*a.m_no_e2_ni*b.m_e2+-2.0*a.m_ni*a.m_no_e3_ni*b.m_e3-a.m_no_e1_e2_e3_ni*a.m_no_e1_e2_e3_ni*b.m_ni-a.m_no_e1_ni*a.m_no_e1_ni*b.m_ni-a.m_no_e2_ni*a.m_no_e2_ni*b.m_ni-a.m_no_e3_ni*a.m_no_e3_ni*b.m_ni) // ni
 		);
 }
+inline pointPair applyUnitVersor(const oddVersor &a, const dualLine &b)
+{
+	return pointPair(pointPair::coord_noe1_noe2_noe3_e1e2_e2e3_e3e1_e1ni_e2ni_e3ni_noni,
+			(-2.0*a.m_e1*a.m_no_e1_e2*b.m_e1_e2+-2.0*a.m_e1*a.m_no_e1_e3*b.m_e1_e3+-2.0*a.m_e1*a.m_no_e2_e3*b.m_e2_e3+2.0*a.m_e1_e2_e3*a.m_no*b.m_e2_e3+-2.0*a.m_e1_e2_e3*a.m_no_e1_e2*b.m_e1_e3+2.0*a.m_e1_e2_e3*a.m_no_e1_e3*b.m_e1_e2+2.0*a.m_e2*a.m_no*b.m_e1_e2+-2.0*a.m_e2*a.m_no_e1_e3*b.m_e2_e3+2.0*a.m_e2*a.m_no_e2_e3*b.m_e1_e3+2.0*a.m_e3*a.m_no*b.m_e1_e3+2.0*a.m_e3*a.m_no_e1_e2*b.m_e2_e3+-2.0*a.m_e3*a.m_no_e2_e3*b.m_e1_e2+-2.0*a.m_no*a.m_no*b.m_e1_ni+-4.0*a.m_no*a.m_no_e1_e2*b.m_e2_ni+2.0*a.m_no*a.m_no_e1_e2_e3_ni*b.m_e2_e3+-4.0*a.m_no*a.m_no_e1_e3*b.m_e3_ni+2.0*a.m_no*a.m_no_e2_ni*b.m_e1_e2+2.0*a.m_no*a.m_no_e3_ni*b.m_e1_e3+2.0*a.m_no_e1_e2*a.m_no_e1_e2*b.m_e1_ni+-2.0*a.m_no_e1_e2*a.m_no_e1_e2_e3_ni*b.m_e1_e3+-2.0*a.m_no_e1_e2*a.m_no_e1_ni*b.m_e1_e2+-4.0*a.m_no_e1_e2*a.m_no_e2_e3*b.m_e3_ni+2.0*a.m_no_e1_e2*a.m_no_e3_ni*b.m_e2_e3+2.0*a.m_no_e1_e2_e3_ni*a.m_no_e1_e3*b.m_e1_e2+2.0*a.m_no_e1_e3*a.m_no_e1_e3*b.m_e1_ni+-2.0*a.m_no_e1_e3*a.m_no_e1_ni*b.m_e1_e3+4.0*a.m_no_e1_e3*a.m_no_e2_e3*b.m_e2_ni+-2.0*a.m_no_e1_e3*a.m_no_e2_ni*b.m_e2_e3+-2.0*a.m_no_e1_ni*a.m_no_e2_e3*b.m_e2_e3+-2.0*a.m_no_e2_e3*a.m_no_e2_e3*b.m_e1_ni+2.0*a.m_no_e2_e3*a.m_no_e2_ni*b.m_e1_e3+-2.0*a.m_no_e2_e3*a.m_no_e3_ni*b.m_e1_e2), // no_e1
+			(-2.0*a.m_e1*a.m_no*b.m_e1_e2+2.0*a.m_e1*a.m_no_e1_e3*b.m_e2_e3+-2.0*a.m_e1*a.m_no_e2_e3*b.m_e1_e3+-2.0*a.m_e1_e2_e3*a.m_no*b.m_e1_e3+-2.0*a.m_e1_e2_e3*a.m_no_e1_e2*b.m_e2_e3+2.0*a.m_e1_e2_e3*a.m_no_e2_e3*b.m_e1_e2+-2.0*a.m_e2*a.m_no_e1_e2*b.m_e1_e2+-2.0*a.m_e2*a.m_no_e1_e3*b.m_e1_e3+-2.0*a.m_e2*a.m_no_e2_e3*b.m_e2_e3+2.0*a.m_e3*a.m_no*b.m_e2_e3+-2.0*a.m_e3*a.m_no_e1_e2*b.m_e1_e3+2.0*a.m_e3*a.m_no_e1_e3*b.m_e1_e2+-2.0*a.m_no*a.m_no*b.m_e2_ni+4.0*a.m_no*a.m_no_e1_e2*b.m_e1_ni+-2.0*a.m_no*a.m_no_e1_e2_e3_ni*b.m_e1_e3+-2.0*a.m_no*a.m_no_e1_ni*b.m_e1_e2+-4.0*a.m_no*a.m_no_e2_e3*b.m_e3_ni+2.0*a.m_no*a.m_no_e3_ni*b.m_e2_e3+2.0*a.m_no_e1_e2*a.m_no_e1_e2*b.m_e2_ni+-2.0*a.m_no_e1_e2*a.m_no_e1_e2_e3_ni*b.m_e2_e3+4.0*a.m_no_e1_e2*a.m_no_e1_e3*b.m_e3_ni+-2.0*a.m_no_e1_e2*a.m_no_e2_ni*b.m_e1_e2+-2.0*a.m_no_e1_e2*a.m_no_e3_ni*b.m_e1_e3+2.0*a.m_no_e1_e2_e3_ni*a.m_no_e2_e3*b.m_e1_e2+-2.0*a.m_no_e1_e3*a.m_no_e1_e3*b.m_e2_ni+2.0*a.m_no_e1_e3*a.m_no_e1_ni*b.m_e2_e3+4.0*a.m_no_e1_e3*a.m_no_e2_e3*b.m_e1_ni+-2.0*a.m_no_e1_e3*a.m_no_e2_ni*b.m_e1_e3+2.0*a.m_no_e1_e3*a.m_no_e3_ni*b.m_e1_e2+-2.0*a.m_no_e1_ni*a.m_no_e2_e3*b.m_e1_e3+2.0*a.m_no_e2_e3*a.m_no_e2_e3*b.m_e2_ni+-2.0*a.m_no_e2_e3*a.m_no_e2_ni*b.m_e2_e3), // no_e2
+			(-2.0*a.m_e1*a.m_no*b.m_e1_e3+-2.0*a.m_e1*a.m_no_e1_e2*b.m_e2_e3+2.0*a.m_e1*a.m_no_e2_e3*b.m_e1_e2+2.0*a.m_e1_e2_e3*a.m_no*b.m_e1_e2+-2.0*a.m_e1_e2_e3*a.m_no_e1_e3*b.m_e2_e3+2.0*a.m_e1_e2_e3*a.m_no_e2_e3*b.m_e1_e3+-2.0*a.m_e2*a.m_no*b.m_e2_e3+2.0*a.m_e2*a.m_no_e1_e2*b.m_e1_e3+-2.0*a.m_e2*a.m_no_e1_e3*b.m_e1_e2+-2.0*a.m_e3*a.m_no_e1_e2*b.m_e1_e2+-2.0*a.m_e3*a.m_no_e1_e3*b.m_e1_e3+-2.0*a.m_e3*a.m_no_e2_e3*b.m_e2_e3+-2.0*a.m_no*a.m_no*b.m_e3_ni+2.0*a.m_no*a.m_no_e1_e2_e3_ni*b.m_e1_e2+4.0*a.m_no*a.m_no_e1_e3*b.m_e1_ni+-2.0*a.m_no*a.m_no_e1_ni*b.m_e1_e3+4.0*a.m_no*a.m_no_e2_e3*b.m_e2_ni+-2.0*a.m_no*a.m_no_e2_ni*b.m_e2_e3+-2.0*a.m_no_e1_e2*a.m_no_e1_e2*b.m_e3_ni+4.0*a.m_no_e1_e2*a.m_no_e1_e3*b.m_e2_ni+-2.0*a.m_no_e1_e2*a.m_no_e1_ni*b.m_e2_e3+-4.0*a.m_no_e1_e2*a.m_no_e2_e3*b.m_e1_ni+2.0*a.m_no_e1_e2*a.m_no_e2_ni*b.m_e1_e3+-2.0*a.m_no_e1_e2*a.m_no_e3_ni*b.m_e1_e2+-2.0*a.m_no_e1_e2_e3_ni*a.m_no_e1_e3*b.m_e2_e3+2.0*a.m_no_e1_e2_e3_ni*a.m_no_e2_e3*b.m_e1_e3+2.0*a.m_no_e1_e3*a.m_no_e1_e3*b.m_e3_ni+-2.0*a.m_no_e1_e3*a.m_no_e2_ni*b.m_e1_e2+-2.0*a.m_no_e1_e3*a.m_no_e3_ni*b.m_e1_e3+2.0*a.m_no_e1_ni*a.m_no_e2_e3*b.m_e1_e2+2.0*a.m_no_e2_e3*a.m_no_e2_e3*b.m_e3_ni+-2.0*a.m_no_e2_e3*a.m_no_e3_ni*b.m_e2_e3), // no_e3
+			(-a.m_e1*a.m_e1*b.m_e1_e2+-2.0*a.m_e1*a.m_e1_e2_e3*b.m_e1_e3+2.0*a.m_e1*a.m_e3*b.m_e2_e3+-2.0*a.m_e1*a.m_no*b.m_e2_ni+2.0*a.m_e1*a.m_no_e1_e2*b.m_e1_ni+-2.0*a.m_e1*a.m_no_e2_e3*b.m_e3_ni+a.m_e1_e2_e3*a.m_e1_e2_e3*b.m_e1_e2+-2.0*a.m_e1_e2_e3*a.m_e2*b.m_e2_e3+-2.0*a.m_e1_e2_e3*a.m_no*b.m_e3_ni+2.0*a.m_e1_e2_e3*a.m_no_e1_e3*b.m_e1_ni+2.0*a.m_e1_e2_e3*a.m_no_e2_e3*b.m_e2_ni+-2.0*a.m_e1_e2_ni*a.m_no_e1_e2*b.m_e1_e2+-2.0*a.m_e1_e2_ni*a.m_no_e1_e3*b.m_e1_e3+-2.0*a.m_e1_e2_ni*a.m_no_e2_e3*b.m_e2_e3+2.0*a.m_e1_e3_ni*a.m_no*b.m_e2_e3+-2.0*a.m_e1_e3_ni*a.m_no_e1_e2*b.m_e1_e3+2.0*a.m_e1_e3_ni*a.m_no_e1_e3*b.m_e1_e2-a.m_e2*a.m_e2*b.m_e1_e2+-2.0*a.m_e2*a.m_e3*b.m_e1_e3+2.0*a.m_e2*a.m_no*b.m_e1_ni+2.0*a.m_e2*a.m_no_e1_e2*b.m_e2_ni+2.0*a.m_e2*a.m_no_e1_e3*b.m_e3_ni+-2.0*a.m_e2_e3_ni*a.m_no*b.m_e1_e3+-2.0*a.m_e2_e3_ni*a.m_no_e1_e2*b.m_e2_e3+2.0*a.m_e2_e3_ni*a.m_no_e2_e3*b.m_e1_e2+a.m_e3*a.m_e3*b.m_e1_e2+2.0*a.m_e3*a.m_no_e1_e2*b.m_e3_ni+-2.0*a.m_e3*a.m_no_e1_e3*b.m_e2_ni+2.0*a.m_e3*a.m_no_e2_e3*b.m_e1_ni+-2.0*a.m_ni*a.m_no*b.m_e1_e2+2.0*a.m_ni*a.m_no_e1_e3*b.m_e2_e3+-2.0*a.m_ni*a.m_no_e2_e3*b.m_e1_e3+2.0*a.m_no*a.m_no_e1_e2_e3_ni*b.m_e3_ni+2.0*a.m_no*a.m_no_e1_ni*b.m_e2_ni+-2.0*a.m_no*a.m_no_e2_ni*b.m_e1_ni+-2.0*a.m_no_e1_e2*a.m_no_e1_ni*b.m_e1_ni+-2.0*a.m_no_e1_e2*a.m_no_e2_ni*b.m_e2_ni+-2.0*a.m_no_e1_e2*a.m_no_e3_ni*b.m_e3_ni-a.m_no_e1_e2_e3_ni*a.m_no_e1_e2_e3_ni*b.m_e1_e2+-2.0*a.m_no_e1_e2_e3_ni*a.m_no_e1_e3*b.m_e1_ni+2.0*a.m_no_e1_e2_e3_ni*a.m_no_e1_ni*b.m_e1_e3+-2.0*a.m_no_e1_e2_e3_ni*a.m_no_e2_e3*b.m_e2_ni+2.0*a.m_no_e1_e2_e3_ni*a.m_no_e2_ni*b.m_e2_e3+-2.0*a.m_no_e1_e3*a.m_no_e2_ni*b.m_e3_ni+2.0*a.m_no_e1_e3*a.m_no_e3_ni*b.m_e2_ni+a.m_no_e1_ni*a.m_no_e1_ni*b.m_e1_e2+2.0*a.m_no_e1_ni*a.m_no_e2_e3*b.m_e3_ni+-2.0*a.m_no_e1_ni*a.m_no_e3_ni*b.m_e2_e3+-2.0*a.m_no_e2_e3*a.m_no_e3_ni*b.m_e1_ni+a.m_no_e2_ni*a.m_no_e2_ni*b.m_e1_e2+2.0*a.m_no_e2_ni*a.m_no_e3_ni*b.m_e1_e3-a.m_no_e3_ni*a.m_no_e3_ni*b.m_e1_e2), // e1_e2
+			(a.m_e1*a.m_e1*b.m_e2_e3+-2.0*a.m_e1*a.m_e2*b.m_e1_e3+2.0*a.m_e1*a.m_e3*b.m_e1_e2+2.0*a.m_e1*a.m_no_e1_e2*b.m_e3_ni+-2.0*a.m_e1*a.m_no_e1_e3*b.m_e2_ni+2.0*a.m_e1*a.m_no_e2_e3*b.m_e1_ni+a.m_e1_e2_e3*a.m_e1_e2_e3*b.m_e2_e3+2.0*a.m_e1_e2_e3*a.m_e2*b.m_e1_e2+2.0*a.m_e1_e2_e3*a.m_e3*b.m_e1_e3+-2.0*a.m_e1_e2_e3*a.m_no*b.m_e1_ni+-2.0*a.m_e1_e2_e3*a.m_no_e1_e2*b.m_e2_ni+-2.0*a.m_e1_e2_e3*a.m_no_e1_e3*b.m_e3_ni+2.0*a.m_e1_e2_ni*a.m_no*b.m_e1_e3+2.0*a.m_e1_e2_ni*a.m_no_e1_e2*b.m_e2_e3+-2.0*a.m_e1_e2_ni*a.m_no_e2_e3*b.m_e1_e2+-2.0*a.m_e1_e3_ni*a.m_no*b.m_e1_e2+2.0*a.m_e1_e3_ni*a.m_no_e1_e3*b.m_e2_e3+-2.0*a.m_e1_e3_ni*a.m_no_e2_e3*b.m_e1_e3-a.m_e2*a.m_e2*b.m_e2_e3+-2.0*a.m_e2*a.m_no*b.m_e3_ni+2.0*a.m_e2*a.m_no_e1_e3*b.m_e1_ni+2.0*a.m_e2*a.m_no_e2_e3*b.m_e2_ni+-2.0*a.m_e2_e3_ni*a.m_no_e1_e2*b.m_e1_e2+-2.0*a.m_e2_e3_ni*a.m_no_e1_e3*b.m_e1_e3+-2.0*a.m_e2_e3_ni*a.m_no_e2_e3*b.m_e2_e3-a.m_e3*a.m_e3*b.m_e2_e3+2.0*a.m_e3*a.m_no*b.m_e2_ni+-2.0*a.m_e3*a.m_no_e1_e2*b.m_e1_ni+2.0*a.m_e3*a.m_no_e2_e3*b.m_e3_ni+-2.0*a.m_ni*a.m_no*b.m_e2_e3+2.0*a.m_ni*a.m_no_e1_e2*b.m_e1_e3+-2.0*a.m_ni*a.m_no_e1_e3*b.m_e1_e2+2.0*a.m_no*a.m_no_e1_e2_e3_ni*b.m_e1_ni+2.0*a.m_no*a.m_no_e2_ni*b.m_e3_ni+-2.0*a.m_no*a.m_no_e3_ni*b.m_e2_ni+2.0*a.m_no_e1_e2*a.m_no_e1_e2_e3_ni*b.m_e2_ni+-2.0*a.m_no_e1_e2*a.m_no_e1_ni*b.m_e3_ni+2.0*a.m_no_e1_e2*a.m_no_e3_ni*b.m_e1_ni-a.m_no_e1_e2_e3_ni*a.m_no_e1_e2_e3_ni*b.m_e2_e3+2.0*a.m_no_e1_e2_e3_ni*a.m_no_e1_e3*b.m_e3_ni+-2.0*a.m_no_e1_e2_e3_ni*a.m_no_e2_ni*b.m_e1_e2+-2.0*a.m_no_e1_e2_e3_ni*a.m_no_e3_ni*b.m_e1_e3+2.0*a.m_no_e1_e3*a.m_no_e1_ni*b.m_e2_ni+-2.0*a.m_no_e1_e3*a.m_no_e2_ni*b.m_e1_ni-a.m_no_e1_ni*a.m_no_e1_ni*b.m_e2_e3+-2.0*a.m_no_e1_ni*a.m_no_e2_e3*b.m_e1_ni+2.0*a.m_no_e1_ni*a.m_no_e2_ni*b.m_e1_e3+-2.0*a.m_no_e1_ni*a.m_no_e3_ni*b.m_e1_e2+-2.0*a.m_no_e2_e3*a.m_no_e2_ni*b.m_e2_ni+-2.0*a.m_no_e2_e3*a.m_no_e3_ni*b.m_e3_ni+a.m_no_e2_ni*a.m_no_e2_ni*b.m_e2_e3+a.m_no_e3_ni*a.m_no_e3_ni*b.m_e2_e3), // e2_e3
+			-(-a.m_e1*a.m_e1*b.m_e1_e3+2.0*a.m_e1*a.m_e1_e2_e3*b.m_e1_e2+-2.0*a.m_e1*a.m_e2*b.m_e2_e3+-2.0*a.m_e1*a.m_no*b.m_e3_ni+2.0*a.m_e1*a.m_no_e1_e3*b.m_e1_ni+2.0*a.m_e1*a.m_no_e2_e3*b.m_e2_ni+a.m_e1_e2_e3*a.m_e1_e2_e3*b.m_e1_e3+-2.0*a.m_e1_e2_e3*a.m_e3*b.m_e2_e3+2.0*a.m_e1_e2_e3*a.m_no*b.m_e2_ni+-2.0*a.m_e1_e2_e3*a.m_no_e1_e2*b.m_e1_ni+2.0*a.m_e1_e2_e3*a.m_no_e2_e3*b.m_e3_ni+-2.0*a.m_e1_e2_ni*a.m_no*b.m_e2_e3+2.0*a.m_e1_e2_ni*a.m_no_e1_e2*b.m_e1_e3+-2.0*a.m_e1_e2_ni*a.m_no_e1_e3*b.m_e1_e2+-2.0*a.m_e1_e3_ni*a.m_no_e1_e2*b.m_e1_e2+-2.0*a.m_e1_e3_ni*a.m_no_e1_e3*b.m_e1_e3+-2.0*a.m_e1_e3_ni*a.m_no_e2_e3*b.m_e2_e3+a.m_e2*a.m_e2*b.m_e1_e3+-2.0*a.m_e2*a.m_e3*b.m_e1_e2+-2.0*a.m_e2*a.m_no_e1_e2*b.m_e3_ni+2.0*a.m_e2*a.m_no_e1_e3*b.m_e2_ni+-2.0*a.m_e2*a.m_no_e2_e3*b.m_e1_ni+2.0*a.m_e2_e3_ni*a.m_no*b.m_e1_e2+-2.0*a.m_e2_e3_ni*a.m_no_e1_e3*b.m_e2_e3+2.0*a.m_e2_e3_ni*a.m_no_e2_e3*b.m_e1_e3-a.m_e3*a.m_e3*b.m_e1_e3+2.0*a.m_e3*a.m_no*b.m_e1_ni+2.0*a.m_e3*a.m_no_e1_e2*b.m_e2_ni+2.0*a.m_e3*a.m_no_e1_e3*b.m_e3_ni+-2.0*a.m_ni*a.m_no*b.m_e1_e3+-2.0*a.m_ni*a.m_no_e1_e2*b.m_e2_e3+2.0*a.m_ni*a.m_no_e2_e3*b.m_e1_e2+-2.0*a.m_no*a.m_no_e1_e2_e3_ni*b.m_e2_ni+2.0*a.m_no*a.m_no_e1_ni*b.m_e3_ni+-2.0*a.m_no*a.m_no_e3_ni*b.m_e1_ni+2.0*a.m_no_e1_e2*a.m_no_e1_e2_e3_ni*b.m_e1_ni+2.0*a.m_no_e1_e2*a.m_no_e2_ni*b.m_e3_ni+-2.0*a.m_no_e1_e2*a.m_no_e3_ni*b.m_e2_ni-a.m_no_e1_e2_e3_ni*a.m_no_e1_e2_e3_ni*b.m_e1_e3+-2.0*a.m_no_e1_e2_e3_ni*a.m_no_e1_ni*b.m_e1_e2+-2.0*a.m_no_e1_e2_e3_ni*a.m_no_e2_e3*b.m_e3_ni+2.0*a.m_no_e1_e2_e3_ni*a.m_no_e3_ni*b.m_e2_e3+-2.0*a.m_no_e1_e3*a.m_no_e1_ni*b.m_e1_ni+-2.0*a.m_no_e1_e3*a.m_no_e2_ni*b.m_e2_ni+-2.0*a.m_no_e1_e3*a.m_no_e3_ni*b.m_e3_ni+a.m_no_e1_ni*a.m_no_e1_ni*b.m_e1_e3+-2.0*a.m_no_e1_ni*a.m_no_e2_e3*b.m_e2_ni+2.0*a.m_no_e1_ni*a.m_no_e2_ni*b.m_e2_e3+2.0*a.m_no_e2_e3*a.m_no_e2_ni*b.m_e1_ni-a.m_no_e2_ni*a.m_no_e2_ni*b.m_e1_e3+2.0*a.m_no_e2_ni*a.m_no_e3_ni*b.m_e1_e2+a.m_no_e3_ni*a.m_no_e3_ni*b.m_e1_e3), // e3_e1
+			(-a.m_e1*a.m_e1*b.m_e1_ni+2.0*a.m_e1*a.m_e1_e2_ni*b.m_e1_e2+2.0*a.m_e1*a.m_e1_e3_ni*b.m_e1_e3+-2.0*a.m_e1*a.m_e2*b.m_e2_ni+2.0*a.m_e1*a.m_e2_e3_ni*b.m_e2_e3+-2.0*a.m_e1*a.m_e3*b.m_e3_ni+2.0*a.m_e1*a.m_no_e1_ni*b.m_e1_ni+2.0*a.m_e1*a.m_no_e2_ni*b.m_e2_ni+2.0*a.m_e1*a.m_no_e3_ni*b.m_e3_ni-a.m_e1_e2_e3*a.m_e1_e2_e3*b.m_e1_ni+2.0*a.m_e1_e2_e3*a.m_e1_e2_ni*b.m_e1_e3+-2.0*a.m_e1_e2_e3*a.m_e1_e3_ni*b.m_e1_e2+-2.0*a.m_e1_e2_e3*a.m_e2*b.m_e3_ni+2.0*a.m_e1_e2_e3*a.m_e3*b.m_e2_ni+-2.0*a.m_e1_e2_e3*a.m_ni*b.m_e2_e3+2.0*a.m_e1_e2_e3*a.m_no_e1_e2_e3_ni*b.m_e1_ni+2.0*a.m_e1_e2_e3*a.m_no_e2_ni*b.m_e3_ni+-2.0*a.m_e1_e2_e3*a.m_no_e3_ni*b.m_e2_ni+-2.0*a.m_e1_e2_ni*a.m_e3*b.m_e2_e3+-2.0*a.m_e1_e2_ni*a.m_no_e1_e2_e3_ni*b.m_e1_e3+-2.0*a.m_e1_e2_ni*a.m_no_e1_ni*b.m_e1_e2+2.0*a.m_e1_e2_ni*a.m_no_e3_ni*b.m_e2_e3+2.0*a.m_e1_e3_ni*a.m_e2*b.m_e2_e3+2.0*a.m_e1_e3_ni*a.m_no_e1_e2_e3_ni*b.m_e1_e2+-2.0*a.m_e1_e3_ni*a.m_no_e1_ni*b.m_e1_e3+-2.0*a.m_e1_e3_ni*a.m_no_e2_ni*b.m_e2_e3+a.m_e2*a.m_e2*b.m_e1_ni+-2.0*a.m_e2*a.m_e2_e3_ni*b.m_e1_e3+-2.0*a.m_e2*a.m_ni*b.m_e1_e2+2.0*a.m_e2*a.m_no_e1_e2_e3_ni*b.m_e3_ni+2.0*a.m_e2*a.m_no_e1_ni*b.m_e2_ni+-2.0*a.m_e2*a.m_no_e2_ni*b.m_e1_ni+2.0*a.m_e2_e3_ni*a.m_e3*b.m_e1_e2+-2.0*a.m_e2_e3_ni*a.m_no_e1_ni*b.m_e2_e3+2.0*a.m_e2_e3_ni*a.m_no_e2_ni*b.m_e1_e3+-2.0*a.m_e2_e3_ni*a.m_no_e3_ni*b.m_e1_e2+a.m_e3*a.m_e3*b.m_e1_ni+-2.0*a.m_e3*a.m_ni*b.m_e1_e3+-2.0*a.m_e3*a.m_no_e1_e2_e3_ni*b.m_e2_ni+2.0*a.m_e3*a.m_no_e1_ni*b.m_e3_ni+-2.0*a.m_e3*a.m_no_e3_ni*b.m_e1_ni+2.0*a.m_ni*a.m_no_e1_e2_e3_ni*b.m_e2_e3+2.0*a.m_ni*a.m_no_e2_ni*b.m_e1_e2+2.0*a.m_ni*a.m_no_e3_ni*b.m_e1_e3-a.m_no_e1_e2_e3_ni*a.m_no_e1_e2_e3_ni*b.m_e1_ni+-2.0*a.m_no_e1_e2_e3_ni*a.m_no_e2_ni*b.m_e3_ni+2.0*a.m_no_e1_e2_e3_ni*a.m_no_e3_ni*b.m_e2_ni-a.m_no_e1_ni*a.m_no_e1_ni*b.m_e1_ni+-2.0*a.m_no_e1_ni*a.m_no_e2_ni*b.m_e2_ni+-2.0*a.m_no_e1_ni*a.m_no_e3_ni*b.m_e3_ni+a.m_no_e2_ni*a.m_no_e2_ni*b.m_e1_ni+a.m_no_e3_ni*a.m_no_e3_ni*b.m_e1_ni), // e1_ni
+			(a.m_e1*a.m_e1*b.m_e2_ni+2.0*a.m_e1*a.m_e1_e2_e3*b.m_e3_ni+-2.0*a.m_e1*a.m_e1_e3_ni*b.m_e2_e3+-2.0*a.m_e1*a.m_e2*b.m_e1_ni+2.0*a.m_e1*a.m_e2_e3_ni*b.m_e1_e3+2.0*a.m_e1*a.m_ni*b.m_e1_e2+-2.0*a.m_e1*a.m_no_e1_e2_e3_ni*b.m_e3_ni+-2.0*a.m_e1*a.m_no_e1_ni*b.m_e2_ni+2.0*a.m_e1*a.m_no_e2_ni*b.m_e1_ni-a.m_e1_e2_e3*a.m_e1_e2_e3*b.m_e2_ni+2.0*a.m_e1_e2_e3*a.m_e1_e2_ni*b.m_e2_e3+-2.0*a.m_e1_e2_e3*a.m_e2_e3_ni*b.m_e1_e2+-2.0*a.m_e1_e2_e3*a.m_e3*b.m_e1_ni+2.0*a.m_e1_e2_e3*a.m_ni*b.m_e1_e3+2.0*a.m_e1_e2_e3*a.m_no_e1_e2_e3_ni*b.m_e2_ni+-2.0*a.m_e1_e2_e3*a.m_no_e1_ni*b.m_e3_ni+2.0*a.m_e1_e2_e3*a.m_no_e3_ni*b.m_e1_ni+2.0*a.m_e1_e2_ni*a.m_e2*b.m_e1_e2+2.0*a.m_e1_e2_ni*a.m_e3*b.m_e1_e3+-2.0*a.m_e1_e2_ni*a.m_no_e1_e2_e3_ni*b.m_e2_e3+-2.0*a.m_e1_e2_ni*a.m_no_e2_ni*b.m_e1_e2+-2.0*a.m_e1_e2_ni*a.m_no_e3_ni*b.m_e1_e3+2.0*a.m_e1_e3_ni*a.m_e2*b.m_e1_e3+-2.0*a.m_e1_e3_ni*a.m_e3*b.m_e1_e2+2.0*a.m_e1_e3_ni*a.m_no_e1_ni*b.m_e2_e3+-2.0*a.m_e1_e3_ni*a.m_no_e2_ni*b.m_e1_e3+2.0*a.m_e1_e3_ni*a.m_no_e3_ni*b.m_e1_e2-a.m_e2*a.m_e2*b.m_e2_ni+2.0*a.m_e2*a.m_e2_e3_ni*b.m_e2_e3+-2.0*a.m_e2*a.m_e3*b.m_e3_ni+2.0*a.m_e2*a.m_no_e1_ni*b.m_e1_ni+2.0*a.m_e2*a.m_no_e2_ni*b.m_e2_ni+2.0*a.m_e2*a.m_no_e3_ni*b.m_e3_ni+2.0*a.m_e2_e3_ni*a.m_no_e1_e2_e3_ni*b.m_e1_e2+-2.0*a.m_e2_e3_ni*a.m_no_e1_ni*b.m_e1_e3+-2.0*a.m_e2_e3_ni*a.m_no_e2_ni*b.m_e2_e3+a.m_e3*a.m_e3*b.m_e2_ni+-2.0*a.m_e3*a.m_ni*b.m_e2_e3+2.0*a.m_e3*a.m_no_e1_e2_e3_ni*b.m_e1_ni+2.0*a.m_e3*a.m_no_e2_ni*b.m_e3_ni+-2.0*a.m_e3*a.m_no_e3_ni*b.m_e2_ni+-2.0*a.m_ni*a.m_no_e1_e2_e3_ni*b.m_e1_e3+-2.0*a.m_ni*a.m_no_e1_ni*b.m_e1_e2+2.0*a.m_ni*a.m_no_e3_ni*b.m_e2_e3-a.m_no_e1_e2_e3_ni*a.m_no_e1_e2_e3_ni*b.m_e2_ni+2.0*a.m_no_e1_e2_e3_ni*a.m_no_e1_ni*b.m_e3_ni+-2.0*a.m_no_e1_e2_e3_ni*a.m_no_e3_ni*b.m_e1_ni+a.m_no_e1_ni*a.m_no_e1_ni*b.m_e2_ni+-2.0*a.m_no_e1_ni*a.m_no_e2_ni*b.m_e1_ni-a.m_no_e2_ni*a.m_no_e2_ni*b.m_e2_ni+-2.0*a.m_no_e2_ni*a.m_no_e3_ni*b.m_e3_ni+a.m_no_e3_ni*a.m_no_e3_ni*b.m_e2_ni), // e2_ni
+			(a.m_e1*a.m_e1*b.m_e3_ni+-2.0*a.m_e1*a.m_e1_e2_e3*b.m_e2_ni+2.0*a.m_e1*a.m_e1_e2_ni*b.m_e2_e3+-2.0*a.m_e1*a.m_e2_e3_ni*b.m_e1_e2+-2.0*a.m_e1*a.m_e3*b.m_e1_ni+2.0*a.m_e1*a.m_ni*b.m_e1_e3+2.0*a.m_e1*a.m_no_e1_e2_e3_ni*b.m_e2_ni+-2.0*a.m_e1*a.m_no_e1_ni*b.m_e3_ni+2.0*a.m_e1*a.m_no_e3_ni*b.m_e1_ni-a.m_e1_e2_e3*a.m_e1_e2_e3*b.m_e3_ni+2.0*a.m_e1_e2_e3*a.m_e1_e3_ni*b.m_e2_e3+2.0*a.m_e1_e2_e3*a.m_e2*b.m_e1_ni+-2.0*a.m_e1_e2_e3*a.m_e2_e3_ni*b.m_e1_e3+-2.0*a.m_e1_e2_e3*a.m_ni*b.m_e1_e2+2.0*a.m_e1_e2_e3*a.m_no_e1_e2_e3_ni*b.m_e3_ni+2.0*a.m_e1_e2_e3*a.m_no_e1_ni*b.m_e2_ni+-2.0*a.m_e1_e2_e3*a.m_no_e2_ni*b.m_e1_ni+-2.0*a.m_e1_e2_ni*a.m_e2*b.m_e1_e3+2.0*a.m_e1_e2_ni*a.m_e3*b.m_e1_e2+-2.0*a.m_e1_e2_ni*a.m_no_e1_ni*b.m_e2_e3+2.0*a.m_e1_e2_ni*a.m_no_e2_ni*b.m_e1_e3+-2.0*a.m_e1_e2_ni*a.m_no_e3_ni*b.m_e1_e2+2.0*a.m_e1_e3_ni*a.m_e2*b.m_e1_e2+2.0*a.m_e1_e3_ni*a.m_e3*b.m_e1_e3+-2.0*a.m_e1_e3_ni*a.m_no_e1_e2_e3_ni*b.m_e2_e3+-2.0*a.m_e1_e3_ni*a.m_no_e2_ni*b.m_e1_e2+-2.0*a.m_e1_e3_ni*a.m_no_e3_ni*b.m_e1_e3+a.m_e2*a.m_e2*b.m_e3_ni+-2.0*a.m_e2*a.m_e3*b.m_e2_ni+2.0*a.m_e2*a.m_ni*b.m_e2_e3+-2.0*a.m_e2*a.m_no_e1_e2_e3_ni*b.m_e1_ni+-2.0*a.m_e2*a.m_no_e2_ni*b.m_e3_ni+2.0*a.m_e2*a.m_no_e3_ni*b.m_e2_ni+2.0*a.m_e2_e3_ni*a.m_e3*b.m_e2_e3+2.0*a.m_e2_e3_ni*a.m_no_e1_e2_e3_ni*b.m_e1_e3+2.0*a.m_e2_e3_ni*a.m_no_e1_ni*b.m_e1_e2+-2.0*a.m_e2_e3_ni*a.m_no_e3_ni*b.m_e2_e3-a.m_e3*a.m_e3*b.m_e3_ni+2.0*a.m_e3*a.m_no_e1_ni*b.m_e1_ni+2.0*a.m_e3*a.m_no_e2_ni*b.m_e2_ni+2.0*a.m_e3*a.m_no_e3_ni*b.m_e3_ni+2.0*a.m_ni*a.m_no_e1_e2_e3_ni*b.m_e1_e2+-2.0*a.m_ni*a.m_no_e1_ni*b.m_e1_e3+-2.0*a.m_ni*a.m_no_e2_ni*b.m_e2_e3-a.m_no_e1_e2_e3_ni*a.m_no_e1_e2_e3_ni*b.m_e3_ni+-2.0*a.m_no_e1_e2_e3_ni*a.m_no_e1_ni*b.m_e2_ni+2.0*a.m_no_e1_e2_e3_ni*a.m_no_e2_ni*b.m_e1_ni+a.m_no_e1_ni*a.m_no_e1_ni*b.m_e3_ni+-2.0*a.m_no_e1_ni*a.m_no_e3_ni*b.m_e1_ni+a.m_no_e2_ni*a.m_no_e2_ni*b.m_e3_ni+-2.0*a.m_no_e2_ni*a.m_no_e3_ni*b.m_e2_ni-a.m_no_e3_ni*a.m_no_e3_ni*b.m_e3_ni), // e3_ni
+			(-2.0*a.m_e1*a.m_no*b.m_e1_ni+-2.0*a.m_e1*a.m_no_e1_e2*b.m_e2_ni+2.0*a.m_e1*a.m_no_e1_e2_e3_ni*b.m_e2_e3+-2.0*a.m_e1*a.m_no_e1_e3*b.m_e3_ni+2.0*a.m_e1*a.m_no_e2_ni*b.m_e1_e2+2.0*a.m_e1*a.m_no_e3_ni*b.m_e1_e3+-2.0*a.m_e1_e2_e3*a.m_no_e1_e2*b.m_e3_ni+2.0*a.m_e1_e2_e3*a.m_no_e1_e3*b.m_e2_ni+-2.0*a.m_e1_e2_e3*a.m_no_e1_ni*b.m_e2_e3+-2.0*a.m_e1_e2_e3*a.m_no_e2_e3*b.m_e1_ni+2.0*a.m_e1_e2_e3*a.m_no_e2_ni*b.m_e1_e3+-2.0*a.m_e1_e2_e3*a.m_no_e3_ni*b.m_e1_e2+2.0*a.m_e1_e2_ni*a.m_no*b.m_e1_e2+-2.0*a.m_e1_e2_ni*a.m_no_e1_e3*b.m_e2_e3+2.0*a.m_e1_e2_ni*a.m_no_e2_e3*b.m_e1_e3+2.0*a.m_e1_e3_ni*a.m_no*b.m_e1_e3+2.0*a.m_e1_e3_ni*a.m_no_e1_e2*b.m_e2_e3+-2.0*a.m_e1_e3_ni*a.m_no_e2_e3*b.m_e1_e2+-2.0*a.m_e2*a.m_no*b.m_e2_ni+2.0*a.m_e2*a.m_no_e1_e2*b.m_e1_ni+-2.0*a.m_e2*a.m_no_e1_e2_e3_ni*b.m_e1_e3+-2.0*a.m_e2*a.m_no_e1_ni*b.m_e1_e2+-2.0*a.m_e2*a.m_no_e2_e3*b.m_e3_ni+2.0*a.m_e2*a.m_no_e3_ni*b.m_e2_e3+2.0*a.m_e2_e3_ni*a.m_no*b.m_e2_e3+-2.0*a.m_e2_e3_ni*a.m_no_e1_e2*b.m_e1_e3+2.0*a.m_e2_e3_ni*a.m_no_e1_e3*b.m_e1_e2+-2.0*a.m_e3*a.m_no*b.m_e3_ni+2.0*a.m_e3*a.m_no_e1_e2_e3_ni*b.m_e1_e2+2.0*a.m_e3*a.m_no_e1_e3*b.m_e1_ni+-2.0*a.m_e3*a.m_no_e1_ni*b.m_e1_e3+2.0*a.m_e3*a.m_no_e2_e3*b.m_e2_ni+-2.0*a.m_e3*a.m_no_e2_ni*b.m_e2_e3+-2.0*a.m_ni*a.m_no_e1_e2*b.m_e1_e2+-2.0*a.m_ni*a.m_no_e1_e3*b.m_e1_e3+-2.0*a.m_ni*a.m_no_e2_e3*b.m_e2_e3+2.0*a.m_no*a.m_no_e1_ni*b.m_e1_ni+2.0*a.m_no*a.m_no_e2_ni*b.m_e2_ni+2.0*a.m_no*a.m_no_e3_ni*b.m_e3_ni+2.0*a.m_no_e1_e2*a.m_no_e1_e2_e3_ni*b.m_e3_ni+2.0*a.m_no_e1_e2*a.m_no_e1_ni*b.m_e2_ni+-2.0*a.m_no_e1_e2*a.m_no_e2_ni*b.m_e1_ni+-2.0*a.m_no_e1_e2_e3_ni*a.m_no_e1_e3*b.m_e2_ni+2.0*a.m_no_e1_e2_e3_ni*a.m_no_e2_e3*b.m_e1_ni+2.0*a.m_no_e1_e3*a.m_no_e1_ni*b.m_e3_ni+-2.0*a.m_no_e1_e3*a.m_no_e3_ni*b.m_e1_ni+2.0*a.m_no_e2_e3*a.m_no_e2_ni*b.m_e3_ni+-2.0*a.m_no_e2_e3*a.m_no_e3_ni*b.m_e2_ni) // no_ni
+		);
+}
 inline pointPair applyUnitVersor(const oddVersor &a, const bivectorE3GA &b)
 {
 	return pointPair(pointPair::coord_noe1_noe2_noe3_e1e2_e2e3_e3e1_e1ni_e2ni_e3ni_noni,
@@ -13190,6 +13540,19 @@ inline dualSphere applyVersor(const rotorE3GA &a, const dualSphere &b)
 			((-a.m_e1_e2*a.m_e1_e2*b.m_e2+2.0*a.m_e1_e2*a.m_e3_e1*b.m_e3+-2.0*a.m_e1_e2*a.m_scalar*b.m_e1-a.m_e2_e3*a.m_e2_e3*b.m_e2+2.0*a.m_e2_e3*a.m_e3_e1*b.m_e1+2.0*a.m_e2_e3*a.m_scalar*b.m_e3+a.m_e3_e1*a.m_e3_e1*b.m_e2+a.m_scalar*a.m_scalar*b.m_e2))/(_n2_), // e2
 			((a.m_e1_e2*a.m_e1_e2*b.m_e3+2.0*a.m_e1_e2*a.m_e2_e3*b.m_e1+2.0*a.m_e1_e2*a.m_e3_e1*b.m_e2-a.m_e2_e3*a.m_e2_e3*b.m_e3+-2.0*a.m_e2_e3*a.m_scalar*b.m_e2-a.m_e3_e1*a.m_e3_e1*b.m_e3+2.0*a.m_e3_e1*a.m_scalar*b.m_e1+a.m_scalar*a.m_scalar*b.m_e3))/(_n2_), // e3
 			((a.m_e1_e2*a.m_e1_e2*b.m_ni+a.m_e2_e3*a.m_e2_e3*b.m_ni+a.m_e3_e1*a.m_e3_e1*b.m_ni+a.m_scalar*a.m_scalar*b.m_ni))/(_n2_) // ni
+		);
+}
+inline dualLine applyVersor(const rotorE3GA &a, const dualLine &b)
+{
+	double _n2_ = (a.m_e1_e2*a.m_e1_e2+a.m_e2_e3*a.m_e2_e3+a.m_e3_e1*a.m_e3_e1+a.m_scalar*a.m_scalar);
+
+	return dualLine(dualLine::coord_e1e2_e1e3_e1ni_e2e3_e2ni_e3ni,
+			((a.m_e1_e2*a.m_e1_e2*b.m_e1_e2+2.0*a.m_e1_e2*a.m_e2_e3*b.m_e2_e3+-2.0*a.m_e1_e2*a.m_e3_e1*b.m_e1_e3-a.m_e2_e3*a.m_e2_e3*b.m_e1_e2+2.0*a.m_e2_e3*a.m_scalar*b.m_e1_e3-a.m_e3_e1*a.m_e3_e1*b.m_e1_e2+2.0*a.m_e3_e1*a.m_scalar*b.m_e2_e3+a.m_scalar*a.m_scalar*b.m_e1_e2))/(_n2_), // e1_e2
+			((-a.m_e1_e2*a.m_e1_e2*b.m_e1_e3+-2.0*a.m_e1_e2*a.m_e3_e1*b.m_e1_e2+2.0*a.m_e1_e2*a.m_scalar*b.m_e2_e3-a.m_e2_e3*a.m_e2_e3*b.m_e1_e3+-2.0*a.m_e2_e3*a.m_e3_e1*b.m_e2_e3+-2.0*a.m_e2_e3*a.m_scalar*b.m_e1_e2+a.m_e3_e1*a.m_e3_e1*b.m_e1_e3+a.m_scalar*a.m_scalar*b.m_e1_e3))/(_n2_), // e1_e3
+			((-a.m_e1_e2*a.m_e1_e2*b.m_e1_ni+2.0*a.m_e1_e2*a.m_e2_e3*b.m_e3_ni+2.0*a.m_e1_e2*a.m_scalar*b.m_e2_ni+a.m_e2_e3*a.m_e2_e3*b.m_e1_ni+2.0*a.m_e2_e3*a.m_e3_e1*b.m_e2_ni-a.m_e3_e1*a.m_e3_e1*b.m_e1_ni+-2.0*a.m_e3_e1*a.m_scalar*b.m_e3_ni+a.m_scalar*a.m_scalar*b.m_e1_ni))/(_n2_), // e1_ni
+			((-a.m_e1_e2*a.m_e1_e2*b.m_e2_e3+2.0*a.m_e1_e2*a.m_e2_e3*b.m_e1_e2+-2.0*a.m_e1_e2*a.m_scalar*b.m_e1_e3+a.m_e2_e3*a.m_e2_e3*b.m_e2_e3+-2.0*a.m_e2_e3*a.m_e3_e1*b.m_e1_e3-a.m_e3_e1*a.m_e3_e1*b.m_e2_e3+-2.0*a.m_e3_e1*a.m_scalar*b.m_e1_e2+a.m_scalar*a.m_scalar*b.m_e2_e3))/(_n2_), // e2_e3
+			((-a.m_e1_e2*a.m_e1_e2*b.m_e2_ni+2.0*a.m_e1_e2*a.m_e3_e1*b.m_e3_ni+-2.0*a.m_e1_e2*a.m_scalar*b.m_e1_ni-a.m_e2_e3*a.m_e2_e3*b.m_e2_ni+2.0*a.m_e2_e3*a.m_e3_e1*b.m_e1_ni+2.0*a.m_e2_e3*a.m_scalar*b.m_e3_ni+a.m_e3_e1*a.m_e3_e1*b.m_e2_ni+a.m_scalar*a.m_scalar*b.m_e2_ni))/(_n2_), // e2_ni
+			((a.m_e1_e2*a.m_e1_e2*b.m_e3_ni+2.0*a.m_e1_e2*a.m_e2_e3*b.m_e1_ni+2.0*a.m_e1_e2*a.m_e3_e1*b.m_e2_ni-a.m_e2_e3*a.m_e2_e3*b.m_e3_ni+-2.0*a.m_e2_e3*a.m_scalar*b.m_e2_ni-a.m_e3_e1*a.m_e3_e1*b.m_e3_ni+2.0*a.m_e3_e1*a.m_scalar*b.m_e1_ni+a.m_scalar*a.m_scalar*b.m_e3_ni))/(_n2_) // e3_ni
 		);
 }
 inline bivectorE3GA applyVersor(const rotorE3GA &a, const bivectorE3GA &b)
@@ -13313,6 +13676,23 @@ inline dualSphere applyVersor(const evenVersor &a, const dualSphere &b)
 			((-a.m_e1_e2*a.m_e1_e2*b.m_e2+2.0*a.m_e1_e2*a.m_e1_ni*b.m_no+2.0*a.m_e1_e2*a.m_e3_e1*b.m_e3+-2.0*a.m_e1_e2*a.m_no_e1*b.m_ni+-2.0*a.m_e1_e2*a.m_scalar*b.m_e1+-2.0*a.m_e1_e2_e3_ni*a.m_e3_e1*b.m_no+2.0*a.m_e1_e2_e3_ni*a.m_no_e1*b.m_e3+-2.0*a.m_e1_e2_e3_ni*a.m_no_e1_e2_e3*b.m_e2+-2.0*a.m_e1_e2_e3_ni*a.m_no_e1_e3_ni*b.m_no+-2.0*a.m_e1_e2_e3_ni*a.m_no_e3*b.m_e1+2.0*a.m_e1_ni*a.m_no_e1*b.m_e2+2.0*a.m_e1_ni*a.m_no_e1_e2_e3*b.m_e3+-2.0*a.m_e1_ni*a.m_no_e1_e2_ni*b.m_no+-2.0*a.m_e1_ni*a.m_no_e2*b.m_e1-a.m_e2_e3*a.m_e2_e3*b.m_e2+2.0*a.m_e2_e3*a.m_e3_e1*b.m_e1+-2.0*a.m_e2_e3*a.m_e3_ni*b.m_no+2.0*a.m_e2_e3*a.m_no_e3*b.m_ni+2.0*a.m_e2_e3*a.m_scalar*b.m_e3+-2.0*a.m_e2_ni*a.m_no_e1*b.m_e1+-2.0*a.m_e2_ni*a.m_no_e2*b.m_e2+-2.0*a.m_e2_ni*a.m_no_e3*b.m_e3+2.0*a.m_e2_ni*a.m_no_ni*b.m_no+-2.0*a.m_e2_ni*a.m_scalar*b.m_no+a.m_e3_e1*a.m_e3_e1*b.m_e2+2.0*a.m_e3_e1*a.m_no_e1_e2_e3*b.m_ni+-2.0*a.m_e3_ni*a.m_no_e1_e2_e3*b.m_e1+-2.0*a.m_e3_ni*a.m_no_e2*b.m_e3+2.0*a.m_e3_ni*a.m_no_e2_e3_ni*b.m_no+2.0*a.m_e3_ni*a.m_no_e3*b.m_e2+-2.0*a.m_no_e1*a.m_no_e1_e2_ni*b.m_ni+-2.0*a.m_no_e1_e2_e3*a.m_no_e1_e3_ni*b.m_ni+a.m_no_e1_e2_ni*a.m_no_e1_e2_ni*b.m_e2+2.0*a.m_no_e1_e2_ni*a.m_no_e1_e3_ni*b.m_e3+2.0*a.m_no_e1_e2_ni*a.m_no_ni*b.m_e1-a.m_no_e1_e3_ni*a.m_no_e1_e3_ni*b.m_e2+2.0*a.m_no_e1_e3_ni*a.m_no_e2_e3_ni*b.m_e1+2.0*a.m_no_e2*a.m_no_ni*b.m_ni+2.0*a.m_no_e2*a.m_scalar*b.m_ni+a.m_no_e2_e3_ni*a.m_no_e2_e3_ni*b.m_e2+2.0*a.m_no_e2_e3_ni*a.m_no_e3*b.m_ni+-2.0*a.m_no_e2_e3_ni*a.m_no_ni*b.m_e3-a.m_no_ni*a.m_no_ni*b.m_e2+a.m_scalar*a.m_scalar*b.m_e2))/(_n2_), // e2
 			((a.m_e1_e2*a.m_e1_e2*b.m_e3+-2.0*a.m_e1_e2*a.m_e1_e2_e3_ni*b.m_no+2.0*a.m_e1_e2*a.m_e2_e3*b.m_e1+2.0*a.m_e1_e2*a.m_e3_e1*b.m_e2+2.0*a.m_e1_e2*a.m_no_e1_e2_e3*b.m_ni+-2.0*a.m_e1_e2_e3_ni*a.m_no_e1*b.m_e2+-2.0*a.m_e1_e2_e3_ni*a.m_no_e1_e2_e3*b.m_e3+2.0*a.m_e1_e2_e3_ni*a.m_no_e1_e2_ni*b.m_no+2.0*a.m_e1_e2_e3_ni*a.m_no_e2*b.m_e1+-2.0*a.m_e1_ni*a.m_e3_e1*b.m_no+2.0*a.m_e1_ni*a.m_no_e1*b.m_e3+-2.0*a.m_e1_ni*a.m_no_e1_e2_e3*b.m_e2+-2.0*a.m_e1_ni*a.m_no_e1_e3_ni*b.m_no+-2.0*a.m_e1_ni*a.m_no_e3*b.m_e1-a.m_e2_e3*a.m_e2_e3*b.m_e3+2.0*a.m_e2_e3*a.m_e2_ni*b.m_no+-2.0*a.m_e2_e3*a.m_no_e2*b.m_ni+-2.0*a.m_e2_e3*a.m_scalar*b.m_e2+2.0*a.m_e2_ni*a.m_no_e1_e2_e3*b.m_e1+2.0*a.m_e2_ni*a.m_no_e2*b.m_e3+-2.0*a.m_e2_ni*a.m_no_e2_e3_ni*b.m_no+-2.0*a.m_e2_ni*a.m_no_e3*b.m_e2-a.m_e3_e1*a.m_e3_e1*b.m_e3+2.0*a.m_e3_e1*a.m_no_e1*b.m_ni+2.0*a.m_e3_e1*a.m_scalar*b.m_e1+-2.0*a.m_e3_ni*a.m_no_e1*b.m_e1+-2.0*a.m_e3_ni*a.m_no_e2*b.m_e2+-2.0*a.m_e3_ni*a.m_no_e3*b.m_e3+2.0*a.m_e3_ni*a.m_no_ni*b.m_no+-2.0*a.m_e3_ni*a.m_scalar*b.m_no+-2.0*a.m_no_e1*a.m_no_e1_e3_ni*b.m_ni+2.0*a.m_no_e1_e2_e3*a.m_no_e1_e2_ni*b.m_ni-a.m_no_e1_e2_ni*a.m_no_e1_e2_ni*b.m_e3+2.0*a.m_no_e1_e2_ni*a.m_no_e1_e3_ni*b.m_e2+-2.0*a.m_no_e1_e2_ni*a.m_no_e2_e3_ni*b.m_e1+a.m_no_e1_e3_ni*a.m_no_e1_e3_ni*b.m_e3+2.0*a.m_no_e1_e3_ni*a.m_no_ni*b.m_e1+-2.0*a.m_no_e2*a.m_no_e2_e3_ni*b.m_ni+a.m_no_e2_e3_ni*a.m_no_e2_e3_ni*b.m_e3+2.0*a.m_no_e2_e3_ni*a.m_no_ni*b.m_e2+2.0*a.m_no_e3*a.m_no_ni*b.m_ni+2.0*a.m_no_e3*a.m_scalar*b.m_ni-a.m_no_ni*a.m_no_ni*b.m_e3+a.m_scalar*a.m_scalar*b.m_e3))/(_n2_), // e3
 			((a.m_e1_e2*a.m_e1_e2*b.m_ni+-2.0*a.m_e1_e2*a.m_e1_e2_e3_ni*b.m_e3+-2.0*a.m_e1_e2*a.m_e1_ni*b.m_e2+2.0*a.m_e1_e2*a.m_e2_ni*b.m_e1+2.0*a.m_e1_e2*a.m_no_e1_e2_ni*b.m_ni+2.0*a.m_e1_e2_e3_ni*a.m_e1_e2_e3_ni*b.m_no+-2.0*a.m_e1_e2_e3_ni*a.m_e2_e3*b.m_e1+-2.0*a.m_e1_e2_e3_ni*a.m_e3_e1*b.m_e2+-2.0*a.m_e1_e2_e3_ni*a.m_no_e1_e2_ni*b.m_e3+2.0*a.m_e1_e2_e3_ni*a.m_no_e1_e3_ni*b.m_e2+-2.0*a.m_e1_e2_e3_ni*a.m_no_e2_e3_ni*b.m_e1+2.0*a.m_e1_ni*a.m_e1_ni*b.m_no+2.0*a.m_e1_ni*a.m_e3_e1*b.m_e3+-2.0*a.m_e1_ni*a.m_no_e1_e2_ni*b.m_e2+-2.0*a.m_e1_ni*a.m_no_e1_e3_ni*b.m_e3+-2.0*a.m_e1_ni*a.m_no_ni*b.m_e1+-2.0*a.m_e1_ni*a.m_scalar*b.m_e1+a.m_e2_e3*a.m_e2_e3*b.m_ni+-2.0*a.m_e2_e3*a.m_e2_ni*b.m_e3+2.0*a.m_e2_e3*a.m_e3_ni*b.m_e2+2.0*a.m_e2_e3*a.m_no_e2_e3_ni*b.m_ni+2.0*a.m_e2_ni*a.m_e2_ni*b.m_no+2.0*a.m_e2_ni*a.m_no_e1_e2_ni*b.m_e1+-2.0*a.m_e2_ni*a.m_no_e2_e3_ni*b.m_e3+-2.0*a.m_e2_ni*a.m_no_ni*b.m_e2+-2.0*a.m_e2_ni*a.m_scalar*b.m_e2+a.m_e3_e1*a.m_e3_e1*b.m_ni+-2.0*a.m_e3_e1*a.m_e3_ni*b.m_e1+-2.0*a.m_e3_e1*a.m_no_e1_e3_ni*b.m_ni+2.0*a.m_e3_ni*a.m_e3_ni*b.m_no+2.0*a.m_e3_ni*a.m_no_e1_e3_ni*b.m_e1+2.0*a.m_e3_ni*a.m_no_e2_e3_ni*b.m_e2+-2.0*a.m_e3_ni*a.m_no_ni*b.m_e3+-2.0*a.m_e3_ni*a.m_scalar*b.m_e3+a.m_no_e1_e2_ni*a.m_no_e1_e2_ni*b.m_ni+a.m_no_e1_e3_ni*a.m_no_e1_e3_ni*b.m_ni+a.m_no_e2_e3_ni*a.m_no_e2_e3_ni*b.m_ni+a.m_no_ni*a.m_no_ni*b.m_ni+2.0*a.m_no_ni*a.m_scalar*b.m_ni+a.m_scalar*a.m_scalar*b.m_ni))/(_n2_) // ni
+		);
+}
+inline pointPair applyVersor(const evenVersor &a, const dualLine &b)
+{
+	double _n2_ = (a.m_e1_e2*a.m_e1_e2+2.0*a.m_e1_e2_e3_ni*a.m_no_e1_e2_e3+2.0*a.m_e1_ni*a.m_no_e1+a.m_e2_e3*a.m_e2_e3+2.0*a.m_e2_ni*a.m_no_e2+a.m_e3_e1*a.m_e3_e1+2.0*a.m_e3_ni*a.m_no_e3-a.m_no_e1_e2_ni*a.m_no_e1_e2_ni-a.m_no_e1_e3_ni*a.m_no_e1_e3_ni-a.m_no_e2_e3_ni*a.m_no_e2_e3_ni-a.m_no_ni*a.m_no_ni+a.m_scalar*a.m_scalar);
+
+	return pointPair(pointPair::coord_noe1_noe2_noe3_e1e2_e2e3_e3e1_e1ni_e2ni_e3ni_noni,
+			((2.0*a.m_e1_e2*a.m_no_e1*b.m_e1_e2+2.0*a.m_e1_e2*a.m_no_e1_e2_e3*b.m_e1_e3+-2.0*a.m_e1_e2*a.m_no_e3*b.m_e2_e3+2.0*a.m_e2_e3*a.m_no_e1*b.m_e2_e3+-2.0*a.m_e2_e3*a.m_no_e2*b.m_e1_e3+2.0*a.m_e2_e3*a.m_no_e3*b.m_e1_e2+-2.0*a.m_e3_e1*a.m_no_e1*b.m_e1_e3+2.0*a.m_e3_e1*a.m_no_e1_e2_e3*b.m_e1_e2+-2.0*a.m_e3_e1*a.m_no_e2*b.m_e2_e3+2.0*a.m_no_e1*a.m_no_e1*b.m_e1_ni+-2.0*a.m_no_e1*a.m_no_e1_e2_ni*b.m_e1_e2+-2.0*a.m_no_e1*a.m_no_e1_e3_ni*b.m_e1_e3+4.0*a.m_no_e1*a.m_no_e2*b.m_e2_ni+-2.0*a.m_no_e1*a.m_no_e2_e3_ni*b.m_e2_e3+4.0*a.m_no_e1*a.m_no_e3*b.m_e3_ni+2.0*a.m_no_e1_e2_e3*a.m_no_e1_e2_e3*b.m_e1_ni+-2.0*a.m_no_e1_e2_e3*a.m_no_e1_e2_ni*b.m_e1_e3+2.0*a.m_no_e1_e2_e3*a.m_no_e1_e3_ni*b.m_e1_e2+4.0*a.m_no_e1_e2_e3*a.m_no_e2*b.m_e3_ni+-4.0*a.m_no_e1_e2_e3*a.m_no_e3*b.m_e2_ni+2.0*a.m_no_e1_e2_e3*a.m_no_ni*b.m_e2_e3+-2.0*a.m_no_e1_e2_e3*a.m_scalar*b.m_e2_e3+2.0*a.m_no_e1_e2_ni*a.m_no_e3*b.m_e2_e3+-2.0*a.m_no_e1_e3_ni*a.m_no_e2*b.m_e2_e3+-2.0*a.m_no_e2*a.m_no_e2*b.m_e1_ni+2.0*a.m_no_e2*a.m_no_e2_e3_ni*b.m_e1_e3+2.0*a.m_no_e2*a.m_no_ni*b.m_e1_e2+-2.0*a.m_no_e2*a.m_scalar*b.m_e1_e2+-2.0*a.m_no_e2_e3_ni*a.m_no_e3*b.m_e1_e2+-2.0*a.m_no_e3*a.m_no_e3*b.m_e1_ni+2.0*a.m_no_e3*a.m_no_ni*b.m_e1_e3+-2.0*a.m_no_e3*a.m_scalar*b.m_e1_e3))/(_n2_), // no_e1
+			((2.0*a.m_e1_e2*a.m_no_e1_e2_e3*b.m_e2_e3+2.0*a.m_e1_e2*a.m_no_e2*b.m_e1_e2+2.0*a.m_e1_e2*a.m_no_e3*b.m_e1_e3+2.0*a.m_e2_e3*a.m_no_e1*b.m_e1_e3+-2.0*a.m_e2_e3*a.m_no_e1_e2_e3*b.m_e1_e2+2.0*a.m_e2_e3*a.m_no_e2*b.m_e2_e3+2.0*a.m_e3_e1*a.m_no_e1*b.m_e2_e3+-2.0*a.m_e3_e1*a.m_no_e2*b.m_e1_e3+2.0*a.m_e3_e1*a.m_no_e3*b.m_e1_e2+-2.0*a.m_no_e1*a.m_no_e1*b.m_e2_ni+-4.0*a.m_no_e1*a.m_no_e1_e2_e3*b.m_e3_ni+2.0*a.m_no_e1*a.m_no_e1_e3_ni*b.m_e2_e3+4.0*a.m_no_e1*a.m_no_e2*b.m_e1_ni+-2.0*a.m_no_e1*a.m_no_e2_e3_ni*b.m_e1_e3+-2.0*a.m_no_e1*a.m_no_ni*b.m_e1_e2+2.0*a.m_no_e1*a.m_scalar*b.m_e1_e2+2.0*a.m_no_e1_e2_e3*a.m_no_e1_e2_e3*b.m_e2_ni+-2.0*a.m_no_e1_e2_e3*a.m_no_e1_e2_ni*b.m_e2_e3+2.0*a.m_no_e1_e2_e3*a.m_no_e2_e3_ni*b.m_e1_e2+4.0*a.m_no_e1_e2_e3*a.m_no_e3*b.m_e1_ni+-2.0*a.m_no_e1_e2_e3*a.m_no_ni*b.m_e1_e3+2.0*a.m_no_e1_e2_e3*a.m_scalar*b.m_e1_e3+-2.0*a.m_no_e1_e2_ni*a.m_no_e2*b.m_e1_e2+-2.0*a.m_no_e1_e2_ni*a.m_no_e3*b.m_e1_e3+-2.0*a.m_no_e1_e3_ni*a.m_no_e2*b.m_e1_e3+2.0*a.m_no_e1_e3_ni*a.m_no_e3*b.m_e1_e2+2.0*a.m_no_e2*a.m_no_e2*b.m_e2_ni+-2.0*a.m_no_e2*a.m_no_e2_e3_ni*b.m_e2_e3+4.0*a.m_no_e2*a.m_no_e3*b.m_e3_ni+-2.0*a.m_no_e3*a.m_no_e3*b.m_e2_ni+2.0*a.m_no_e3*a.m_no_ni*b.m_e2_e3+-2.0*a.m_no_e3*a.m_scalar*b.m_e2_e3))/(_n2_), // no_e2
+			((2.0*a.m_e1_e2*a.m_no_e1*b.m_e2_e3+-2.0*a.m_e1_e2*a.m_no_e2*b.m_e1_e3+2.0*a.m_e1_e2*a.m_no_e3*b.m_e1_e2+-2.0*a.m_e2_e3*a.m_no_e1*b.m_e1_e2+-2.0*a.m_e2_e3*a.m_no_e1_e2_e3*b.m_e1_e3+2.0*a.m_e2_e3*a.m_no_e3*b.m_e2_e3+-2.0*a.m_e3_e1*a.m_no_e1_e2_e3*b.m_e2_e3+-2.0*a.m_e3_e1*a.m_no_e2*b.m_e1_e2+-2.0*a.m_e3_e1*a.m_no_e3*b.m_e1_e3+-2.0*a.m_no_e1*a.m_no_e1*b.m_e3_ni+4.0*a.m_no_e1*a.m_no_e1_e2_e3*b.m_e2_ni+-2.0*a.m_no_e1*a.m_no_e1_e2_ni*b.m_e2_e3+2.0*a.m_no_e1*a.m_no_e2_e3_ni*b.m_e1_e2+4.0*a.m_no_e1*a.m_no_e3*b.m_e1_ni+-2.0*a.m_no_e1*a.m_no_ni*b.m_e1_e3+2.0*a.m_no_e1*a.m_scalar*b.m_e1_e3+2.0*a.m_no_e1_e2_e3*a.m_no_e1_e2_e3*b.m_e3_ni+-2.0*a.m_no_e1_e2_e3*a.m_no_e1_e3_ni*b.m_e2_e3+-4.0*a.m_no_e1_e2_e3*a.m_no_e2*b.m_e1_ni+2.0*a.m_no_e1_e2_e3*a.m_no_e2_e3_ni*b.m_e1_e3+2.0*a.m_no_e1_e2_e3*a.m_no_ni*b.m_e1_e2+-2.0*a.m_no_e1_e2_e3*a.m_scalar*b.m_e1_e2+2.0*a.m_no_e1_e2_ni*a.m_no_e2*b.m_e1_e3+-2.0*a.m_no_e1_e2_ni*a.m_no_e3*b.m_e1_e2+-2.0*a.m_no_e1_e3_ni*a.m_no_e2*b.m_e1_e2+-2.0*a.m_no_e1_e3_ni*a.m_no_e3*b.m_e1_e3+-2.0*a.m_no_e2*a.m_no_e2*b.m_e3_ni+4.0*a.m_no_e2*a.m_no_e3*b.m_e2_ni+-2.0*a.m_no_e2*a.m_no_ni*b.m_e2_e3+2.0*a.m_no_e2*a.m_scalar*b.m_e2_e3+-2.0*a.m_no_e2_e3_ni*a.m_no_e3*b.m_e2_e3+2.0*a.m_no_e3*a.m_no_e3*b.m_e3_ni))/(_n2_), // no_e3
+			((a.m_e1_e2*a.m_e1_e2*b.m_e1_e2+2.0*a.m_e1_e2*a.m_e2_e3*b.m_e2_e3+-2.0*a.m_e1_e2*a.m_e3_e1*b.m_e1_e3+2.0*a.m_e1_e2*a.m_no_e1*b.m_e1_ni+2.0*a.m_e1_e2*a.m_no_e2*b.m_e2_ni+2.0*a.m_e1_e2*a.m_no_e3*b.m_e3_ni+-2.0*a.m_e1_e2_e3_ni*a.m_no_e1*b.m_e1_e3+2.0*a.m_e1_e2_e3_ni*a.m_no_e1_e2_e3*b.m_e1_e2+-2.0*a.m_e1_e2_e3_ni*a.m_no_e2*b.m_e2_e3+-2.0*a.m_e1_ni*a.m_no_e1*b.m_e1_e2+-2.0*a.m_e1_ni*a.m_no_e1_e2_e3*b.m_e1_e3+2.0*a.m_e1_ni*a.m_no_e3*b.m_e2_e3-a.m_e2_e3*a.m_e2_e3*b.m_e1_e2+-2.0*a.m_e2_e3*a.m_no_e1*b.m_e3_ni+2.0*a.m_e2_e3*a.m_no_e1_e2_e3*b.m_e2_ni+2.0*a.m_e2_e3*a.m_no_e3*b.m_e1_ni+2.0*a.m_e2_e3*a.m_scalar*b.m_e1_e3+-2.0*a.m_e2_ni*a.m_no_e1_e2_e3*b.m_e2_e3+-2.0*a.m_e2_ni*a.m_no_e2*b.m_e1_e2+-2.0*a.m_e2_ni*a.m_no_e3*b.m_e1_e3-a.m_e3_e1*a.m_e3_e1*b.m_e1_e2+-2.0*a.m_e3_e1*a.m_no_e1_e2_e3*b.m_e1_ni+-2.0*a.m_e3_e1*a.m_no_e2*b.m_e3_ni+2.0*a.m_e3_e1*a.m_no_e3*b.m_e2_ni+2.0*a.m_e3_e1*a.m_scalar*b.m_e2_e3+2.0*a.m_e3_ni*a.m_no_e1*b.m_e2_e3+-2.0*a.m_e3_ni*a.m_no_e2*b.m_e1_e3+2.0*a.m_e3_ni*a.m_no_e3*b.m_e1_e2+2.0*a.m_no_e1*a.m_no_e1_e2_ni*b.m_e1_ni+-2.0*a.m_no_e1*a.m_no_e2_e3_ni*b.m_e3_ni+-2.0*a.m_no_e1*a.m_no_ni*b.m_e2_ni+-2.0*a.m_no_e1*a.m_scalar*b.m_e2_ni+2.0*a.m_no_e1_e2_e3*a.m_no_e1_e3_ni*b.m_e1_ni+2.0*a.m_no_e1_e2_e3*a.m_no_e2_e3_ni*b.m_e2_ni+-2.0*a.m_no_e1_e2_e3*a.m_no_ni*b.m_e3_ni+-2.0*a.m_no_e1_e2_e3*a.m_scalar*b.m_e3_ni-a.m_no_e1_e2_ni*a.m_no_e1_e2_ni*b.m_e1_e2+-2.0*a.m_no_e1_e2_ni*a.m_no_e1_e3_ni*b.m_e1_e3+2.0*a.m_no_e1_e2_ni*a.m_no_e2*b.m_e2_ni+-2.0*a.m_no_e1_e2_ni*a.m_no_e2_e3_ni*b.m_e2_e3+2.0*a.m_no_e1_e2_ni*a.m_no_e3*b.m_e3_ni+a.m_no_e1_e3_ni*a.m_no_e1_e3_ni*b.m_e1_e2+2.0*a.m_no_e1_e3_ni*a.m_no_e2*b.m_e3_ni+-2.0*a.m_no_e1_e3_ni*a.m_no_e3*b.m_e2_ni+2.0*a.m_no_e1_e3_ni*a.m_no_ni*b.m_e2_e3+2.0*a.m_no_e2*a.m_no_ni*b.m_e1_ni+2.0*a.m_no_e2*a.m_scalar*b.m_e1_ni+a.m_no_e2_e3_ni*a.m_no_e2_e3_ni*b.m_e1_e2+2.0*a.m_no_e2_e3_ni*a.m_no_e3*b.m_e1_ni+-2.0*a.m_no_e2_e3_ni*a.m_no_ni*b.m_e1_e3-a.m_no_ni*a.m_no_ni*b.m_e1_e2+a.m_scalar*a.m_scalar*b.m_e1_e2))/(_n2_), // e1_e2
+			((-a.m_e1_e2*a.m_e1_e2*b.m_e2_e3+2.0*a.m_e1_e2*a.m_e2_e3*b.m_e1_e2+2.0*a.m_e1_e2*a.m_no_e1*b.m_e3_ni+-2.0*a.m_e1_e2*a.m_no_e1_e2_e3*b.m_e2_ni+-2.0*a.m_e1_e2*a.m_no_e3*b.m_e1_ni+-2.0*a.m_e1_e2*a.m_scalar*b.m_e1_e3+2.0*a.m_e1_e2_e3_ni*a.m_no_e1_e2_e3*b.m_e2_e3+2.0*a.m_e1_e2_e3_ni*a.m_no_e2*b.m_e1_e2+2.0*a.m_e1_e2_e3_ni*a.m_no_e3*b.m_e1_e3+2.0*a.m_e1_ni*a.m_no_e1*b.m_e2_e3+-2.0*a.m_e1_ni*a.m_no_e2*b.m_e1_e3+2.0*a.m_e1_ni*a.m_no_e3*b.m_e1_e2+a.m_e2_e3*a.m_e2_e3*b.m_e2_e3+-2.0*a.m_e2_e3*a.m_e3_e1*b.m_e1_e3+2.0*a.m_e2_e3*a.m_no_e1*b.m_e1_ni+2.0*a.m_e2_e3*a.m_no_e2*b.m_e2_ni+2.0*a.m_e2_e3*a.m_no_e3*b.m_e3_ni+-2.0*a.m_e2_ni*a.m_no_e1*b.m_e1_e3+2.0*a.m_e2_ni*a.m_no_e1_e2_e3*b.m_e1_e2+-2.0*a.m_e2_ni*a.m_no_e2*b.m_e2_e3-a.m_e3_e1*a.m_e3_e1*b.m_e2_e3+2.0*a.m_e3_e1*a.m_no_e1*b.m_e2_ni+2.0*a.m_e3_e1*a.m_no_e1_e2_e3*b.m_e3_ni+-2.0*a.m_e3_e1*a.m_no_e2*b.m_e1_ni+-2.0*a.m_e3_e1*a.m_scalar*b.m_e1_e2+2.0*a.m_e3_ni*a.m_no_e1*b.m_e1_e2+2.0*a.m_e3_ni*a.m_no_e1_e2_e3*b.m_e1_e3+-2.0*a.m_e3_ni*a.m_no_e3*b.m_e2_e3+2.0*a.m_no_e1*a.m_no_e1_e2_ni*b.m_e3_ni+-2.0*a.m_no_e1*a.m_no_e1_e3_ni*b.m_e2_ni+2.0*a.m_no_e1*a.m_no_e2_e3_ni*b.m_e1_ni+-2.0*a.m_no_e1_e2_e3*a.m_no_e1_e2_ni*b.m_e2_ni+-2.0*a.m_no_e1_e2_e3*a.m_no_e1_e3_ni*b.m_e3_ni+-2.0*a.m_no_e1_e2_e3*a.m_no_ni*b.m_e1_ni+-2.0*a.m_no_e1_e2_e3*a.m_scalar*b.m_e1_ni+a.m_no_e1_e2_ni*a.m_no_e1_e2_ni*b.m_e2_e3+-2.0*a.m_no_e1_e2_ni*a.m_no_e2_e3_ni*b.m_e1_e2+-2.0*a.m_no_e1_e2_ni*a.m_no_e3*b.m_e1_ni+2.0*a.m_no_e1_e2_ni*a.m_no_ni*b.m_e1_e3+a.m_no_e1_e3_ni*a.m_no_e1_e3_ni*b.m_e2_e3+2.0*a.m_no_e1_e3_ni*a.m_no_e2*b.m_e1_ni+-2.0*a.m_no_e1_e3_ni*a.m_no_e2_e3_ni*b.m_e1_e3+-2.0*a.m_no_e1_e3_ni*a.m_no_ni*b.m_e1_e2+2.0*a.m_no_e2*a.m_no_e2_e3_ni*b.m_e2_ni+-2.0*a.m_no_e2*a.m_no_ni*b.m_e3_ni+-2.0*a.m_no_e2*a.m_scalar*b.m_e3_ni-a.m_no_e2_e3_ni*a.m_no_e2_e3_ni*b.m_e2_e3+2.0*a.m_no_e2_e3_ni*a.m_no_e3*b.m_e3_ni+2.0*a.m_no_e3*a.m_no_ni*b.m_e2_ni+2.0*a.m_no_e3*a.m_scalar*b.m_e2_ni-a.m_no_ni*a.m_no_ni*b.m_e2_e3+a.m_scalar*a.m_scalar*b.m_e2_e3))/(_n2_), // e2_e3
+			(-(-a.m_e1_e2*a.m_e1_e2*b.m_e1_e3+-2.0*a.m_e1_e2*a.m_e3_e1*b.m_e1_e2+-2.0*a.m_e1_e2*a.m_no_e1_e2_e3*b.m_e1_ni+-2.0*a.m_e1_e2*a.m_no_e2*b.m_e3_ni+2.0*a.m_e1_e2*a.m_no_e3*b.m_e2_ni+2.0*a.m_e1_e2*a.m_scalar*b.m_e2_e3+2.0*a.m_e1_e2_e3_ni*a.m_no_e1*b.m_e1_e2+2.0*a.m_e1_e2_e3_ni*a.m_no_e1_e2_e3*b.m_e1_e3+-2.0*a.m_e1_e2_e3_ni*a.m_no_e3*b.m_e2_e3+-2.0*a.m_e1_ni*a.m_no_e1*b.m_e1_e3+2.0*a.m_e1_ni*a.m_no_e1_e2_e3*b.m_e1_e2+-2.0*a.m_e1_ni*a.m_no_e2*b.m_e2_e3-a.m_e2_e3*a.m_e2_e3*b.m_e1_e3+-2.0*a.m_e2_e3*a.m_e3_e1*b.m_e2_e3+2.0*a.m_e2_e3*a.m_no_e1*b.m_e2_ni+2.0*a.m_e2_e3*a.m_no_e1_e2_e3*b.m_e3_ni+-2.0*a.m_e2_e3*a.m_no_e2*b.m_e1_ni+-2.0*a.m_e2_e3*a.m_scalar*b.m_e1_e2+-2.0*a.m_e2_ni*a.m_no_e1*b.m_e2_e3+2.0*a.m_e2_ni*a.m_no_e2*b.m_e1_e3+-2.0*a.m_e2_ni*a.m_no_e3*b.m_e1_e2+a.m_e3_e1*a.m_e3_e1*b.m_e1_e3+-2.0*a.m_e3_e1*a.m_no_e1*b.m_e1_ni+-2.0*a.m_e3_e1*a.m_no_e2*b.m_e2_ni+-2.0*a.m_e3_e1*a.m_no_e3*b.m_e3_ni+-2.0*a.m_e3_ni*a.m_no_e1_e2_e3*b.m_e2_e3+-2.0*a.m_e3_ni*a.m_no_e2*b.m_e1_e2+-2.0*a.m_e3_ni*a.m_no_e3*b.m_e1_e3+2.0*a.m_no_e1*a.m_no_e1_e3_ni*b.m_e1_ni+2.0*a.m_no_e1*a.m_no_e2_e3_ni*b.m_e2_ni+-2.0*a.m_no_e1*a.m_no_ni*b.m_e3_ni+-2.0*a.m_no_e1*a.m_scalar*b.m_e3_ni+-2.0*a.m_no_e1_e2_e3*a.m_no_e1_e2_ni*b.m_e1_ni+2.0*a.m_no_e1_e2_e3*a.m_no_e2_e3_ni*b.m_e3_ni+2.0*a.m_no_e1_e2_e3*a.m_no_ni*b.m_e2_ni+2.0*a.m_no_e1_e2_e3*a.m_scalar*b.m_e2_ni+a.m_no_e1_e2_ni*a.m_no_e1_e2_ni*b.m_e1_e3+-2.0*a.m_no_e1_e2_ni*a.m_no_e1_e3_ni*b.m_e1_e2+-2.0*a.m_no_e1_e2_ni*a.m_no_e2*b.m_e3_ni+2.0*a.m_no_e1_e2_ni*a.m_no_e3*b.m_e2_ni+-2.0*a.m_no_e1_e2_ni*a.m_no_ni*b.m_e2_e3-a.m_no_e1_e3_ni*a.m_no_e1_e3_ni*b.m_e1_e3+2.0*a.m_no_e1_e3_ni*a.m_no_e2*b.m_e2_ni+-2.0*a.m_no_e1_e3_ni*a.m_no_e2_e3_ni*b.m_e2_e3+2.0*a.m_no_e1_e3_ni*a.m_no_e3*b.m_e3_ni+-2.0*a.m_no_e2*a.m_no_e2_e3_ni*b.m_e1_ni+a.m_no_e2_e3_ni*a.m_no_e2_e3_ni*b.m_e1_e3+2.0*a.m_no_e2_e3_ni*a.m_no_ni*b.m_e1_e2+2.0*a.m_no_e3*a.m_no_ni*b.m_e1_ni+2.0*a.m_no_e3*a.m_scalar*b.m_e1_ni-a.m_no_ni*a.m_no_ni*b.m_e1_e3+a.m_scalar*a.m_scalar*b.m_e1_e3))/(_n2_), // e3_e1
+			((-a.m_e1_e2*a.m_e1_e2*b.m_e1_ni+2.0*a.m_e1_e2*a.m_e1_e2_e3_ni*b.m_e1_e3+2.0*a.m_e1_e2*a.m_e1_ni*b.m_e1_e2+2.0*a.m_e1_e2*a.m_e2_e3*b.m_e3_ni+-2.0*a.m_e1_e2*a.m_e3_ni*b.m_e2_e3+-2.0*a.m_e1_e2*a.m_no_e1_e2_ni*b.m_e1_ni+2.0*a.m_e1_e2*a.m_no_e2_e3_ni*b.m_e3_ni+2.0*a.m_e1_e2*a.m_no_ni*b.m_e2_ni+2.0*a.m_e1_e2*a.m_scalar*b.m_e2_ni+2.0*a.m_e1_e2_e3_ni*a.m_e3_e1*b.m_e1_e2+2.0*a.m_e1_e2_e3_ni*a.m_no_e1_e2_ni*b.m_e1_e3+-2.0*a.m_e1_e2_e3_ni*a.m_no_e1_e3_ni*b.m_e1_e2+-2.0*a.m_e1_e2_e3_ni*a.m_no_ni*b.m_e2_e3+-2.0*a.m_e1_e2_e3_ni*a.m_scalar*b.m_e2_e3+2.0*a.m_e1_ni*a.m_e2_e3*b.m_e2_e3+-2.0*a.m_e1_ni*a.m_e3_e1*b.m_e1_e3+2.0*a.m_e1_ni*a.m_no_e1_e2_ni*b.m_e1_e2+2.0*a.m_e1_ni*a.m_no_e1_e3_ni*b.m_e1_e3+2.0*a.m_e1_ni*a.m_no_e2_e3_ni*b.m_e2_e3+a.m_e2_e3*a.m_e2_e3*b.m_e1_ni+-2.0*a.m_e2_e3*a.m_e2_ni*b.m_e1_e3+2.0*a.m_e2_e3*a.m_e3_e1*b.m_e2_ni+2.0*a.m_e2_e3*a.m_e3_ni*b.m_e1_e2+2.0*a.m_e2_e3*a.m_no_e1_e2_ni*b.m_e3_ni+-2.0*a.m_e2_e3*a.m_no_e1_e3_ni*b.m_e2_ni+2.0*a.m_e2_e3*a.m_no_e2_e3_ni*b.m_e1_ni+-2.0*a.m_e2_ni*a.m_e3_e1*b.m_e2_e3+2.0*a.m_e2_ni*a.m_no_e1_e3_ni*b.m_e2_e3+-2.0*a.m_e2_ni*a.m_no_e2_e3_ni*b.m_e1_e3+-2.0*a.m_e2_ni*a.m_no_ni*b.m_e1_e2+-2.0*a.m_e2_ni*a.m_scalar*b.m_e1_e2-a.m_e3_e1*a.m_e3_e1*b.m_e1_ni+2.0*a.m_e3_e1*a.m_no_e1_e3_ni*b.m_e1_ni+2.0*a.m_e3_e1*a.m_no_e2_e3_ni*b.m_e2_ni+-2.0*a.m_e3_e1*a.m_no_ni*b.m_e3_ni+-2.0*a.m_e3_e1*a.m_scalar*b.m_e3_ni+-2.0*a.m_e3_ni*a.m_no_e1_e2_ni*b.m_e2_e3+2.0*a.m_e3_ni*a.m_no_e2_e3_ni*b.m_e1_e2+-2.0*a.m_e3_ni*a.m_no_ni*b.m_e1_e3+-2.0*a.m_e3_ni*a.m_scalar*b.m_e1_e3-a.m_no_e1_e2_ni*a.m_no_e1_e2_ni*b.m_e1_ni+2.0*a.m_no_e1_e2_ni*a.m_no_e2_e3_ni*b.m_e3_ni+2.0*a.m_no_e1_e2_ni*a.m_no_ni*b.m_e2_ni+2.0*a.m_no_e1_e2_ni*a.m_scalar*b.m_e2_ni-a.m_no_e1_e3_ni*a.m_no_e1_e3_ni*b.m_e1_ni+-2.0*a.m_no_e1_e3_ni*a.m_no_e2_e3_ni*b.m_e2_ni+2.0*a.m_no_e1_e3_ni*a.m_no_ni*b.m_e3_ni+2.0*a.m_no_e1_e3_ni*a.m_scalar*b.m_e3_ni+a.m_no_e2_e3_ni*a.m_no_e2_e3_ni*b.m_e1_ni+a.m_no_ni*a.m_no_ni*b.m_e1_ni+2.0*a.m_no_ni*a.m_scalar*b.m_e1_ni+a.m_scalar*a.m_scalar*b.m_e1_ni))/(_n2_), // e1_ni
+			((-a.m_e1_e2*a.m_e1_e2*b.m_e2_ni+2.0*a.m_e1_e2*a.m_e1_e2_e3_ni*b.m_e2_e3+2.0*a.m_e1_e2*a.m_e2_ni*b.m_e1_e2+2.0*a.m_e1_e2*a.m_e3_e1*b.m_e3_ni+2.0*a.m_e1_e2*a.m_e3_ni*b.m_e1_e3+-2.0*a.m_e1_e2*a.m_no_e1_e2_ni*b.m_e2_ni+-2.0*a.m_e1_e2*a.m_no_e1_e3_ni*b.m_e3_ni+-2.0*a.m_e1_e2*a.m_no_ni*b.m_e1_ni+-2.0*a.m_e1_e2*a.m_scalar*b.m_e1_ni+-2.0*a.m_e1_e2_e3_ni*a.m_e2_e3*b.m_e1_e2+2.0*a.m_e1_e2_e3_ni*a.m_no_e1_e2_ni*b.m_e2_e3+-2.0*a.m_e1_e2_e3_ni*a.m_no_e2_e3_ni*b.m_e1_e2+2.0*a.m_e1_e2_e3_ni*a.m_no_ni*b.m_e1_e3+2.0*a.m_e1_e2_e3_ni*a.m_scalar*b.m_e1_e3+2.0*a.m_e1_ni*a.m_e2_e3*b.m_e1_e3+2.0*a.m_e1_ni*a.m_e3_e1*b.m_e2_e3+-2.0*a.m_e1_ni*a.m_no_e1_e3_ni*b.m_e2_e3+2.0*a.m_e1_ni*a.m_no_e2_e3_ni*b.m_e1_e3+2.0*a.m_e1_ni*a.m_no_ni*b.m_e1_e2+2.0*a.m_e1_ni*a.m_scalar*b.m_e1_e2-a.m_e2_e3*a.m_e2_e3*b.m_e2_ni+2.0*a.m_e2_e3*a.m_e2_ni*b.m_e2_e3+2.0*a.m_e2_e3*a.m_e3_e1*b.m_e1_ni+-2.0*a.m_e2_e3*a.m_no_e1_e3_ni*b.m_e1_ni+-2.0*a.m_e2_e3*a.m_no_e2_e3_ni*b.m_e2_ni+2.0*a.m_e2_e3*a.m_no_ni*b.m_e3_ni+2.0*a.m_e2_e3*a.m_scalar*b.m_e3_ni+-2.0*a.m_e2_ni*a.m_e3_e1*b.m_e1_e3+2.0*a.m_e2_ni*a.m_no_e1_e2_ni*b.m_e1_e2+2.0*a.m_e2_ni*a.m_no_e1_e3_ni*b.m_e1_e3+2.0*a.m_e2_ni*a.m_no_e2_e3_ni*b.m_e2_e3+a.m_e3_e1*a.m_e3_e1*b.m_e2_ni+2.0*a.m_e3_e1*a.m_e3_ni*b.m_e1_e2+2.0*a.m_e3_e1*a.m_no_e1_e2_ni*b.m_e3_ni+-2.0*a.m_e3_e1*a.m_no_e1_e3_ni*b.m_e2_ni+2.0*a.m_e3_e1*a.m_no_e2_e3_ni*b.m_e1_ni+2.0*a.m_e3_ni*a.m_no_e1_e2_ni*b.m_e1_e3+-2.0*a.m_e3_ni*a.m_no_e1_e3_ni*b.m_e1_e2+-2.0*a.m_e3_ni*a.m_no_ni*b.m_e2_e3+-2.0*a.m_e3_ni*a.m_scalar*b.m_e2_e3-a.m_no_e1_e2_ni*a.m_no_e1_e2_ni*b.m_e2_ni+-2.0*a.m_no_e1_e2_ni*a.m_no_e1_e3_ni*b.m_e3_ni+-2.0*a.m_no_e1_e2_ni*a.m_no_ni*b.m_e1_ni+-2.0*a.m_no_e1_e2_ni*a.m_scalar*b.m_e1_ni+a.m_no_e1_e3_ni*a.m_no_e1_e3_ni*b.m_e2_ni+-2.0*a.m_no_e1_e3_ni*a.m_no_e2_e3_ni*b.m_e1_ni-a.m_no_e2_e3_ni*a.m_no_e2_e3_ni*b.m_e2_ni+2.0*a.m_no_e2_e3_ni*a.m_no_ni*b.m_e3_ni+2.0*a.m_no_e2_e3_ni*a.m_scalar*b.m_e3_ni+a.m_no_ni*a.m_no_ni*b.m_e2_ni+2.0*a.m_no_ni*a.m_scalar*b.m_e2_ni+a.m_scalar*a.m_scalar*b.m_e2_ni))/(_n2_), // e2_ni
+			((a.m_e1_e2*a.m_e1_e2*b.m_e3_ni+2.0*a.m_e1_e2*a.m_e1_ni*b.m_e2_e3+2.0*a.m_e1_e2*a.m_e2_e3*b.m_e1_ni+-2.0*a.m_e1_e2*a.m_e2_ni*b.m_e1_e3+2.0*a.m_e1_e2*a.m_e3_e1*b.m_e2_ni+2.0*a.m_e1_e2*a.m_e3_ni*b.m_e1_e2+2.0*a.m_e1_e2*a.m_no_e1_e2_ni*b.m_e3_ni+-2.0*a.m_e1_e2*a.m_no_e1_e3_ni*b.m_e2_ni+2.0*a.m_e1_e2*a.m_no_e2_e3_ni*b.m_e1_ni+-2.0*a.m_e1_e2_e3_ni*a.m_e2_e3*b.m_e1_e3+-2.0*a.m_e1_e2_e3_ni*a.m_e3_e1*b.m_e2_e3+2.0*a.m_e1_e2_e3_ni*a.m_no_e1_e3_ni*b.m_e2_e3+-2.0*a.m_e1_e2_e3_ni*a.m_no_e2_e3_ni*b.m_e1_e3+-2.0*a.m_e1_e2_e3_ni*a.m_no_ni*b.m_e1_e2+-2.0*a.m_e1_e2_e3_ni*a.m_scalar*b.m_e1_e2+-2.0*a.m_e1_ni*a.m_e2_e3*b.m_e1_e2+2.0*a.m_e1_ni*a.m_no_e1_e2_ni*b.m_e2_e3+-2.0*a.m_e1_ni*a.m_no_e2_e3_ni*b.m_e1_e2+2.0*a.m_e1_ni*a.m_no_ni*b.m_e1_e3+2.0*a.m_e1_ni*a.m_scalar*b.m_e1_e3-a.m_e2_e3*a.m_e2_e3*b.m_e3_ni+2.0*a.m_e2_e3*a.m_e3_ni*b.m_e2_e3+2.0*a.m_e2_e3*a.m_no_e1_e2_ni*b.m_e1_ni+-2.0*a.m_e2_e3*a.m_no_e2_e3_ni*b.m_e3_ni+-2.0*a.m_e2_e3*a.m_no_ni*b.m_e2_ni+-2.0*a.m_e2_e3*a.m_scalar*b.m_e2_ni+-2.0*a.m_e2_ni*a.m_e3_e1*b.m_e1_e2+-2.0*a.m_e2_ni*a.m_no_e1_e2_ni*b.m_e1_e3+2.0*a.m_e2_ni*a.m_no_e1_e3_ni*b.m_e1_e2+2.0*a.m_e2_ni*a.m_no_ni*b.m_e2_e3+2.0*a.m_e2_ni*a.m_scalar*b.m_e2_e3-a.m_e3_e1*a.m_e3_e1*b.m_e3_ni+-2.0*a.m_e3_e1*a.m_e3_ni*b.m_e1_e3+2.0*a.m_e3_e1*a.m_no_e1_e2_ni*b.m_e2_ni+2.0*a.m_e3_e1*a.m_no_e1_e3_ni*b.m_e3_ni+2.0*a.m_e3_e1*a.m_no_ni*b.m_e1_ni+2.0*a.m_e3_e1*a.m_scalar*b.m_e1_ni+2.0*a.m_e3_ni*a.m_no_e1_e2_ni*b.m_e1_e2+2.0*a.m_e3_ni*a.m_no_e1_e3_ni*b.m_e1_e3+2.0*a.m_e3_ni*a.m_no_e2_e3_ni*b.m_e2_e3+a.m_no_e1_e2_ni*a.m_no_e1_e2_ni*b.m_e3_ni+-2.0*a.m_no_e1_e2_ni*a.m_no_e1_e3_ni*b.m_e2_ni+2.0*a.m_no_e1_e2_ni*a.m_no_e2_e3_ni*b.m_e1_ni-a.m_no_e1_e3_ni*a.m_no_e1_e3_ni*b.m_e3_ni+-2.0*a.m_no_e1_e3_ni*a.m_no_ni*b.m_e1_ni+-2.0*a.m_no_e1_e3_ni*a.m_scalar*b.m_e1_ni-a.m_no_e2_e3_ni*a.m_no_e2_e3_ni*b.m_e3_ni+-2.0*a.m_no_e2_e3_ni*a.m_no_ni*b.m_e2_ni+-2.0*a.m_no_e2_e3_ni*a.m_scalar*b.m_e2_ni+a.m_no_ni*a.m_no_ni*b.m_e3_ni+2.0*a.m_no_ni*a.m_scalar*b.m_e3_ni+a.m_scalar*a.m_scalar*b.m_e3_ni))/(_n2_), // e3_ni
+			((2.0*a.m_e1_e2*a.m_no_e1*b.m_e2_ni+2.0*a.m_e1_e2*a.m_no_e1_e2_e3*b.m_e3_ni+-2.0*a.m_e1_e2*a.m_no_e1_e3_ni*b.m_e2_e3+-2.0*a.m_e1_e2*a.m_no_e2*b.m_e1_ni+2.0*a.m_e1_e2*a.m_no_e2_e3_ni*b.m_e1_e3+2.0*a.m_e1_e2*a.m_no_ni*b.m_e1_e2+-2.0*a.m_e1_e2_e3_ni*a.m_no_e1*b.m_e2_e3+2.0*a.m_e1_e2_e3_ni*a.m_no_e2*b.m_e1_e3+-2.0*a.m_e1_e2_e3_ni*a.m_no_e3*b.m_e1_e2+2.0*a.m_e1_ni*a.m_no_e1_e2_e3*b.m_e2_e3+2.0*a.m_e1_ni*a.m_no_e2*b.m_e1_e2+2.0*a.m_e1_ni*a.m_no_e3*b.m_e1_e3+2.0*a.m_e2_e3*a.m_no_e1_e2_e3*b.m_e1_ni+-2.0*a.m_e2_e3*a.m_no_e1_e2_ni*b.m_e1_e3+2.0*a.m_e2_e3*a.m_no_e1_e3_ni*b.m_e1_e2+2.0*a.m_e2_e3*a.m_no_e2*b.m_e3_ni+-2.0*a.m_e2_e3*a.m_no_e3*b.m_e2_ni+2.0*a.m_e2_e3*a.m_no_ni*b.m_e2_e3+-2.0*a.m_e2_ni*a.m_no_e1*b.m_e1_e2+-2.0*a.m_e2_ni*a.m_no_e1_e2_e3*b.m_e1_e3+2.0*a.m_e2_ni*a.m_no_e3*b.m_e2_e3+-2.0*a.m_e3_e1*a.m_no_e1*b.m_e3_ni+2.0*a.m_e3_e1*a.m_no_e1_e2_e3*b.m_e2_ni+-2.0*a.m_e3_e1*a.m_no_e1_e2_ni*b.m_e2_e3+2.0*a.m_e3_e1*a.m_no_e2_e3_ni*b.m_e1_e2+2.0*a.m_e3_e1*a.m_no_e3*b.m_e1_ni+-2.0*a.m_e3_e1*a.m_no_ni*b.m_e1_e3+-2.0*a.m_e3_ni*a.m_no_e1*b.m_e1_e3+2.0*a.m_e3_ni*a.m_no_e1_e2_e3*b.m_e1_e2+-2.0*a.m_e3_ni*a.m_no_e2*b.m_e2_e3+2.0*a.m_no_e1*a.m_no_e1_e2_ni*b.m_e2_ni+2.0*a.m_no_e1*a.m_no_e1_e3_ni*b.m_e3_ni+2.0*a.m_no_e1*a.m_no_ni*b.m_e1_ni+2.0*a.m_no_e1*a.m_scalar*b.m_e1_ni+2.0*a.m_no_e1_e2_e3*a.m_no_e1_e2_ni*b.m_e3_ni+-2.0*a.m_no_e1_e2_e3*a.m_no_e1_e3_ni*b.m_e2_ni+2.0*a.m_no_e1_e2_e3*a.m_no_e2_e3_ni*b.m_e1_ni+-2.0*a.m_no_e1_e2_ni*a.m_no_e2*b.m_e1_ni+-2.0*a.m_no_e1_e2_ni*a.m_scalar*b.m_e1_e2+-2.0*a.m_no_e1_e3_ni*a.m_no_e3*b.m_e1_ni+-2.0*a.m_no_e1_e3_ni*a.m_scalar*b.m_e1_e3+2.0*a.m_no_e2*a.m_no_e2_e3_ni*b.m_e3_ni+2.0*a.m_no_e2*a.m_no_ni*b.m_e2_ni+2.0*a.m_no_e2*a.m_scalar*b.m_e2_ni+-2.0*a.m_no_e2_e3_ni*a.m_no_e3*b.m_e2_ni+-2.0*a.m_no_e2_e3_ni*a.m_scalar*b.m_e2_e3+2.0*a.m_no_e3*a.m_no_ni*b.m_e3_ni+2.0*a.m_no_e3*a.m_scalar*b.m_e3_ni))/(_n2_) // no_ni
 		);
 }
 inline pointPair applyVersor(const evenVersor &a, const bivectorE3GA &b)
@@ -13440,6 +13820,23 @@ inline dualSphere applyVersor(const oddVersor &a, const dualSphere &b)
 			((-a.m_e1*a.m_e1*b.m_ni+2.0*a.m_e1*a.m_e1_e2_ni*b.m_e2+2.0*a.m_e1*a.m_e1_e3_ni*b.m_e3+2.0*a.m_e1*a.m_ni*b.m_e1+2.0*a.m_e1*a.m_no_e1_ni*b.m_ni-a.m_e1_e2_e3*a.m_e1_e2_e3*b.m_ni+2.0*a.m_e1_e2_e3*a.m_e1_e2_ni*b.m_e3+-2.0*a.m_e1_e2_e3*a.m_e1_e3_ni*b.m_e2+2.0*a.m_e1_e2_e3*a.m_e2_e3_ni*b.m_e1+2.0*a.m_e1_e2_e3*a.m_no_e1_e2_e3_ni*b.m_ni+-2.0*a.m_e1_e2_ni*a.m_e1_e2_ni*b.m_no+-2.0*a.m_e1_e2_ni*a.m_e2*b.m_e1+-2.0*a.m_e1_e2_ni*a.m_no_e1_e2_e3_ni*b.m_e3+-2.0*a.m_e1_e2_ni*a.m_no_e1_ni*b.m_e2+2.0*a.m_e1_e2_ni*a.m_no_e2_ni*b.m_e1+-2.0*a.m_e1_e3_ni*a.m_e1_e3_ni*b.m_no+-2.0*a.m_e1_e3_ni*a.m_e3*b.m_e1+2.0*a.m_e1_e3_ni*a.m_no_e1_e2_e3_ni*b.m_e2+-2.0*a.m_e1_e3_ni*a.m_no_e1_ni*b.m_e3+2.0*a.m_e1_e3_ni*a.m_no_e3_ni*b.m_e1-a.m_e2*a.m_e2*b.m_ni+2.0*a.m_e2*a.m_e2_e3_ni*b.m_e3+2.0*a.m_e2*a.m_ni*b.m_e2+2.0*a.m_e2*a.m_no_e2_ni*b.m_ni+-2.0*a.m_e2_e3_ni*a.m_e2_e3_ni*b.m_no+-2.0*a.m_e2_e3_ni*a.m_e3*b.m_e2+-2.0*a.m_e2_e3_ni*a.m_no_e1_e2_e3_ni*b.m_e1+-2.0*a.m_e2_e3_ni*a.m_no_e2_ni*b.m_e3+2.0*a.m_e2_e3_ni*a.m_no_e3_ni*b.m_e2-a.m_e3*a.m_e3*b.m_ni+2.0*a.m_e3*a.m_ni*b.m_e3+2.0*a.m_e3*a.m_no_e3_ni*b.m_ni+-2.0*a.m_ni*a.m_ni*b.m_no+-2.0*a.m_ni*a.m_no_e1_ni*b.m_e1+-2.0*a.m_ni*a.m_no_e2_ni*b.m_e2+-2.0*a.m_ni*a.m_no_e3_ni*b.m_e3-a.m_no_e1_e2_e3_ni*a.m_no_e1_e2_e3_ni*b.m_ni-a.m_no_e1_ni*a.m_no_e1_ni*b.m_ni-a.m_no_e2_ni*a.m_no_e2_ni*b.m_ni-a.m_no_e3_ni*a.m_no_e3_ni*b.m_ni))/(_n2_) // ni
 		);
 }
+inline pointPair applyVersor(const oddVersor &a, const dualLine &b)
+{
+	double _n2_ = (a.m_e1*a.m_e1+a.m_e1_e2_e3*a.m_e1_e2_e3+-2.0*a.m_e1_e2_ni*a.m_no_e1_e2+-2.0*a.m_e1_e3_ni*a.m_no_e1_e3+a.m_e2*a.m_e2+-2.0*a.m_e2_e3_ni*a.m_no_e2_e3+a.m_e3*a.m_e3+-2.0*a.m_ni*a.m_no-a.m_no_e1_e2_e3_ni*a.m_no_e1_e2_e3_ni-a.m_no_e1_ni*a.m_no_e1_ni-a.m_no_e2_ni*a.m_no_e2_ni-a.m_no_e3_ni*a.m_no_e3_ni);
+
+	return pointPair(pointPair::coord_noe1_noe2_noe3_e1e2_e2e3_e3e1_e1ni_e2ni_e3ni_noni,
+			((-2.0*a.m_e1*a.m_no_e1_e2*b.m_e1_e2+-2.0*a.m_e1*a.m_no_e1_e3*b.m_e1_e3+-2.0*a.m_e1*a.m_no_e2_e3*b.m_e2_e3+2.0*a.m_e1_e2_e3*a.m_no*b.m_e2_e3+-2.0*a.m_e1_e2_e3*a.m_no_e1_e2*b.m_e1_e3+2.0*a.m_e1_e2_e3*a.m_no_e1_e3*b.m_e1_e2+2.0*a.m_e2*a.m_no*b.m_e1_e2+-2.0*a.m_e2*a.m_no_e1_e3*b.m_e2_e3+2.0*a.m_e2*a.m_no_e2_e3*b.m_e1_e3+2.0*a.m_e3*a.m_no*b.m_e1_e3+2.0*a.m_e3*a.m_no_e1_e2*b.m_e2_e3+-2.0*a.m_e3*a.m_no_e2_e3*b.m_e1_e2+-2.0*a.m_no*a.m_no*b.m_e1_ni+-4.0*a.m_no*a.m_no_e1_e2*b.m_e2_ni+2.0*a.m_no*a.m_no_e1_e2_e3_ni*b.m_e2_e3+-4.0*a.m_no*a.m_no_e1_e3*b.m_e3_ni+2.0*a.m_no*a.m_no_e2_ni*b.m_e1_e2+2.0*a.m_no*a.m_no_e3_ni*b.m_e1_e3+2.0*a.m_no_e1_e2*a.m_no_e1_e2*b.m_e1_ni+-2.0*a.m_no_e1_e2*a.m_no_e1_e2_e3_ni*b.m_e1_e3+-2.0*a.m_no_e1_e2*a.m_no_e1_ni*b.m_e1_e2+-4.0*a.m_no_e1_e2*a.m_no_e2_e3*b.m_e3_ni+2.0*a.m_no_e1_e2*a.m_no_e3_ni*b.m_e2_e3+2.0*a.m_no_e1_e2_e3_ni*a.m_no_e1_e3*b.m_e1_e2+2.0*a.m_no_e1_e3*a.m_no_e1_e3*b.m_e1_ni+-2.0*a.m_no_e1_e3*a.m_no_e1_ni*b.m_e1_e3+4.0*a.m_no_e1_e3*a.m_no_e2_e3*b.m_e2_ni+-2.0*a.m_no_e1_e3*a.m_no_e2_ni*b.m_e2_e3+-2.0*a.m_no_e1_ni*a.m_no_e2_e3*b.m_e2_e3+-2.0*a.m_no_e2_e3*a.m_no_e2_e3*b.m_e1_ni+2.0*a.m_no_e2_e3*a.m_no_e2_ni*b.m_e1_e3+-2.0*a.m_no_e2_e3*a.m_no_e3_ni*b.m_e1_e2))/(_n2_), // no_e1
+			((-2.0*a.m_e1*a.m_no*b.m_e1_e2+2.0*a.m_e1*a.m_no_e1_e3*b.m_e2_e3+-2.0*a.m_e1*a.m_no_e2_e3*b.m_e1_e3+-2.0*a.m_e1_e2_e3*a.m_no*b.m_e1_e3+-2.0*a.m_e1_e2_e3*a.m_no_e1_e2*b.m_e2_e3+2.0*a.m_e1_e2_e3*a.m_no_e2_e3*b.m_e1_e2+-2.0*a.m_e2*a.m_no_e1_e2*b.m_e1_e2+-2.0*a.m_e2*a.m_no_e1_e3*b.m_e1_e3+-2.0*a.m_e2*a.m_no_e2_e3*b.m_e2_e3+2.0*a.m_e3*a.m_no*b.m_e2_e3+-2.0*a.m_e3*a.m_no_e1_e2*b.m_e1_e3+2.0*a.m_e3*a.m_no_e1_e3*b.m_e1_e2+-2.0*a.m_no*a.m_no*b.m_e2_ni+4.0*a.m_no*a.m_no_e1_e2*b.m_e1_ni+-2.0*a.m_no*a.m_no_e1_e2_e3_ni*b.m_e1_e3+-2.0*a.m_no*a.m_no_e1_ni*b.m_e1_e2+-4.0*a.m_no*a.m_no_e2_e3*b.m_e3_ni+2.0*a.m_no*a.m_no_e3_ni*b.m_e2_e3+2.0*a.m_no_e1_e2*a.m_no_e1_e2*b.m_e2_ni+-2.0*a.m_no_e1_e2*a.m_no_e1_e2_e3_ni*b.m_e2_e3+4.0*a.m_no_e1_e2*a.m_no_e1_e3*b.m_e3_ni+-2.0*a.m_no_e1_e2*a.m_no_e2_ni*b.m_e1_e2+-2.0*a.m_no_e1_e2*a.m_no_e3_ni*b.m_e1_e3+2.0*a.m_no_e1_e2_e3_ni*a.m_no_e2_e3*b.m_e1_e2+-2.0*a.m_no_e1_e3*a.m_no_e1_e3*b.m_e2_ni+2.0*a.m_no_e1_e3*a.m_no_e1_ni*b.m_e2_e3+4.0*a.m_no_e1_e3*a.m_no_e2_e3*b.m_e1_ni+-2.0*a.m_no_e1_e3*a.m_no_e2_ni*b.m_e1_e3+2.0*a.m_no_e1_e3*a.m_no_e3_ni*b.m_e1_e2+-2.0*a.m_no_e1_ni*a.m_no_e2_e3*b.m_e1_e3+2.0*a.m_no_e2_e3*a.m_no_e2_e3*b.m_e2_ni+-2.0*a.m_no_e2_e3*a.m_no_e2_ni*b.m_e2_e3))/(_n2_), // no_e2
+			((-2.0*a.m_e1*a.m_no*b.m_e1_e3+-2.0*a.m_e1*a.m_no_e1_e2*b.m_e2_e3+2.0*a.m_e1*a.m_no_e2_e3*b.m_e1_e2+2.0*a.m_e1_e2_e3*a.m_no*b.m_e1_e2+-2.0*a.m_e1_e2_e3*a.m_no_e1_e3*b.m_e2_e3+2.0*a.m_e1_e2_e3*a.m_no_e2_e3*b.m_e1_e3+-2.0*a.m_e2*a.m_no*b.m_e2_e3+2.0*a.m_e2*a.m_no_e1_e2*b.m_e1_e3+-2.0*a.m_e2*a.m_no_e1_e3*b.m_e1_e2+-2.0*a.m_e3*a.m_no_e1_e2*b.m_e1_e2+-2.0*a.m_e3*a.m_no_e1_e3*b.m_e1_e3+-2.0*a.m_e3*a.m_no_e2_e3*b.m_e2_e3+-2.0*a.m_no*a.m_no*b.m_e3_ni+2.0*a.m_no*a.m_no_e1_e2_e3_ni*b.m_e1_e2+4.0*a.m_no*a.m_no_e1_e3*b.m_e1_ni+-2.0*a.m_no*a.m_no_e1_ni*b.m_e1_e3+4.0*a.m_no*a.m_no_e2_e3*b.m_e2_ni+-2.0*a.m_no*a.m_no_e2_ni*b.m_e2_e3+-2.0*a.m_no_e1_e2*a.m_no_e1_e2*b.m_e3_ni+4.0*a.m_no_e1_e2*a.m_no_e1_e3*b.m_e2_ni+-2.0*a.m_no_e1_e2*a.m_no_e1_ni*b.m_e2_e3+-4.0*a.m_no_e1_e2*a.m_no_e2_e3*b.m_e1_ni+2.0*a.m_no_e1_e2*a.m_no_e2_ni*b.m_e1_e3+-2.0*a.m_no_e1_e2*a.m_no_e3_ni*b.m_e1_e2+-2.0*a.m_no_e1_e2_e3_ni*a.m_no_e1_e3*b.m_e2_e3+2.0*a.m_no_e1_e2_e3_ni*a.m_no_e2_e3*b.m_e1_e3+2.0*a.m_no_e1_e3*a.m_no_e1_e3*b.m_e3_ni+-2.0*a.m_no_e1_e3*a.m_no_e2_ni*b.m_e1_e2+-2.0*a.m_no_e1_e3*a.m_no_e3_ni*b.m_e1_e3+2.0*a.m_no_e1_ni*a.m_no_e2_e3*b.m_e1_e2+2.0*a.m_no_e2_e3*a.m_no_e2_e3*b.m_e3_ni+-2.0*a.m_no_e2_e3*a.m_no_e3_ni*b.m_e2_e3))/(_n2_), // no_e3
+			((-a.m_e1*a.m_e1*b.m_e1_e2+-2.0*a.m_e1*a.m_e1_e2_e3*b.m_e1_e3+2.0*a.m_e1*a.m_e3*b.m_e2_e3+-2.0*a.m_e1*a.m_no*b.m_e2_ni+2.0*a.m_e1*a.m_no_e1_e2*b.m_e1_ni+-2.0*a.m_e1*a.m_no_e2_e3*b.m_e3_ni+a.m_e1_e2_e3*a.m_e1_e2_e3*b.m_e1_e2+-2.0*a.m_e1_e2_e3*a.m_e2*b.m_e2_e3+-2.0*a.m_e1_e2_e3*a.m_no*b.m_e3_ni+2.0*a.m_e1_e2_e3*a.m_no_e1_e3*b.m_e1_ni+2.0*a.m_e1_e2_e3*a.m_no_e2_e3*b.m_e2_ni+-2.0*a.m_e1_e2_ni*a.m_no_e1_e2*b.m_e1_e2+-2.0*a.m_e1_e2_ni*a.m_no_e1_e3*b.m_e1_e3+-2.0*a.m_e1_e2_ni*a.m_no_e2_e3*b.m_e2_e3+2.0*a.m_e1_e3_ni*a.m_no*b.m_e2_e3+-2.0*a.m_e1_e3_ni*a.m_no_e1_e2*b.m_e1_e3+2.0*a.m_e1_e3_ni*a.m_no_e1_e3*b.m_e1_e2-a.m_e2*a.m_e2*b.m_e1_e2+-2.0*a.m_e2*a.m_e3*b.m_e1_e3+2.0*a.m_e2*a.m_no*b.m_e1_ni+2.0*a.m_e2*a.m_no_e1_e2*b.m_e2_ni+2.0*a.m_e2*a.m_no_e1_e3*b.m_e3_ni+-2.0*a.m_e2_e3_ni*a.m_no*b.m_e1_e3+-2.0*a.m_e2_e3_ni*a.m_no_e1_e2*b.m_e2_e3+2.0*a.m_e2_e3_ni*a.m_no_e2_e3*b.m_e1_e2+a.m_e3*a.m_e3*b.m_e1_e2+2.0*a.m_e3*a.m_no_e1_e2*b.m_e3_ni+-2.0*a.m_e3*a.m_no_e1_e3*b.m_e2_ni+2.0*a.m_e3*a.m_no_e2_e3*b.m_e1_ni+-2.0*a.m_ni*a.m_no*b.m_e1_e2+2.0*a.m_ni*a.m_no_e1_e3*b.m_e2_e3+-2.0*a.m_ni*a.m_no_e2_e3*b.m_e1_e3+2.0*a.m_no*a.m_no_e1_e2_e3_ni*b.m_e3_ni+2.0*a.m_no*a.m_no_e1_ni*b.m_e2_ni+-2.0*a.m_no*a.m_no_e2_ni*b.m_e1_ni+-2.0*a.m_no_e1_e2*a.m_no_e1_ni*b.m_e1_ni+-2.0*a.m_no_e1_e2*a.m_no_e2_ni*b.m_e2_ni+-2.0*a.m_no_e1_e2*a.m_no_e3_ni*b.m_e3_ni-a.m_no_e1_e2_e3_ni*a.m_no_e1_e2_e3_ni*b.m_e1_e2+-2.0*a.m_no_e1_e2_e3_ni*a.m_no_e1_e3*b.m_e1_ni+2.0*a.m_no_e1_e2_e3_ni*a.m_no_e1_ni*b.m_e1_e3+-2.0*a.m_no_e1_e2_e3_ni*a.m_no_e2_e3*b.m_e2_ni+2.0*a.m_no_e1_e2_e3_ni*a.m_no_e2_ni*b.m_e2_e3+-2.0*a.m_no_e1_e3*a.m_no_e2_ni*b.m_e3_ni+2.0*a.m_no_e1_e3*a.m_no_e3_ni*b.m_e2_ni+a.m_no_e1_ni*a.m_no_e1_ni*b.m_e1_e2+2.0*a.m_no_e1_ni*a.m_no_e2_e3*b.m_e3_ni+-2.0*a.m_no_e1_ni*a.m_no_e3_ni*b.m_e2_e3+-2.0*a.m_no_e2_e3*a.m_no_e3_ni*b.m_e1_ni+a.m_no_e2_ni*a.m_no_e2_ni*b.m_e1_e2+2.0*a.m_no_e2_ni*a.m_no_e3_ni*b.m_e1_e3-a.m_no_e3_ni*a.m_no_e3_ni*b.m_e1_e2))/(_n2_), // e1_e2
+			((a.m_e1*a.m_e1*b.m_e2_e3+-2.0*a.m_e1*a.m_e2*b.m_e1_e3+2.0*a.m_e1*a.m_e3*b.m_e1_e2+2.0*a.m_e1*a.m_no_e1_e2*b.m_e3_ni+-2.0*a.m_e1*a.m_no_e1_e3*b.m_e2_ni+2.0*a.m_e1*a.m_no_e2_e3*b.m_e1_ni+a.m_e1_e2_e3*a.m_e1_e2_e3*b.m_e2_e3+2.0*a.m_e1_e2_e3*a.m_e2*b.m_e1_e2+2.0*a.m_e1_e2_e3*a.m_e3*b.m_e1_e3+-2.0*a.m_e1_e2_e3*a.m_no*b.m_e1_ni+-2.0*a.m_e1_e2_e3*a.m_no_e1_e2*b.m_e2_ni+-2.0*a.m_e1_e2_e3*a.m_no_e1_e3*b.m_e3_ni+2.0*a.m_e1_e2_ni*a.m_no*b.m_e1_e3+2.0*a.m_e1_e2_ni*a.m_no_e1_e2*b.m_e2_e3+-2.0*a.m_e1_e2_ni*a.m_no_e2_e3*b.m_e1_e2+-2.0*a.m_e1_e3_ni*a.m_no*b.m_e1_e2+2.0*a.m_e1_e3_ni*a.m_no_e1_e3*b.m_e2_e3+-2.0*a.m_e1_e3_ni*a.m_no_e2_e3*b.m_e1_e3-a.m_e2*a.m_e2*b.m_e2_e3+-2.0*a.m_e2*a.m_no*b.m_e3_ni+2.0*a.m_e2*a.m_no_e1_e3*b.m_e1_ni+2.0*a.m_e2*a.m_no_e2_e3*b.m_e2_ni+-2.0*a.m_e2_e3_ni*a.m_no_e1_e2*b.m_e1_e2+-2.0*a.m_e2_e3_ni*a.m_no_e1_e3*b.m_e1_e3+-2.0*a.m_e2_e3_ni*a.m_no_e2_e3*b.m_e2_e3-a.m_e3*a.m_e3*b.m_e2_e3+2.0*a.m_e3*a.m_no*b.m_e2_ni+-2.0*a.m_e3*a.m_no_e1_e2*b.m_e1_ni+2.0*a.m_e3*a.m_no_e2_e3*b.m_e3_ni+-2.0*a.m_ni*a.m_no*b.m_e2_e3+2.0*a.m_ni*a.m_no_e1_e2*b.m_e1_e3+-2.0*a.m_ni*a.m_no_e1_e3*b.m_e1_e2+2.0*a.m_no*a.m_no_e1_e2_e3_ni*b.m_e1_ni+2.0*a.m_no*a.m_no_e2_ni*b.m_e3_ni+-2.0*a.m_no*a.m_no_e3_ni*b.m_e2_ni+2.0*a.m_no_e1_e2*a.m_no_e1_e2_e3_ni*b.m_e2_ni+-2.0*a.m_no_e1_e2*a.m_no_e1_ni*b.m_e3_ni+2.0*a.m_no_e1_e2*a.m_no_e3_ni*b.m_e1_ni-a.m_no_e1_e2_e3_ni*a.m_no_e1_e2_e3_ni*b.m_e2_e3+2.0*a.m_no_e1_e2_e3_ni*a.m_no_e1_e3*b.m_e3_ni+-2.0*a.m_no_e1_e2_e3_ni*a.m_no_e2_ni*b.m_e1_e2+-2.0*a.m_no_e1_e2_e3_ni*a.m_no_e3_ni*b.m_e1_e3+2.0*a.m_no_e1_e3*a.m_no_e1_ni*b.m_e2_ni+-2.0*a.m_no_e1_e3*a.m_no_e2_ni*b.m_e1_ni-a.m_no_e1_ni*a.m_no_e1_ni*b.m_e2_e3+-2.0*a.m_no_e1_ni*a.m_no_e2_e3*b.m_e1_ni+2.0*a.m_no_e1_ni*a.m_no_e2_ni*b.m_e1_e3+-2.0*a.m_no_e1_ni*a.m_no_e3_ni*b.m_e1_e2+-2.0*a.m_no_e2_e3*a.m_no_e2_ni*b.m_e2_ni+-2.0*a.m_no_e2_e3*a.m_no_e3_ni*b.m_e3_ni+a.m_no_e2_ni*a.m_no_e2_ni*b.m_e2_e3+a.m_no_e3_ni*a.m_no_e3_ni*b.m_e2_e3))/(_n2_), // e2_e3
+			(-(-a.m_e1*a.m_e1*b.m_e1_e3+2.0*a.m_e1*a.m_e1_e2_e3*b.m_e1_e2+-2.0*a.m_e1*a.m_e2*b.m_e2_e3+-2.0*a.m_e1*a.m_no*b.m_e3_ni+2.0*a.m_e1*a.m_no_e1_e3*b.m_e1_ni+2.0*a.m_e1*a.m_no_e2_e3*b.m_e2_ni+a.m_e1_e2_e3*a.m_e1_e2_e3*b.m_e1_e3+-2.0*a.m_e1_e2_e3*a.m_e3*b.m_e2_e3+2.0*a.m_e1_e2_e3*a.m_no*b.m_e2_ni+-2.0*a.m_e1_e2_e3*a.m_no_e1_e2*b.m_e1_ni+2.0*a.m_e1_e2_e3*a.m_no_e2_e3*b.m_e3_ni+-2.0*a.m_e1_e2_ni*a.m_no*b.m_e2_e3+2.0*a.m_e1_e2_ni*a.m_no_e1_e2*b.m_e1_e3+-2.0*a.m_e1_e2_ni*a.m_no_e1_e3*b.m_e1_e2+-2.0*a.m_e1_e3_ni*a.m_no_e1_e2*b.m_e1_e2+-2.0*a.m_e1_e3_ni*a.m_no_e1_e3*b.m_e1_e3+-2.0*a.m_e1_e3_ni*a.m_no_e2_e3*b.m_e2_e3+a.m_e2*a.m_e2*b.m_e1_e3+-2.0*a.m_e2*a.m_e3*b.m_e1_e2+-2.0*a.m_e2*a.m_no_e1_e2*b.m_e3_ni+2.0*a.m_e2*a.m_no_e1_e3*b.m_e2_ni+-2.0*a.m_e2*a.m_no_e2_e3*b.m_e1_ni+2.0*a.m_e2_e3_ni*a.m_no*b.m_e1_e2+-2.0*a.m_e2_e3_ni*a.m_no_e1_e3*b.m_e2_e3+2.0*a.m_e2_e3_ni*a.m_no_e2_e3*b.m_e1_e3-a.m_e3*a.m_e3*b.m_e1_e3+2.0*a.m_e3*a.m_no*b.m_e1_ni+2.0*a.m_e3*a.m_no_e1_e2*b.m_e2_ni+2.0*a.m_e3*a.m_no_e1_e3*b.m_e3_ni+-2.0*a.m_ni*a.m_no*b.m_e1_e3+-2.0*a.m_ni*a.m_no_e1_e2*b.m_e2_e3+2.0*a.m_ni*a.m_no_e2_e3*b.m_e1_e2+-2.0*a.m_no*a.m_no_e1_e2_e3_ni*b.m_e2_ni+2.0*a.m_no*a.m_no_e1_ni*b.m_e3_ni+-2.0*a.m_no*a.m_no_e3_ni*b.m_e1_ni+2.0*a.m_no_e1_e2*a.m_no_e1_e2_e3_ni*b.m_e1_ni+2.0*a.m_no_e1_e2*a.m_no_e2_ni*b.m_e3_ni+-2.0*a.m_no_e1_e2*a.m_no_e3_ni*b.m_e2_ni-a.m_no_e1_e2_e3_ni*a.m_no_e1_e2_e3_ni*b.m_e1_e3+-2.0*a.m_no_e1_e2_e3_ni*a.m_no_e1_ni*b.m_e1_e2+-2.0*a.m_no_e1_e2_e3_ni*a.m_no_e2_e3*b.m_e3_ni+2.0*a.m_no_e1_e2_e3_ni*a.m_no_e3_ni*b.m_e2_e3+-2.0*a.m_no_e1_e3*a.m_no_e1_ni*b.m_e1_ni+-2.0*a.m_no_e1_e3*a.m_no_e2_ni*b.m_e2_ni+-2.0*a.m_no_e1_e3*a.m_no_e3_ni*b.m_e3_ni+a.m_no_e1_ni*a.m_no_e1_ni*b.m_e1_e3+-2.0*a.m_no_e1_ni*a.m_no_e2_e3*b.m_e2_ni+2.0*a.m_no_e1_ni*a.m_no_e2_ni*b.m_e2_e3+2.0*a.m_no_e2_e3*a.m_no_e2_ni*b.m_e1_ni-a.m_no_e2_ni*a.m_no_e2_ni*b.m_e1_e3+2.0*a.m_no_e2_ni*a.m_no_e3_ni*b.m_e1_e2+a.m_no_e3_ni*a.m_no_e3_ni*b.m_e1_e3))/(_n2_), // e3_e1
+			((-a.m_e1*a.m_e1*b.m_e1_ni+2.0*a.m_e1*a.m_e1_e2_ni*b.m_e1_e2+2.0*a.m_e1*a.m_e1_e3_ni*b.m_e1_e3+-2.0*a.m_e1*a.m_e2*b.m_e2_ni+2.0*a.m_e1*a.m_e2_e3_ni*b.m_e2_e3+-2.0*a.m_e1*a.m_e3*b.m_e3_ni+2.0*a.m_e1*a.m_no_e1_ni*b.m_e1_ni+2.0*a.m_e1*a.m_no_e2_ni*b.m_e2_ni+2.0*a.m_e1*a.m_no_e3_ni*b.m_e3_ni-a.m_e1_e2_e3*a.m_e1_e2_e3*b.m_e1_ni+2.0*a.m_e1_e2_e3*a.m_e1_e2_ni*b.m_e1_e3+-2.0*a.m_e1_e2_e3*a.m_e1_e3_ni*b.m_e1_e2+-2.0*a.m_e1_e2_e3*a.m_e2*b.m_e3_ni+2.0*a.m_e1_e2_e3*a.m_e3*b.m_e2_ni+-2.0*a.m_e1_e2_e3*a.m_ni*b.m_e2_e3+2.0*a.m_e1_e2_e3*a.m_no_e1_e2_e3_ni*b.m_e1_ni+2.0*a.m_e1_e2_e3*a.m_no_e2_ni*b.m_e3_ni+-2.0*a.m_e1_e2_e3*a.m_no_e3_ni*b.m_e2_ni+-2.0*a.m_e1_e2_ni*a.m_e3*b.m_e2_e3+-2.0*a.m_e1_e2_ni*a.m_no_e1_e2_e3_ni*b.m_e1_e3+-2.0*a.m_e1_e2_ni*a.m_no_e1_ni*b.m_e1_e2+2.0*a.m_e1_e2_ni*a.m_no_e3_ni*b.m_e2_e3+2.0*a.m_e1_e3_ni*a.m_e2*b.m_e2_e3+2.0*a.m_e1_e3_ni*a.m_no_e1_e2_e3_ni*b.m_e1_e2+-2.0*a.m_e1_e3_ni*a.m_no_e1_ni*b.m_e1_e3+-2.0*a.m_e1_e3_ni*a.m_no_e2_ni*b.m_e2_e3+a.m_e2*a.m_e2*b.m_e1_ni+-2.0*a.m_e2*a.m_e2_e3_ni*b.m_e1_e3+-2.0*a.m_e2*a.m_ni*b.m_e1_e2+2.0*a.m_e2*a.m_no_e1_e2_e3_ni*b.m_e3_ni+2.0*a.m_e2*a.m_no_e1_ni*b.m_e2_ni+-2.0*a.m_e2*a.m_no_e2_ni*b.m_e1_ni+2.0*a.m_e2_e3_ni*a.m_e3*b.m_e1_e2+-2.0*a.m_e2_e3_ni*a.m_no_e1_ni*b.m_e2_e3+2.0*a.m_e2_e3_ni*a.m_no_e2_ni*b.m_e1_e3+-2.0*a.m_e2_e3_ni*a.m_no_e3_ni*b.m_e1_e2+a.m_e3*a.m_e3*b.m_e1_ni+-2.0*a.m_e3*a.m_ni*b.m_e1_e3+-2.0*a.m_e3*a.m_no_e1_e2_e3_ni*b.m_e2_ni+2.0*a.m_e3*a.m_no_e1_ni*b.m_e3_ni+-2.0*a.m_e3*a.m_no_e3_ni*b.m_e1_ni+2.0*a.m_ni*a.m_no_e1_e2_e3_ni*b.m_e2_e3+2.0*a.m_ni*a.m_no_e2_ni*b.m_e1_e2+2.0*a.m_ni*a.m_no_e3_ni*b.m_e1_e3-a.m_no_e1_e2_e3_ni*a.m_no_e1_e2_e3_ni*b.m_e1_ni+-2.0*a.m_no_e1_e2_e3_ni*a.m_no_e2_ni*b.m_e3_ni+2.0*a.m_no_e1_e2_e3_ni*a.m_no_e3_ni*b.m_e2_ni-a.m_no_e1_ni*a.m_no_e1_ni*b.m_e1_ni+-2.0*a.m_no_e1_ni*a.m_no_e2_ni*b.m_e2_ni+-2.0*a.m_no_e1_ni*a.m_no_e3_ni*b.m_e3_ni+a.m_no_e2_ni*a.m_no_e2_ni*b.m_e1_ni+a.m_no_e3_ni*a.m_no_e3_ni*b.m_e1_ni))/(_n2_), // e1_ni
+			((a.m_e1*a.m_e1*b.m_e2_ni+2.0*a.m_e1*a.m_e1_e2_e3*b.m_e3_ni+-2.0*a.m_e1*a.m_e1_e3_ni*b.m_e2_e3+-2.0*a.m_e1*a.m_e2*b.m_e1_ni+2.0*a.m_e1*a.m_e2_e3_ni*b.m_e1_e3+2.0*a.m_e1*a.m_ni*b.m_e1_e2+-2.0*a.m_e1*a.m_no_e1_e2_e3_ni*b.m_e3_ni+-2.0*a.m_e1*a.m_no_e1_ni*b.m_e2_ni+2.0*a.m_e1*a.m_no_e2_ni*b.m_e1_ni-a.m_e1_e2_e3*a.m_e1_e2_e3*b.m_e2_ni+2.0*a.m_e1_e2_e3*a.m_e1_e2_ni*b.m_e2_e3+-2.0*a.m_e1_e2_e3*a.m_e2_e3_ni*b.m_e1_e2+-2.0*a.m_e1_e2_e3*a.m_e3*b.m_e1_ni+2.0*a.m_e1_e2_e3*a.m_ni*b.m_e1_e3+2.0*a.m_e1_e2_e3*a.m_no_e1_e2_e3_ni*b.m_e2_ni+-2.0*a.m_e1_e2_e3*a.m_no_e1_ni*b.m_e3_ni+2.0*a.m_e1_e2_e3*a.m_no_e3_ni*b.m_e1_ni+2.0*a.m_e1_e2_ni*a.m_e2*b.m_e1_e2+2.0*a.m_e1_e2_ni*a.m_e3*b.m_e1_e3+-2.0*a.m_e1_e2_ni*a.m_no_e1_e2_e3_ni*b.m_e2_e3+-2.0*a.m_e1_e2_ni*a.m_no_e2_ni*b.m_e1_e2+-2.0*a.m_e1_e2_ni*a.m_no_e3_ni*b.m_e1_e3+2.0*a.m_e1_e3_ni*a.m_e2*b.m_e1_e3+-2.0*a.m_e1_e3_ni*a.m_e3*b.m_e1_e2+2.0*a.m_e1_e3_ni*a.m_no_e1_ni*b.m_e2_e3+-2.0*a.m_e1_e3_ni*a.m_no_e2_ni*b.m_e1_e3+2.0*a.m_e1_e3_ni*a.m_no_e3_ni*b.m_e1_e2-a.m_e2*a.m_e2*b.m_e2_ni+2.0*a.m_e2*a.m_e2_e3_ni*b.m_e2_e3+-2.0*a.m_e2*a.m_e3*b.m_e3_ni+2.0*a.m_e2*a.m_no_e1_ni*b.m_e1_ni+2.0*a.m_e2*a.m_no_e2_ni*b.m_e2_ni+2.0*a.m_e2*a.m_no_e3_ni*b.m_e3_ni+2.0*a.m_e2_e3_ni*a.m_no_e1_e2_e3_ni*b.m_e1_e2+-2.0*a.m_e2_e3_ni*a.m_no_e1_ni*b.m_e1_e3+-2.0*a.m_e2_e3_ni*a.m_no_e2_ni*b.m_e2_e3+a.m_e3*a.m_e3*b.m_e2_ni+-2.0*a.m_e3*a.m_ni*b.m_e2_e3+2.0*a.m_e3*a.m_no_e1_e2_e3_ni*b.m_e1_ni+2.0*a.m_e3*a.m_no_e2_ni*b.m_e3_ni+-2.0*a.m_e3*a.m_no_e3_ni*b.m_e2_ni+-2.0*a.m_ni*a.m_no_e1_e2_e3_ni*b.m_e1_e3+-2.0*a.m_ni*a.m_no_e1_ni*b.m_e1_e2+2.0*a.m_ni*a.m_no_e3_ni*b.m_e2_e3-a.m_no_e1_e2_e3_ni*a.m_no_e1_e2_e3_ni*b.m_e2_ni+2.0*a.m_no_e1_e2_e3_ni*a.m_no_e1_ni*b.m_e3_ni+-2.0*a.m_no_e1_e2_e3_ni*a.m_no_e3_ni*b.m_e1_ni+a.m_no_e1_ni*a.m_no_e1_ni*b.m_e2_ni+-2.0*a.m_no_e1_ni*a.m_no_e2_ni*b.m_e1_ni-a.m_no_e2_ni*a.m_no_e2_ni*b.m_e2_ni+-2.0*a.m_no_e2_ni*a.m_no_e3_ni*b.m_e3_ni+a.m_no_e3_ni*a.m_no_e3_ni*b.m_e2_ni))/(_n2_), // e2_ni
+			((a.m_e1*a.m_e1*b.m_e3_ni+-2.0*a.m_e1*a.m_e1_e2_e3*b.m_e2_ni+2.0*a.m_e1*a.m_e1_e2_ni*b.m_e2_e3+-2.0*a.m_e1*a.m_e2_e3_ni*b.m_e1_e2+-2.0*a.m_e1*a.m_e3*b.m_e1_ni+2.0*a.m_e1*a.m_ni*b.m_e1_e3+2.0*a.m_e1*a.m_no_e1_e2_e3_ni*b.m_e2_ni+-2.0*a.m_e1*a.m_no_e1_ni*b.m_e3_ni+2.0*a.m_e1*a.m_no_e3_ni*b.m_e1_ni-a.m_e1_e2_e3*a.m_e1_e2_e3*b.m_e3_ni+2.0*a.m_e1_e2_e3*a.m_e1_e3_ni*b.m_e2_e3+2.0*a.m_e1_e2_e3*a.m_e2*b.m_e1_ni+-2.0*a.m_e1_e2_e3*a.m_e2_e3_ni*b.m_e1_e3+-2.0*a.m_e1_e2_e3*a.m_ni*b.m_e1_e2+2.0*a.m_e1_e2_e3*a.m_no_e1_e2_e3_ni*b.m_e3_ni+2.0*a.m_e1_e2_e3*a.m_no_e1_ni*b.m_e2_ni+-2.0*a.m_e1_e2_e3*a.m_no_e2_ni*b.m_e1_ni+-2.0*a.m_e1_e2_ni*a.m_e2*b.m_e1_e3+2.0*a.m_e1_e2_ni*a.m_e3*b.m_e1_e2+-2.0*a.m_e1_e2_ni*a.m_no_e1_ni*b.m_e2_e3+2.0*a.m_e1_e2_ni*a.m_no_e2_ni*b.m_e1_e3+-2.0*a.m_e1_e2_ni*a.m_no_e3_ni*b.m_e1_e2+2.0*a.m_e1_e3_ni*a.m_e2*b.m_e1_e2+2.0*a.m_e1_e3_ni*a.m_e3*b.m_e1_e3+-2.0*a.m_e1_e3_ni*a.m_no_e1_e2_e3_ni*b.m_e2_e3+-2.0*a.m_e1_e3_ni*a.m_no_e2_ni*b.m_e1_e2+-2.0*a.m_e1_e3_ni*a.m_no_e3_ni*b.m_e1_e3+a.m_e2*a.m_e2*b.m_e3_ni+-2.0*a.m_e2*a.m_e3*b.m_e2_ni+2.0*a.m_e2*a.m_ni*b.m_e2_e3+-2.0*a.m_e2*a.m_no_e1_e2_e3_ni*b.m_e1_ni+-2.0*a.m_e2*a.m_no_e2_ni*b.m_e3_ni+2.0*a.m_e2*a.m_no_e3_ni*b.m_e2_ni+2.0*a.m_e2_e3_ni*a.m_e3*b.m_e2_e3+2.0*a.m_e2_e3_ni*a.m_no_e1_e2_e3_ni*b.m_e1_e3+2.0*a.m_e2_e3_ni*a.m_no_e1_ni*b.m_e1_e2+-2.0*a.m_e2_e3_ni*a.m_no_e3_ni*b.m_e2_e3-a.m_e3*a.m_e3*b.m_e3_ni+2.0*a.m_e3*a.m_no_e1_ni*b.m_e1_ni+2.0*a.m_e3*a.m_no_e2_ni*b.m_e2_ni+2.0*a.m_e3*a.m_no_e3_ni*b.m_e3_ni+2.0*a.m_ni*a.m_no_e1_e2_e3_ni*b.m_e1_e2+-2.0*a.m_ni*a.m_no_e1_ni*b.m_e1_e3+-2.0*a.m_ni*a.m_no_e2_ni*b.m_e2_e3-a.m_no_e1_e2_e3_ni*a.m_no_e1_e2_e3_ni*b.m_e3_ni+-2.0*a.m_no_e1_e2_e3_ni*a.m_no_e1_ni*b.m_e2_ni+2.0*a.m_no_e1_e2_e3_ni*a.m_no_e2_ni*b.m_e1_ni+a.m_no_e1_ni*a.m_no_e1_ni*b.m_e3_ni+-2.0*a.m_no_e1_ni*a.m_no_e3_ni*b.m_e1_ni+a.m_no_e2_ni*a.m_no_e2_ni*b.m_e3_ni+-2.0*a.m_no_e2_ni*a.m_no_e3_ni*b.m_e2_ni-a.m_no_e3_ni*a.m_no_e3_ni*b.m_e3_ni))/(_n2_), // e3_ni
+			((-2.0*a.m_e1*a.m_no*b.m_e1_ni+-2.0*a.m_e1*a.m_no_e1_e2*b.m_e2_ni+2.0*a.m_e1*a.m_no_e1_e2_e3_ni*b.m_e2_e3+-2.0*a.m_e1*a.m_no_e1_e3*b.m_e3_ni+2.0*a.m_e1*a.m_no_e2_ni*b.m_e1_e2+2.0*a.m_e1*a.m_no_e3_ni*b.m_e1_e3+-2.0*a.m_e1_e2_e3*a.m_no_e1_e2*b.m_e3_ni+2.0*a.m_e1_e2_e3*a.m_no_e1_e3*b.m_e2_ni+-2.0*a.m_e1_e2_e3*a.m_no_e1_ni*b.m_e2_e3+-2.0*a.m_e1_e2_e3*a.m_no_e2_e3*b.m_e1_ni+2.0*a.m_e1_e2_e3*a.m_no_e2_ni*b.m_e1_e3+-2.0*a.m_e1_e2_e3*a.m_no_e3_ni*b.m_e1_e2+2.0*a.m_e1_e2_ni*a.m_no*b.m_e1_e2+-2.0*a.m_e1_e2_ni*a.m_no_e1_e3*b.m_e2_e3+2.0*a.m_e1_e2_ni*a.m_no_e2_e3*b.m_e1_e3+2.0*a.m_e1_e3_ni*a.m_no*b.m_e1_e3+2.0*a.m_e1_e3_ni*a.m_no_e1_e2*b.m_e2_e3+-2.0*a.m_e1_e3_ni*a.m_no_e2_e3*b.m_e1_e2+-2.0*a.m_e2*a.m_no*b.m_e2_ni+2.0*a.m_e2*a.m_no_e1_e2*b.m_e1_ni+-2.0*a.m_e2*a.m_no_e1_e2_e3_ni*b.m_e1_e3+-2.0*a.m_e2*a.m_no_e1_ni*b.m_e1_e2+-2.0*a.m_e2*a.m_no_e2_e3*b.m_e3_ni+2.0*a.m_e2*a.m_no_e3_ni*b.m_e2_e3+2.0*a.m_e2_e3_ni*a.m_no*b.m_e2_e3+-2.0*a.m_e2_e3_ni*a.m_no_e1_e2*b.m_e1_e3+2.0*a.m_e2_e3_ni*a.m_no_e1_e3*b.m_e1_e2+-2.0*a.m_e3*a.m_no*b.m_e3_ni+2.0*a.m_e3*a.m_no_e1_e2_e3_ni*b.m_e1_e2+2.0*a.m_e3*a.m_no_e1_e3*b.m_e1_ni+-2.0*a.m_e3*a.m_no_e1_ni*b.m_e1_e3+2.0*a.m_e3*a.m_no_e2_e3*b.m_e2_ni+-2.0*a.m_e3*a.m_no_e2_ni*b.m_e2_e3+-2.0*a.m_ni*a.m_no_e1_e2*b.m_e1_e2+-2.0*a.m_ni*a.m_no_e1_e3*b.m_e1_e3+-2.0*a.m_ni*a.m_no_e2_e3*b.m_e2_e3+2.0*a.m_no*a.m_no_e1_ni*b.m_e1_ni+2.0*a.m_no*a.m_no_e2_ni*b.m_e2_ni+2.0*a.m_no*a.m_no_e3_ni*b.m_e3_ni+2.0*a.m_no_e1_e2*a.m_no_e1_e2_e3_ni*b.m_e3_ni+2.0*a.m_no_e1_e2*a.m_no_e1_ni*b.m_e2_ni+-2.0*a.m_no_e1_e2*a.m_no_e2_ni*b.m_e1_ni+-2.0*a.m_no_e1_e2_e3_ni*a.m_no_e1_e3*b.m_e2_ni+2.0*a.m_no_e1_e2_e3_ni*a.m_no_e2_e3*b.m_e1_ni+2.0*a.m_no_e1_e3*a.m_no_e1_ni*b.m_e3_ni+-2.0*a.m_no_e1_e3*a.m_no_e3_ni*b.m_e1_ni+2.0*a.m_no_e2_e3*a.m_no_e2_ni*b.m_e3_ni+-2.0*a.m_no_e2_e3*a.m_no_e3_ni*b.m_e2_ni))/(_n2_) // no_ni
+		);
+}
 inline pointPair applyVersor(const oddVersor &a, const bivectorE3GA &b)
 {
 	double _n2_ = (a.m_e1*a.m_e1+a.m_e1_e2_e3*a.m_e1_e2_e3+-2.0*a.m_e1_e2_ni*a.m_no_e1_e2+-2.0*a.m_e1_e3_ni*a.m_no_e1_e3+a.m_e2*a.m_e2+-2.0*a.m_e2_e3_ni*a.m_no_e2_e3+a.m_e3*a.m_e3+-2.0*a.m_ni*a.m_no-a.m_no_e1_e2_e3_ni*a.m_no_e1_e2_e3_ni-a.m_no_e1_ni*a.m_no_e1_ni-a.m_no_e2_ni*a.m_no_e2_ni-a.m_no_e3_ni*a.m_no_e3_ni);
@@ -13512,6 +13909,17 @@ inline dualSphere applyVersorWI(const rotorE3GA &a, const dualSphere &b, const r
 			(-a.m_e1_e2*b.m_e1*c.m_scalar+a.m_e1_e2*b.m_e2*c.m_e1_e2-a.m_e1_e2*b.m_e3*c.m_e3_e1-a.m_e2_e3*b.m_e1*c.m_e3_e1+a.m_e2_e3*b.m_e2*c.m_e2_e3+a.m_e2_e3*b.m_e3*c.m_scalar-a.m_e3_e1*b.m_e1*c.m_e2_e3-a.m_e3_e1*b.m_e2*c.m_e3_e1-a.m_e3_e1*b.m_e3*c.m_e1_e2+a.m_scalar*b.m_e1*c.m_e1_e2+a.m_scalar*b.m_e2*c.m_scalar-a.m_scalar*b.m_e3*c.m_e2_e3), // e2
 			(-a.m_e1_e2*b.m_e1*c.m_e2_e3-a.m_e1_e2*b.m_e2*c.m_e3_e1-a.m_e1_e2*b.m_e3*c.m_e1_e2-a.m_e2_e3*b.m_e1*c.m_e1_e2-a.m_e2_e3*b.m_e2*c.m_scalar+a.m_e2_e3*b.m_e3*c.m_e2_e3+a.m_e3_e1*b.m_e1*c.m_scalar-a.m_e3_e1*b.m_e2*c.m_e1_e2+a.m_e3_e1*b.m_e3*c.m_e3_e1-a.m_scalar*b.m_e1*c.m_e3_e1+a.m_scalar*b.m_e2*c.m_e2_e3+a.m_scalar*b.m_e3*c.m_scalar), // e3
 			(-a.m_e1_e2*b.m_ni*c.m_e1_e2-a.m_e2_e3*b.m_ni*c.m_e2_e3-a.m_e3_e1*b.m_ni*c.m_e3_e1+a.m_scalar*b.m_ni*c.m_scalar) // ni
+		);
+}
+inline dualLine applyVersorWI(const rotorE3GA &a, const dualLine &b, const rotorE3GA &c)
+{
+	return dualLine(dualLine::coord_e1e2_e1e3_e1ni_e2e3_e2ni_e3ni,
+			(-a.m_e1_e2*b.m_e1_e2*c.m_e1_e2+a.m_e1_e2*b.m_e1_e3*c.m_e3_e1-a.m_e1_e2*b.m_e2_e3*c.m_e2_e3+a.m_e2_e3*b.m_e1_e2*c.m_e2_e3+a.m_e2_e3*b.m_e1_e3*c.m_scalar-a.m_e2_e3*b.m_e2_e3*c.m_e1_e2+a.m_e3_e1*b.m_e1_e2*c.m_e3_e1+a.m_e3_e1*b.m_e1_e3*c.m_e1_e2+a.m_e3_e1*b.m_e2_e3*c.m_scalar+a.m_scalar*b.m_e1_e2*c.m_scalar-a.m_scalar*b.m_e1_e3*c.m_e2_e3-a.m_scalar*b.m_e2_e3*c.m_e3_e1), // e1_e2
+			(a.m_e1_e2*b.m_e1_e2*c.m_e3_e1+a.m_e1_e2*b.m_e1_e3*c.m_e1_e2+a.m_e1_e2*b.m_e2_e3*c.m_scalar-a.m_e2_e3*b.m_e1_e2*c.m_scalar+a.m_e2_e3*b.m_e1_e3*c.m_e2_e3+a.m_e2_e3*b.m_e2_e3*c.m_e3_e1+a.m_e3_e1*b.m_e1_e2*c.m_e1_e2-a.m_e3_e1*b.m_e1_e3*c.m_e3_e1+a.m_e3_e1*b.m_e2_e3*c.m_e2_e3+a.m_scalar*b.m_e1_e2*c.m_e2_e3+a.m_scalar*b.m_e1_e3*c.m_scalar-a.m_scalar*b.m_e2_e3*c.m_e1_e2), // e1_e3
+			(a.m_e1_e2*b.m_e1_ni*c.m_e1_e2+a.m_e1_e2*b.m_e2_ni*c.m_scalar-a.m_e1_e2*b.m_e3_ni*c.m_e2_e3-a.m_e2_e3*b.m_e1_ni*c.m_e2_e3-a.m_e2_e3*b.m_e2_ni*c.m_e3_e1-a.m_e2_e3*b.m_e3_ni*c.m_e1_e2+a.m_e3_e1*b.m_e1_ni*c.m_e3_e1-a.m_e3_e1*b.m_e2_ni*c.m_e2_e3-a.m_e3_e1*b.m_e3_ni*c.m_scalar+a.m_scalar*b.m_e1_ni*c.m_scalar-a.m_scalar*b.m_e2_ni*c.m_e1_e2+a.m_scalar*b.m_e3_ni*c.m_e3_e1), // e1_ni
+			(-a.m_e1_e2*b.m_e1_e2*c.m_e2_e3-a.m_e1_e2*b.m_e1_e3*c.m_scalar+a.m_e1_e2*b.m_e2_e3*c.m_e1_e2-a.m_e2_e3*b.m_e1_e2*c.m_e1_e2+a.m_e2_e3*b.m_e1_e3*c.m_e3_e1-a.m_e2_e3*b.m_e2_e3*c.m_e2_e3-a.m_e3_e1*b.m_e1_e2*c.m_scalar+a.m_e3_e1*b.m_e1_e3*c.m_e2_e3+a.m_e3_e1*b.m_e2_e3*c.m_e3_e1+a.m_scalar*b.m_e1_e2*c.m_e3_e1+a.m_scalar*b.m_e1_e3*c.m_e1_e2+a.m_scalar*b.m_e2_e3*c.m_scalar), // e2_e3
+			(-a.m_e1_e2*b.m_e1_ni*c.m_scalar+a.m_e1_e2*b.m_e2_ni*c.m_e1_e2-a.m_e1_e2*b.m_e3_ni*c.m_e3_e1-a.m_e2_e3*b.m_e1_ni*c.m_e3_e1+a.m_e2_e3*b.m_e2_ni*c.m_e2_e3+a.m_e2_e3*b.m_e3_ni*c.m_scalar-a.m_e3_e1*b.m_e1_ni*c.m_e2_e3-a.m_e3_e1*b.m_e2_ni*c.m_e3_e1-a.m_e3_e1*b.m_e3_ni*c.m_e1_e2+a.m_scalar*b.m_e1_ni*c.m_e1_e2+a.m_scalar*b.m_e2_ni*c.m_scalar-a.m_scalar*b.m_e3_ni*c.m_e2_e3), // e2_ni
+			(-a.m_e1_e2*b.m_e1_ni*c.m_e2_e3-a.m_e1_e2*b.m_e2_ni*c.m_e3_e1-a.m_e1_e2*b.m_e3_ni*c.m_e1_e2-a.m_e2_e3*b.m_e1_ni*c.m_e1_e2-a.m_e2_e3*b.m_e2_ni*c.m_scalar+a.m_e2_e3*b.m_e3_ni*c.m_e2_e3+a.m_e3_e1*b.m_e1_ni*c.m_scalar-a.m_e3_e1*b.m_e2_ni*c.m_e1_e2+a.m_e3_e1*b.m_e3_ni*c.m_e3_e1-a.m_scalar*b.m_e1_ni*c.m_e3_e1+a.m_scalar*b.m_e2_ni*c.m_e2_e3+a.m_scalar*b.m_e3_ni*c.m_scalar) // e3_ni
 		);
 }
 inline bivectorE3GA applyVersorWI(const rotorE3GA &a, const bivectorE3GA &b, const rotorE3GA &c)
@@ -13968,6 +14376,38 @@ inline pointPair undual(const circle &a)
 			a.m_no_e1_e3, // e2_ni
 			-a.m_no_e1_e2, // e3_ni
 			a.m_e1_e2_e3 // no_ni
+		);
+
+}
+inline pointPair dual(const line &a)
+{
+	return pointPair(pointPair::coord_noe1_noe2_noe3_e1e2_e2e3_e3e1_e1ni_e2ni_e3ni_noni,
+			-a.m_e2_e3_ni, // no_e1
+			a.m_e1_e3_ni, // no_e2
+			-a.m_e1_e2_ni, // no_e3
+			a.m_e3_no_ni, // e1_e2
+			a.m_e1_no_ni, // e2_e3
+			a.m_e2_no_ni, // e3_e1
+			0.0, // e1_ni
+			0.0, // e2_ni
+			0.0, // e3_ni
+			0.0 // no_ni
+		);
+
+}
+inline pointPair undual(const line &a)
+{
+	return pointPair(pointPair::coord_noe1_noe2_noe3_e1e2_e2e3_e3e1_e1ni_e2ni_e3ni_noni,
+			-a.m_e2_e3_ni, // no_e1
+			a.m_e1_e3_ni, // no_e2
+			-a.m_e1_e2_ni, // no_e3
+			a.m_e3_no_ni, // e1_e2
+			a.m_e1_no_ni, // e2_e3
+			a.m_e2_no_ni, // e3_e1
+			0.0, // e1_ni
+			0.0, // e2_ni
+			0.0, // e3_ni
+			0.0 // no_ni
 		);
 
 }
@@ -14489,6 +14929,28 @@ inline oddVersor gp(const evenVersor &a, const dualSphere &b)
 			(a.m_e1_e2_e3_ni*b.m_e2-a.m_e1_ni*b.m_e3-a.m_e3_e1*b.m_ni+a.m_e3_ni*b.m_e1+a.m_no_e1_e3_ni*b.m_ni), // e1_e3_ni
 			(-a.m_e1_e2_e3_ni*b.m_e1+a.m_e2_e3*b.m_ni-a.m_e2_ni*b.m_e3+a.m_e3_ni*b.m_e2+a.m_no_e2_e3_ni*b.m_ni), // e2_e3_ni
 			(a.m_e1_e2_e3_ni*b.m_no+a.m_no_e1_e2_e3*b.m_ni-a.m_no_e1_e2_ni*b.m_e3+a.m_no_e1_e3_ni*b.m_e2-a.m_no_e2_e3_ni*b.m_e1) // no_e1_e2_e3_ni
+		);
+
+}
+inline evenVersor gp(const evenVersor &a, const dualLine &b)
+{
+	return evenVersor(evenVersor::coord_scalar_noe1_noe2_noe3_e1e2_e2e3_e3e1_e1ni_e2ni_e3ni_noni_e1e2e3ni_noe2e3ni_noe1e3ni_noe1e2ni_noe1e2e3,
+			(-a.m_e1_e2*b.m_e1_e2-a.m_e2_e3*b.m_e2_e3+a.m_e3_e1*b.m_e1_e3-a.m_no_e1*b.m_e1_ni-a.m_no_e2*b.m_e2_ni-a.m_no_e3*b.m_e3_ni), // scalar
+			(-a.m_no_e1_e2_e3*b.m_e2_e3-a.m_no_e2*b.m_e1_e2-a.m_no_e3*b.m_e1_e3), // no_e1
+			(a.m_no_e1*b.m_e1_e2+a.m_no_e1_e2_e3*b.m_e1_e3-a.m_no_e3*b.m_e2_e3), // no_e2
+			(a.m_no_e1*b.m_e1_e3-a.m_no_e1_e2_e3*b.m_e1_e2+a.m_no_e2*b.m_e2_e3), // no_e3
+			(a.m_e2_e3*b.m_e1_e3+a.m_e3_e1*b.m_e2_e3-a.m_no_e1*b.m_e2_ni-a.m_no_e1_e2_e3*b.m_e3_ni+a.m_no_e2*b.m_e1_ni+a.m_scalar*b.m_e1_e2), // e1_e2
+			(-a.m_e1_e2*b.m_e1_e3-a.m_e3_e1*b.m_e1_e2-a.m_no_e1_e2_e3*b.m_e1_ni-a.m_no_e2*b.m_e3_ni+a.m_no_e3*b.m_e2_ni+a.m_scalar*b.m_e2_e3), // e2_e3
+			-(a.m_e1_e2*b.m_e2_e3-a.m_e2_e3*b.m_e1_e2-a.m_no_e1*b.m_e3_ni+a.m_no_e1_e2_e3*b.m_e2_ni+a.m_no_e3*b.m_e1_ni+a.m_scalar*b.m_e1_e3), // e3_e1
+			(a.m_e1_e2*b.m_e2_ni-a.m_e1_e2_e3_ni*b.m_e2_e3-a.m_e2_ni*b.m_e1_e2-a.m_e3_e1*b.m_e3_ni-a.m_e3_ni*b.m_e1_e3+a.m_no_e1_e2_ni*b.m_e2_ni+a.m_no_e1_e3_ni*b.m_e3_ni+a.m_no_ni*b.m_e1_ni+a.m_scalar*b.m_e1_ni), // e1_ni
+			(-a.m_e1_e2*b.m_e1_ni+a.m_e1_e2_e3_ni*b.m_e1_e3+a.m_e1_ni*b.m_e1_e2+a.m_e2_e3*b.m_e3_ni-a.m_e3_ni*b.m_e2_e3-a.m_no_e1_e2_ni*b.m_e1_ni+a.m_no_e2_e3_ni*b.m_e3_ni+a.m_no_ni*b.m_e2_ni+a.m_scalar*b.m_e2_ni), // e2_ni
+			(-a.m_e1_e2_e3_ni*b.m_e1_e2+a.m_e1_ni*b.m_e1_e3-a.m_e2_e3*b.m_e2_ni+a.m_e2_ni*b.m_e2_e3+a.m_e3_e1*b.m_e1_ni-a.m_no_e1_e3_ni*b.m_e1_ni-a.m_no_e2_e3_ni*b.m_e2_ni+a.m_no_ni*b.m_e3_ni+a.m_scalar*b.m_e3_ni), // e3_ni
+			(a.m_no_e1*b.m_e1_ni-a.m_no_e1_e2_ni*b.m_e1_e2-a.m_no_e1_e3_ni*b.m_e1_e3+a.m_no_e2*b.m_e2_ni-a.m_no_e2_e3_ni*b.m_e2_e3+a.m_no_e3*b.m_e3_ni), // no_ni
+			(a.m_e1_e2*b.m_e3_ni+a.m_e1_ni*b.m_e2_e3+a.m_e2_e3*b.m_e1_ni-a.m_e2_ni*b.m_e1_e3+a.m_e3_e1*b.m_e2_ni+a.m_e3_ni*b.m_e1_e2+a.m_no_e1_e2_ni*b.m_e3_ni-a.m_no_e1_e3_ni*b.m_e2_ni+a.m_no_e2_e3_ni*b.m_e1_ni), // e1_e2_e3_ni
+			(a.m_no_e1_e2_e3*b.m_e1_ni-a.m_no_e1_e2_ni*b.m_e1_e3+a.m_no_e1_e3_ni*b.m_e1_e2+a.m_no_e2*b.m_e3_ni-a.m_no_e3*b.m_e2_ni+a.m_no_ni*b.m_e2_e3), // no_e2_e3_ni
+			(a.m_no_e1*b.m_e3_ni-a.m_no_e1_e2_e3*b.m_e2_ni+a.m_no_e1_e2_ni*b.m_e2_e3-a.m_no_e2_e3_ni*b.m_e1_e2-a.m_no_e3*b.m_e1_ni+a.m_no_ni*b.m_e1_e3), // no_e1_e3_ni
+			(a.m_no_e1*b.m_e2_ni+a.m_no_e1_e2_e3*b.m_e3_ni-a.m_no_e1_e3_ni*b.m_e2_e3-a.m_no_e2*b.m_e1_ni+a.m_no_e2_e3_ni*b.m_e1_e3+a.m_no_ni*b.m_e1_e2), // no_e1_e2_ni
+			(a.m_no_e1*b.m_e2_e3-a.m_no_e2*b.m_e1_e3+a.m_no_e3*b.m_e1_e2) // no_e1_e2_e3
 		);
 
 }
