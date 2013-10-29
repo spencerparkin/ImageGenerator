@@ -3,6 +3,8 @@
 //===========================================================================
 class Scene
 {
+	friend class CallStackCounter;
+
 public:
 
 	Scene( void );
@@ -72,6 +74,21 @@ public:
 	typedef std::list< Light* > LightList;
 
 private:
+
+	//===========================================================================
+	class RayBounceDepthCounter
+	{
+	public:
+		RayBounceDepthCounter( const Scene* scene );
+		~RayBounceDepthCounter( void );
+	private:
+		const Scene* scene;
+	};
+
+	// This counter variable is one reason why we need each thread to use
+	// its own clone of the scene class instance;
+	mutable int rayBounceDepthCount;
+	mutable int maxRayBounceDepthCount;
 
 	LightList lightList;
 

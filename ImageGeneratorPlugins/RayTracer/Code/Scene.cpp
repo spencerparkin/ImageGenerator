@@ -5,6 +5,8 @@
 //===========================================================================
 Scene::Scene( void )
 {
+	rayBounceDepthCount = 0;
+	maxRayBounceDepthCount = 5;
 }
 
 //===========================================================================
@@ -13,11 +15,28 @@ Scene::~Scene( void )
 }
 
 //===========================================================================
+Scene::RayBounceDepthCounter::RayBounceDepthCounter( const Scene* scene )
+{
+	this->scene = scene;
+	scene->rayBounceDepthCount++;
+}
+
+//===========================================================================
+Scene::RayBounceDepthCounter::~RayBounceDepthCounter( void )
+{
+	scene->rayBounceDepthCount--;
+}
+
+//===========================================================================
 // Return the color that is visible in the scene at the given point and
 // looking in the given direction.
 void Scene::CalculateVisibleColor( const Ray& ray, c3ga::vectorE3GA& visibleColor ) const
 {
 	visibleColor.set( c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, 0.0, 0.0 );
+
+	RayBounceDepthCounter rayBounceDepthCounter( this );
+	if( rayBounceDepthCount > maxRayBounceDepthCount )
+		return;
 
 	SurfacePoint surfacePoint;
 	if( CalculateSurfacePoint( ray, surfacePoint ) )
@@ -123,6 +142,8 @@ Scene* Scene::Clone( void ) const
 
 	for( ObjectList::const_iterator iter = objectList.begin(); iter != objectList.end(); iter++ )
 		scene->objectList.push_back( ( Object* )( *iter )->Clone() );
+
+	scene->maxRayBounceDepthCount = maxRayBounceDepthCount;
 
 	return scene;
 }
