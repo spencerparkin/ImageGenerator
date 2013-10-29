@@ -1,11 +1,5 @@
 // RayTracer.h
 
-#include <wx/setup.h>
-#include <wx/colour.h>
-#include <wx/gdicmn.h>
-#include <wx/image.h>
-#include <igPlugin.h>
-
 //===========================================================================
 class RayTracerPlugin : public igPlugin
 {
