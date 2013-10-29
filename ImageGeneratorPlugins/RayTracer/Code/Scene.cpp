@@ -46,11 +46,11 @@ bool Scene::CalculateSurfacePoint( const Ray& ray, SurfacePoint& surfacePoint ) 
 
 	// Perform a linear search.  If this becomes too slow, we may
 	// need to use some sort of spacial sorting data-structure.
-	for( GeometryList::const_iterator iter = geometryList.begin(); iter != geometryList.end(); iter++ )
+	for( ObjectList::const_iterator iter = objectList.begin(); iter != objectList.end(); iter++ )
 	{
-		const Geometry* geometry = *iter;
+		const Object* object = *iter;
 		double distance;
-		if( geometry->CalculateSurfacePoint( ray, surfacePoint, distance ) )
+		if( object->CalculateSurfacePoint( ray, surfacePoint, distance ) )
 		{
 			if( distance < smallestDistance || smallestDistance == -1.0 )
 			{
@@ -109,7 +109,7 @@ void Scene::CalculateSurfacePointIllumination( const SurfacePoint& surfacePoint,
 	for( LightList::const_iterator iter = lightList.begin(); iter != lightList.end(); iter++ )
 	{
 		const Light* lightSource = *iter;
-		light += lightSource->CalculateSurfacePointIllumination( surfacePoint );
+		light += lightSource->CalculateSurfacePointIllumination( surfacePoint, objectList );
 	}
 }
 

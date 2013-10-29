@@ -47,36 +47,38 @@ public:
 	};
 
 	//===========================================================================
-	class Geometry : public Element
+	class Object : public Element
 	{
 	public:
 
-		// Return the point on the surface of this geometry that is seen by the given ray, if any.
+		// Return the point on the surface of this object that is seen by the given ray, if any.
 		// Also return the distance from the ray origin to the surface point.
 		virtual bool CalculateSurfacePoint( const Ray& ray, SurfacePoint& surfacePoint, double& distance ) const = 0;
 	};
+
+	typedef std::list< Object* > ObjectList;
 
 	//===========================================================================
 	class Light : public Element
 	{
 	public:
 
-		// Return the contribution of light made by this light on the given surface point.
+		// Return the contribution of light made by this light source to the given surface point.
 		// This is a non-trivial problem.  Our potential light contribution may be obstructed
 		// by some object in the scene, or we may indirectly illuminate the given surface point.
-		virtual c3ga::vectorE3GA CalculateSurfacePointIllumination( const SurfacePoint& surfacePoint ) const = 0;
+		virtual c3ga::vectorE3GA CalculateSurfacePointIllumination( const SurfacePoint& surfacePoint, const ObjectList& objectList ) const = 0;
 	};
+
+	typedef std::list< Light* > LightList;
 
 private:
 
-	typedef std::list< Light* > LightList;
 	LightList lightList;
 
 	// To speed up ray-casts, we may at one point, if the number
 	// of geometries in the scene necessitates it, decide to store
 	// the geometries in some sort of spacial sorting data-structure.
-	typedef std::list< Geometry* > GeometryList;
-	GeometryList geometryList;
+	ObjectList objectList;
 };
 
 // Scene.h
