@@ -3,7 +3,8 @@
 #include "igHeader.h"
 
 //===========================================================================
-igFrame::igFrame( void ) : wxFrame( 0, wxID_ANY, "Image Generator", wxDefaultPosition, wxSize( 512, 512 ) )
+igFrame::igFrame( const wxPoint& pos /*= wxDefaultPosition*/, const wxSize& size /*= wxDefaultSize*/ ) :
+								wxFrame( 0, wxID_ANY, "Image Generator", pos, size )
 {
 	wxMenu* programMenu = new wxMenu();
 	wxMenuItem* loadPluginMenuItem = new wxMenuItem( programMenu, ID_LoadPlugin, "Load Plugin", "Load an image generator plugin." );
@@ -230,6 +231,10 @@ void igFrame::OnUpdateMenuItemUI( wxUpdateUIEvent& event )
 //===========================================================================
 void igFrame::OnExit( wxCommandEvent& event )
 {
+	igApp::FrameLayout& frameLayout = wxGetApp().frameLayout;
+	frameLayout.pos = GetPosition();
+	frameLayout.size = GetSize();
+
 	Close( true );
 }
 

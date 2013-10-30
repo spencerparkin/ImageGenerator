@@ -20,6 +20,7 @@
 #include <wx/valnum.h>
 #include <wx/button.h>
 #include <wx/stattext.h>
+#include <wx/msw/regconf.h>
 
 #include <list>
 

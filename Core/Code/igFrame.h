@@ -5,7 +5,7 @@ class igFrame : public wxFrame
 {
 public:
 
-	igFrame( void );
+	igFrame( const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize );
 	virtual ~igFrame( void );
 
 	void UpdateTitle( void );

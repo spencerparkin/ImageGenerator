@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;../../../wxWidgets-2.9.5/include&quot;;&quot;../../../wxWidgets-2.9.5/include/msvc&quot;;../../ImageGeneratorCore/Code"
+				AdditionalIncludeDirectories="&quot;../../../wxWidgets-2.9.5/include&quot;;&quot;../../../wxWidgets-2.9.5/include/msvc&quot;;../../Core/Code"
 				PreprocessorDefinitions="__WXMSW__;_UNICODE_;WXUSINGDLL;_CRT_SECURE_NO_WARNINGS;_USE_MATH_DEFINES"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"

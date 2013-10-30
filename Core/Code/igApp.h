@@ -32,10 +32,21 @@ public:
 		wxSize imageSize;
 	};
 
+	struct FrameLayout
+	{
+		wxPoint pos;
+		wxSize size;
+	};
+
+	FrameLayout frameLayout;
+
 	const Options& GetOptions( void );
 	void SetOptions( const Options& options );
 
 private:
+
+	void SaveConfiguration( void );
+	void RestoreConfiguration( void );
 
 	HMODULE pluginHandle;
 	igPlugin* plugin;

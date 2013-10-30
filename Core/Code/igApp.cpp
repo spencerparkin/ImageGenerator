@@ -16,6 +16,9 @@ igApp::igApp( void )
 
 	options.threadCount = 5;
 	options.imageSize.Set( 1024, 1024 );
+
+	frameLayout.pos = wxDefaultPosition;
+	frameLayout.size = wxDefaultSize;
 }
 
 //===========================================================================
@@ -27,6 +30,7 @@ igApp::igApp( void )
 /*virtual*/ void igApp::OnInitCmdLine( wxCmdLineParser& parser )
 {
 	parser.AddOption( "plugin", wxEmptyString, "Load the given plugin upon application start-up.", wxCMD_LINE_VAL_STRING );
+	parser.AddSwitch( "noConfig", wxEmptyString, "Suppress application configuration restoration." );
 }
 
 //===========================================================================
@@ -35,6 +39,10 @@ igApp::igApp( void )
 	wxString pluginPath;
 	if( parser.Found( "plugin", &pluginPath ) )
 		LoadPlugin( pluginPath );
+
+	if( wxCMD_SWITCH_ON != parser.FoundSwitch( "noConfig" ) )
+		RestoreConfiguration();
+
 	return true;
 }
 
@@ -69,16 +77,44 @@ void igApp::SetOptions( const Options& options )
 }
 
 //===========================================================================
+void igApp::SaveConfiguration( void )
+{
+	wxRegConfig regConfig;
+
+	regConfig.Write( "threadCount", options.threadCount );
+	regConfig.Write( "imageWidth", options.imageSize.x );
+	regConfig.Write( "imageHeight", options.imageSize.y );
+	
+	regConfig.Write( "framePosX", frameLayout.pos.x );
+	regConfig.Write( "framePosY", frameLayout.pos.y );
+	regConfig.Write( "frameSizeX", frameLayout.size.x );
+	regConfig.Write( "frameSizeY", frameLayout.size.y );
+}
+
+//===========================================================================
+void igApp::RestoreConfiguration( void )
+{
+	wxRegConfig regConfig;
+
+	regConfig.Read( "threadCount", &options.threadCount, 0 );
+	regConfig.Read( "imageWidth", &options.imageSize.x, 1024 );
+	regConfig.Read( "imageHeight", &options.imageSize.y, 1024 );
+
+	regConfig.Read( "framePosX", &frameLayout.pos.x, -1 );
+	regConfig.Read( "framePosY", &frameLayout.pos.y, -1 );
+	regConfig.Read( "frameSizeX", &frameLayout.size.x, -1 );
+	regConfig.Read( "frameSizeY", &frameLayout.size.y, -1 );
+}
+
+//===========================================================================
 /*virtual*/ bool igApp::OnInit( void )
 {
 	if( !wxApp::OnInit() )
 		return false;
 
-	// TODO: Read app options from registry.
-
 	wxInitAllImageHandlers();
 	
-	igFrame* frame = new igFrame();
+	igFrame* frame = new igFrame( frameLayout.pos, frameLayout.size );
 	frame->UpdateTitle();
 	frame->Show();
 
@@ -93,7 +129,7 @@ void igApp::SetOptions( const Options& options )
 
 	DeleteImage();
 
-	// TODO: Write app options to registry.
+	SaveConfiguration();
 
 	return wxApp::OnExit();
 }
