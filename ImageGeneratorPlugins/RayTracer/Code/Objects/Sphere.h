@@ -4,8 +4,8 @@
 class Sphere : public Scene::Object
 {
 public:
-	Sphere( const c3ga::vectorE3GA& center, double radius, const c3ga::vectorE3GA& color );
-	Sphere( const c3ga::dualSphere& dualSphere, const c3ga::vectorE3GA& color );
+	Sphere( const c3ga::vectorE3GA& center, double radius, const Scene::MaterialProperties& materialProperties );
+	Sphere( const c3ga::dualSphere& dualSphere, const Scene::MaterialProperties& materialProperties );
 	virtual ~Sphere( void );
 
 	virtual Scene::Element* Clone( void ) const override;
@@ -13,7 +13,6 @@ public:
 
 private:
 	c3ga::dualSphere dualSphere;
-	c3ga::vectorE3GA color;
 };
 
 // Sphere.h

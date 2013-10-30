@@ -30,10 +30,27 @@ RayTracerPlugin::RayTracerPlugin( void )
 {
 	scene = new Scene();
 
-	scene->AddLight( new AmbientLight( c3ga::vectorE3GA(
-						c3ga::vectorE3GA::coord_e1_e2_e3, 1.f, 1.f, 1.f ) ) );
+	// This is where we should load a scene from file, but until
+	// we have that in place, hard code a scene.
 
-	// TODO: Populate the scene here with lights and objects.
+	scene->AddLight( new AmbientLight(
+					c3ga::vectorE3GA( c3ga::vectorE3GA::coord_e1_e2_e3, 1.f, 1.f, 1.f ) ) );
+
+	Scene::MaterialProperties materialProperties;
+	materialProperties.color.set( c3ga::vectorE3GA::coord_e1_e2_e3, 1.0, 0.0, 0.0 );
+	materialProperties.reflectionCoeficient = 0.0;
+	materialProperties.refractionCoeficient = 0.0;
+
+	scene->AddObject( new Sphere(
+					c3ga::vectorE3GA( c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, 0.0, 0.0 ),
+					2.0,
+					materialProperties ) );
+
+	materialProperties.color.set( c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, 1.0, 0.0 );
+	scene->AddObject( new Sphere(
+					c3ga::vectorE3GA( c3ga::vectorE3GA::coord_e1_e2_e3, 3.0, 3.0, 0.0 ),
+					1.5,
+					materialProperties ) );
 
 	//view.eye.set( c3ga::vectorE3GA::coord_e1_e2_e3, 30.0, 30.0, 30.0 );
 	view.eye.set( c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, 0.0, -30.0 );

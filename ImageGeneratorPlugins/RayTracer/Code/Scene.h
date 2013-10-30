@@ -18,6 +18,14 @@ public:
 	};
 
 	//===========================================================================
+	struct MaterialProperties
+	{
+		c3ga::vectorE3GA color;
+		double reflectionCoeficient;
+		double refractionCoeficient;
+	};
+
+	//===========================================================================
 	class SurfacePoint
 	{
 	public:
@@ -27,9 +35,7 @@ public:
 
 		c3ga::vectorE3GA point;
 		c3ga::vectorE3GA normal;		// This should always be a unit-length vector.
-		c3ga::vectorE3GA color;
-		double reflectionCoeficient;
-		double refractionCoeficient;
+		MaterialProperties materialProperties;
 	};
 
 	void CalculateVisibleColor( const Ray& ray, c3ga::vectorE3GA& visibleColor ) const;
@@ -44,6 +50,9 @@ public:
 	{
 	public:
 
+		Element( void ) {}
+		virtual ~Element( void ) {}
+
 		// Return a copy of this scene element.
 		virtual Element* Clone( void ) const = 0;
 	};
@@ -53,9 +62,16 @@ public:
 	{
 	public:
 
+		Object( const MaterialProperties& materialProperties );
+		virtual ~Object( void ) {}
+
 		// Return the point on the surface of this object that is seen by the given ray, if any.
 		// Also return the distance from the ray origin to the surface point.
 		virtual bool CalculateSurfacePoint( const Ray& ray, SurfacePoint& surfacePoint, double& distance ) const = 0;
+
+	protected:
+
+		MaterialProperties materialProperties;
 	};
 
 	typedef std::list< Object* > ObjectList;
@@ -64,6 +80,9 @@ public:
 	class Light : public Element
 	{
 	public:
+
+		Light( void ) {}
+		virtual ~Light( void ) {}
 
 		// Return the contribution of light made by this light source to the given surface point.
 		// This is a non-trivial problem.  Our potential light contribution may be obstructed
@@ -75,6 +94,8 @@ public:
 
 	void AddLight( Light* light );
 	void AddObject( Object* object );
+
+	void Clear( void );
 
 private:
 

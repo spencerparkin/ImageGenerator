@@ -12,6 +12,7 @@ Scene::Scene( void )
 //===========================================================================
 Scene::~Scene( void )
 {
+	Clear();
 }
 
 //===========================================================================
@@ -24,6 +25,26 @@ void Scene::AddLight( Light* light )
 void Scene::AddObject( Object* object )
 {
 	objectList.push_back( object );
+}
+
+//===========================================================================
+void Scene::Clear( void )
+{
+	while( lightList.size() > 0 )
+	{
+		LightList::iterator iter = lightList.begin();
+		Light* light = *iter;
+		delete light;
+		lightList.erase( iter );
+	}
+
+	while( objectList.size() > 0 )
+	{
+		ObjectList::iterator iter = objectList.begin();
+		Object* object = *iter;
+		delete object;
+		objectList.erase( iter );
+	}
 }
 
 //===========================================================================
@@ -105,25 +126,25 @@ bool Scene::CalculateSurfacePoint( const Ray& ray, SurfacePoint& surfacePoint ) 
 // surface-point as seen from the given ray.
 void Scene::CalculateSurfacePointColor( const Ray& ray, const SurfacePoint& surfacePoint, c3ga::vectorE3GA& color ) const
 {
-	color = surfacePoint.color;
+	color = surfacePoint.materialProperties.color;
 
 	c3ga::vectorE3GA reflectionColor;
-	if( surfacePoint.reflectionCoeficient > 0.0 )
+	if( surfacePoint.materialProperties.reflectionCoeficient > 0.0 )
 	{
 		Ray reflectionRay;
 		surfacePoint.Reflect( ray, reflectionRay );
 		CalculateVisibleColor( reflectionRay, reflectionColor );
 	}
-	color += c3ga::gp( reflectionColor, surfacePoint.reflectionCoeficient );
+	color += c3ga::gp( reflectionColor, surfacePoint.materialProperties.reflectionCoeficient );
 
 	c3ga::vectorE3GA refractionColor;
-	if( surfacePoint.refractionCoeficient > 0.0 )
+	if( surfacePoint.materialProperties.refractionCoeficient > 0.0 )
 	{
 		Ray refractionRay;
 		surfacePoint.Refract( ray, refractionRay );
 		CalculateVisibleColor( refractionRay, refractionColor );
 	}
-	color += c3ga::gp( refractionColor, surfacePoint.refractionCoeficient );
+	color += c3ga::gp( refractionColor, surfacePoint.materialProperties.refractionCoeficient );
 }
 
 //===========================================================================
@@ -168,6 +189,12 @@ void Scene::SurfacePoint::Reflect( const Ray& ray, Ray& reflectionRay ) const
 //===========================================================================
 void Scene::SurfacePoint::Refract( const Ray& ray, Ray& refractionRay ) const
 {
+}
+
+//===========================================================================
+Scene::Object::Object( const MaterialProperties& materialProperties )
+{
+	this->materialProperties = materialProperties;
 }
 
 // Scene.cpp
