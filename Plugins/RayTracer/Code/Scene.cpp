@@ -61,37 +61,35 @@ Scene::RayBounceDepthCounter::~RayBounceDepthCounter( void )
 }
 
 //===========================================================================
-// Return the color that is visible in the scene at the given point and
+// Return the light that is visible in the scene at the given point and
 // looking in the given direction.
-void Scene::CalculateVisibleColor( const Ray& ray, c3ga::vectorE3GA& visibleColor ) const
+void Scene::CalculateVisibleLight( const Ray& ray, c3ga::vectorE3GA& visibleLight ) const
 {
-	visibleColor.set( c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, 0.0, 0.0 );
+	visibleLight.set( c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, 0.0, 0.0 );
 
 	RayBounceDepthCounter rayBounceDepthCounter( this );
 	if( rayBounceDepthCount > maxRayBounceDepthCount )
 		return;
 
+	// Determine the surface point, if any, that can be seen
+	// by the given ray and its material properties.
 	SurfacePoint surfacePoint;
-	if( CalculateSurfacePoint( ray, surfacePoint ) )
+	if( CalculateVisibleSurfacePoint( ray, surfacePoint ) )
 	{
-		c3ga::vectorE3GA color;
-		CalculateSurfacePointColor( ray, surfacePoint, color );
+		// Determine the various light intensities that are reaching this surface point.
+		LightSourceIntensities lightSourceIntensities;
+		AccumulateSurfacePointLight( ray, surfacePoint, lightSourceIntensities );
 
-		c3ga::vectorE3GA light;
-		CalculateSurfacePointIllumination( surfacePoint, light );
-
-		visibleColor.set( c3ga::vectorE3GA::coord_e1_e2_e3,
-									color.get_e1() * light.get_e1(),
-									color.get_e2() * light.get_e2(),
-									color.get_e3() * light.get_e3() );
+		// Now calculate the light reflected from the surface point
+		// by the light gathered from various light sources.
+		CalculateSurfacePointIllumination( surfacePoint, lightSourceIntensities, visibleLight );
 	}
 }
 
 //===========================================================================
-// Return the surface characteristics at the point that is found on the
-// surface that can be seen by the given ray.  If no surface is seen from
-// the given ray, false is returned.
-bool Scene::CalculateSurfacePoint( const Ray& ray, SurfacePoint& surfacePoint ) const
+// Return the surface characteristics of the point that can be seen by the
+// given ray.  If no surface point is seen from the given ray, false is returned.
+bool Scene::CalculateVisibleSurfacePoint( const Ray& ray, SurfacePoint& surfacePoint ) const
 {
 	SurfacePoint nearestSurfacePoint;
 	double smallestDistance = -1.0;
@@ -102,9 +100,15 @@ bool Scene::CalculateSurfacePoint( const Ray& ray, SurfacePoint& surfacePoint ) 
 	{
 		const Object* object = *iter;
 		double distance;
-		if( object->CalculateSurfacePoint( ray, surfacePoint, distance ) )
+		if( object->CalculateSurfacePoint( ray, surfacePoint ) )
 		{
-			if( distance < smallestDistance || smallestDistance == -1.0 )
+			wxASSERT( ray.CanSee( surfacePoint.point ) );
+
+			distance = c3ga::norm( surfacePoint.point - ray.point );
+
+			// Do not consider objects at a zero distance, because we may
+			// want to see what's visible from the surface of an object.
+			if( distance > 1e-2 && ( distance < smallestDistance || smallestDistance == -1.0 ) )
 			{
 				nearestSurfacePoint = surfacePoint;
 				smallestDistance = distance;
@@ -122,47 +126,69 @@ bool Scene::CalculateSurfacePoint( const Ray& ray, SurfacePoint& surfacePoint ) 
 }
 
 //===========================================================================
-// Return the absorbtion factors of light for (the color of) the given
-// surface-point as seen from the given ray.
-void Scene::CalculateSurfacePointColor( const Ray& ray, const SurfacePoint& surfacePoint, c3ga::vectorE3GA& color ) const
+void Scene::AccumulateSurfacePointLight( const Ray& ray, const SurfacePoint& surfacePoint, LightSourceIntensities& lightSourceIntensities ) const
 {
-	color = surfacePoint.materialProperties.color;
-
-	c3ga::vectorE3GA reflectionColor;
-	if( surfacePoint.materialProperties.reflectionCoeficient > 0.0 )
+	// If the material reflects visible light, determine how much reflected light it is receiving.
+	if( c3ga::norm2( surfacePoint.materialProperties.reflectedLightCoeficient ) > 0.0 )
 	{
 		Ray reflectionRay;
 		surfacePoint.Reflect( ray, reflectionRay );
-		CalculateVisibleColor( reflectionRay, reflectionColor );
+		c3ga::vectorE3GA reflectedLight;
+		CalculateVisibleLight( reflectionRay, reflectedLight );
+		lightSourceIntensities.reflectedLightIntensity += reflectedLight;
 	}
-	color += c3ga::gp( reflectionColor, surfacePoint.materialProperties.reflectionCoeficient );
 
-	c3ga::vectorE3GA refractionColor;
-	if( surfacePoint.materialProperties.refractionCoeficient > 0.0 )
+	// If the material refracts visible light, determine how much refracted light it is receiving.
+	if( c3ga::norm2( surfacePoint.materialProperties.reflectedLightCoeficient ) > 0.0 )
 	{
 		Ray refractionRay;
 		surfacePoint.Refract( ray, refractionRay );
-		CalculateVisibleColor( refractionRay, refractionColor );
+		c3ga::vectorE3GA refractedLight;
+		CalculateVisibleLight( refractionRay, refractedLight );
+		lightSourceIntensities.refractedLightIntensity += refractedLight;
 	}
-	color += c3ga::gp( refractionColor, surfacePoint.materialProperties.refractionCoeficient );
-}
-
-//===========================================================================
-// Assuming nothing more than an ambient lighting model, ray-racing, as a
-// visible surface determination algorithm, is as correct as we could hope
-// it to be.  However, assming more than an ambient lighting model, ray-tracing,
-// as an algorithm for determining not just what's visible, but also how it's
-// visible, leaves much to be desired in that it it fails to account for indirect
-// sources of light, unless perhaps highly sophisticated measures are taken.
-// The light model we use here, therefore, will need some forgiveness.
-void Scene::CalculateSurfacePointIllumination( const SurfacePoint& surfacePoint, c3ga::vectorE3GA& light ) const
-{
-	light.set( c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, 0.0, 0.0 );
+	
+	// Go collect light from all of the different potential light sources in the scene.
+	// This is a non-trivial problem in the case of indirect lighting.  Some light sources
+	// may need to take into account possible obstructions for the purpose of shadow casting.
 	for( LightList::const_iterator iter = lightList.begin(); iter != lightList.end(); iter++ )
 	{
 		const Light* lightSource = *iter;
-		light += lightSource->CalculateSurfacePointIllumination( surfacePoint, objectList );
+		lightSource->AccumulateSurfacePointLight( surfacePoint, *this, lightSourceIntensities );
 	}
+}
+
+//===========================================================================
+void Scene::CalculateSurfacePointIllumination(
+							const SurfacePoint& surfacePoint,
+							LightSourceIntensities& lightSourceIntensities,
+							c3ga::vectorE3GA& visibleLight ) const
+{
+	visibleLight =
+		ComponentWiseMultiply( lightSourceIntensities.ambientLightIntensity, surfacePoint.materialProperties.ambientLightCoeficient ) +
+		ComponentWiseMultiply( lightSourceIntensities.diffuseLightIntensity, surfacePoint.materialProperties.diffuseReflectionCoeficient ) +
+		ComponentWiseMultiply( lightSourceIntensities.specularLightIntensity, surfacePoint.materialProperties.specularReflectionCoeficient ) +
+		ComponentWiseMultiply( lightSourceIntensities.reflectedLightIntensity, surfacePoint.materialProperties.reflectedLightCoeficient ) +
+		ComponentWiseMultiply( lightSourceIntensities.refractedLightIntensity, surfacePoint.materialProperties.refractedLightCoeficient );
+
+	if( visibleLight.get_e1() > 1.0 )
+		visibleLight.set_e1( 1.0 );
+	if( visibleLight.get_e2() > 1.0 )
+		visibleLight.set_e2( 1.0 );
+	if( visibleLight.get_e3() > 1.0 )
+		visibleLight.set_e3( 1.0 );
+}
+
+//===========================================================================
+/*static*/ c3ga::vectorE3GA Scene::ComponentWiseMultiply(
+								const c3ga::vectorE3GA& vectorA,
+								const c3ga::vectorE3GA& vectorB )
+{
+	c3ga::vectorE3GA product( c3ga::vectorE3GA::coord_e1_e2_e3,
+					vectorA.get_e1() * vectorB.get_e1(),
+					vectorA.get_e2() * vectorB.get_e2(),
+					vectorA.get_e3() * vectorB.get_e3() );
+	return product;
 }
 
 //===========================================================================
@@ -192,9 +218,39 @@ void Scene::SurfacePoint::Refract( const Ray& ray, Ray& refractionRay ) const
 }
 
 //===========================================================================
+Scene::MaterialProperties::MaterialProperties( void )
+{
+	ambientLightCoeficient.set( c3ga::vectorE3GA::coord_e1_e2_e3, 1.0, 1.0, 1.0 );
+	diffuseReflectionCoeficient.set( c3ga::vectorE3GA::coord_e1_e2_e3, 1.0, 1.0, 1.0 );
+	specularReflectionCoeficient.set( c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, 0.0, 0.0 );
+	reflectedLightCoeficient.set( c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, 0.0, 0.0 );
+	refractedLightCoeficient.set( c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, 0.0, 0.0 );
+}
+
+//===========================================================================
+Scene::LightSourceIntensities::LightSourceIntensities( void )
+{
+	ambientLightIntensity.set( c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, 0.0, 0.0 );
+	diffuseLightIntensity.set( c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, 0.0, 0.0 );
+	specularLightIntensity.set( c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, 0.0, 0.0 );
+	reflectedLightIntensity.set( c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, 0.0, 0.0 );
+	refractedLightIntensity.set( c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, 0.0, 0.0 );
+}
+
+//===========================================================================
 Scene::Object::Object( const MaterialProperties& materialProperties )
 {
 	this->materialProperties = materialProperties;
+}
+
+//===========================================================================
+// Here we verify that the given surface point is on the line determined
+// by the given ray and that the point is in front of (not behind) the
+// the origin point of the ray.
+bool Scene::Ray::CanSee( const c3ga::vectorE3GA& surfacePoint ) const
+{
+	//...
+	return true;
 }
 
 // Scene.cpp

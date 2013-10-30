@@ -13,16 +13,42 @@ public:
 	//===========================================================================
 	struct Ray
 	{
+		bool CanSee( const c3ga::vectorE3GA& surfacePoint ) const;
+
 		c3ga::vectorE3GA point;
 		c3ga::vectorE3GA direction;		// This should always be a unit-length vector.
 	};
 
 	//===========================================================================
-	struct MaterialProperties
+	// Here we characterize a material by the percentages of various types of
+	// light intensities that are absorbed/reflected by the material's surface.
+	class MaterialProperties
 	{
-		c3ga::vectorE3GA color;
-		double reflectionCoeficient;
-		double refractionCoeficient;
+	public:
+
+		MaterialProperties( void );
+
+		c3ga::vectorE3GA ambientLightCoeficient;
+		c3ga::vectorE3GA diffuseReflectionCoeficient;
+		c3ga::vectorE3GA specularReflectionCoeficient;
+		c3ga::vectorE3GA reflectedLightCoeficient;
+		c3ga::vectorE3GA refractedLightCoeficient;
+	};
+
+	//===========================================================================
+	// Here we accumulate various types of light intensities as they are
+	// collected from various light sources.
+	class LightSourceIntensities
+	{
+	public:
+
+		LightSourceIntensities( void );
+
+		c3ga::vectorE3GA ambientLightIntensity;
+		c3ga::vectorE3GA diffuseLightIntensity;
+		c3ga::vectorE3GA specularLightIntensity;
+		c3ga::vectorE3GA reflectedLightIntensity;
+		c3ga::vectorE3GA refractedLightIntensity;
 	};
 
 	//===========================================================================
@@ -38,10 +64,16 @@ public:
 		MaterialProperties materialProperties;
 	};
 
-	void CalculateVisibleColor( const Ray& ray, c3ga::vectorE3GA& visibleColor ) const;
-	bool CalculateSurfacePoint( const Ray& ray, SurfacePoint& surfacePoint ) const;
-	void CalculateSurfacePointColor( const Ray& ray, const SurfacePoint& surfacePoint, c3ga::vectorE3GA& color ) const;
-	void CalculateSurfacePointIllumination( const SurfacePoint& surfacePoint, c3ga::vectorE3GA& light ) const;
+	void CalculateVisibleLight( const Ray& ray, c3ga::vectorE3GA& visibleLight ) const;
+	bool CalculateVisibleSurfacePoint( const Ray& ray, SurfacePoint& surfacePoint ) const;
+	void AccumulateSurfacePointLight(
+								const Ray& ray,
+								const SurfacePoint& surfacePoint,
+								LightSourceIntensities& lightSourceIntensities ) const;
+	void CalculateSurfacePointIllumination(
+								const SurfacePoint& surfacePoint,
+								LightSourceIntensities& lightSourceIntensities,
+								c3ga::vectorE3GA& visibleLight ) const;
 
 	Scene* Clone( void ) const;
 
@@ -66,8 +98,8 @@ public:
 		virtual ~Object( void ) {}
 
 		// Return the point on the surface of this object that is seen by the given ray, if any.
-		// Also return the distance from the ray origin to the surface point.
-		virtual bool CalculateSurfacePoint( const Ray& ray, SurfacePoint& surfacePoint, double& distance ) const = 0;
+		// It is important that returned surface point by in front of the given ray, not behind it.
+		virtual bool CalculateSurfacePoint( const Ray& ray, SurfacePoint& surfacePoint ) const = 0;
 
 	protected:
 
@@ -84,10 +116,13 @@ public:
 		Light( void ) {}
 		virtual ~Light( void ) {}
 
-		// Return the contribution of light made by this light source to the given surface point.
+		// Accumulate the contribution of light made by this light source to the given surface point.
 		// This is a non-trivial problem.  Our potential light contribution may be obstructed
 		// by some object in the scene, or we may indirectly illuminate the given surface point.
-		virtual c3ga::vectorE3GA CalculateSurfacePointIllumination( const SurfacePoint& surfacePoint, const ObjectList& objectList ) const = 0;
+		virtual void AccumulateSurfacePointLight(
+							const SurfacePoint& surfacePoint,
+							const Scene& scene,
+							LightSourceIntensities& lightSourceIntensities ) const = 0;
 	};
 
 	typedef std::list< Light* > LightList;
@@ -120,6 +155,10 @@ private:
 	// of geometries in the scene necessitates it, decide to store
 	// the geometries in some sort of spacial sorting data-structure.
 	ObjectList objectList;
+
+	static c3ga::vectorE3GA ComponentWiseMultiply(
+								const c3ga::vectorE3GA& vectorA,
+								const c3ga::vectorE3GA& vectorB );
 };
 
 // Scene.h

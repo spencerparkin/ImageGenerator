@@ -29,8 +29,7 @@ Sphere::Sphere( const c3ga::dualSphere& dualSphere, const Scene::MaterialPropert
 // This math is over-kill, but it's an alternative to the traditional method.
 /*virtual*/ bool Sphere::CalculateSurfacePoint(
 							const Scene::Ray& ray,
-							Scene::SurfacePoint& surfacePoint,
-							double& distance ) const
+							Scene::SurfacePoint& surfacePoint ) const
 {
 	c3ga::trivectorE3GA i( c3ga::trivectorE3GA::coord_e1e2e3, 1.0 );
 

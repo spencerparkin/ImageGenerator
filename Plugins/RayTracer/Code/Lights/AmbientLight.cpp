@@ -21,13 +21,14 @@ AmbientLight::AmbientLight( const c3ga::vectorE3GA& intensity )
 }
 
 //===========================================================================
-/*virtual*/ c3ga::vectorE3GA AmbientLight::CalculateSurfacePointIllumination(
+/*virtual*/ void AmbientLight::AccumulateSurfacePointLight(
 							const Scene::SurfacePoint& surfacePoint,
-							const Scene::ObjectList& objectList ) const
+							const Scene& scene,
+							Scene::LightSourceIntensities& lightSourceIntensities ) const
 {
 	// An ambient light illuminates all surfaces.
 	// No object obstructs the light and we don't worry about indirect lighting.
-	return intensity;
+	lightSourceIntensities.ambientLightIntensity += intensity;
 }
 
 // AmbientLight.cpp

@@ -34,22 +34,26 @@ RayTracerPlugin::RayTracerPlugin( void )
 	// we have that in place, hard code a scene.
 
 	scene->AddLight( new AmbientLight(
-					c3ga::vectorE3GA( c3ga::vectorE3GA::coord_e1_e2_e3, 1.f, 1.f, 1.f ) ) );
+					c3ga::vectorE3GA( c3ga::vectorE3GA::coord_e1_e2_e3, 0.5, 0.5, 0.5 ) ) );
+
+	scene->AddLight( new PointLight(
+					c3ga::vectorE3GA( c3ga::vectorE3GA::coord_e1_e2_e3, 1.0, 1.0, 1.0 ),
+					c3ga::vectorE3GA( c3ga::vectorE3GA::coord_e1_e2_e3, -10.0, 0.0, 0.0 ) ) );
 
 	Scene::MaterialProperties materialProperties;
-	materialProperties.color.set( c3ga::vectorE3GA::coord_e1_e2_e3, 1.0, 0.0, 0.0 );
-	materialProperties.reflectionCoeficient = 0.0;
-	materialProperties.refractionCoeficient = 0.0;
 
+	materialProperties.ambientLightCoeficient.set( c3ga::vectorE3GA::coord_e1_e2_e3, 1.0, 0.0, 0.0 );
+	materialProperties.diffuseReflectionCoeficient.set( c3ga::vectorE3GA::coord_e1_e2_e3, 1.0, 0.0, 0.0 );
 	scene->AddObject( new Sphere(
 					c3ga::vectorE3GA( c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, 0.0, 0.0 ),
 					2.0,
 					materialProperties ) );
 
-	materialProperties.color.set( c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, 1.0, 0.0 );
+	materialProperties.ambientLightCoeficient.set( c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, 1.0, 0.0 );
+	materialProperties.diffuseReflectionCoeficient.set( c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, 1.0, 0.0 );
 	scene->AddObject( new Sphere(
-					c3ga::vectorE3GA( c3ga::vectorE3GA::coord_e1_e2_e3, 3.0, 3.0, 0.0 ),
-					1.5,
+					c3ga::vectorE3GA( c3ga::vectorE3GA::coord_e1_e2_e3, 5.0, 0.0, 0.0 ),
+					2.5,
 					materialProperties ) );
 
 	//view.eye.set( c3ga::vectorE3GA::coord_e1_e2_e3, 30.0, 30.0, 30.0 );
@@ -133,13 +137,13 @@ RayTracerPlugin::ImageGenerator::ImageGenerator( void )
 	ray.point = view.eye;
 	ray.direction = c3ga::unit( pixelPoint - ray.point );
 	
-	// Now go determine what color is visible while looking along that ray into the scene!
-	c3ga::vectorE3GA visibleColor;
-	scene->CalculateVisibleColor( ray, visibleColor );
+	// Now go determine what light is visible while looking along that ray into the scene!
+	c3ga::vectorE3GA visibleLight;
+	scene->CalculateVisibleLight( ray, visibleLight );
 	color.SetRGB(
-			( wxUint32( 255.0 * visibleColor.get_e1() ) << 0 ) |
-			( wxUint32( 255.0 * visibleColor.get_e2() ) << 8 ) |
-			( wxUint32( 255.0 * visibleColor.get_e3() ) << 16 ) );
+			( wxUint32( 255.0 * visibleLight.get_e1() ) << 0 ) |
+			( wxUint32( 255.0 * visibleLight.get_e2() ) << 8 ) |
+			( wxUint32( 255.0 * visibleLight.get_e3() ) << 16 ) );
 
 	return true;
 }

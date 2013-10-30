@@ -1,12 +1,12 @@
-// AmbientLight.h
+// PointLight.h
 
 //===========================================================================
-class AmbientLight : public Scene::Light
+class PointLight : public Scene::Light
 {
 public:
 
-	AmbientLight( const c3ga::vectorE3GA& intensity );
-	virtual ~AmbientLight( void );
+	PointLight( const c3ga::vectorE3GA& intensity, const c3ga::vectorE3GA& point );
+	virtual ~PointLight( void );
 
 	virtual Scene::Element* Clone( void ) const override;
 	virtual void AccumulateSurfacePointLight(
@@ -14,9 +14,19 @@ public:
 						const Scene& scene,
 						Scene::LightSourceIntensities& lightSourceIntensities ) const override;
 
+	struct AttenuationCoeficients
+	{
+		double constant;
+		double linear;
+		double quadratic;
+	};
+
+	AttenuationCoeficients attenuationCoeficients;
+
 private:
 
 	c3ga::vectorE3GA intensity;
+	c3ga::vectorE3GA point;
 };
 
-// AmbientLight.h
+// PointLight.h

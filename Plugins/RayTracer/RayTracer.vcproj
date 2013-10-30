@@ -225,6 +225,14 @@
 					RelativePath=".\Code\Lights\AmbientLight.h"
 					>
 				</File>
+				<File
+					RelativePath=".\Code\Lights\PointLight.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Code\Lights\PointLight.h"
+					>
+				</File>
 			</Filter>
 			<Filter
 				Name="Objects"

@@ -9,7 +9,7 @@ public:
 	virtual ~Sphere( void );
 
 	virtual Scene::Element* Clone( void ) const override;
-	virtual bool CalculateSurfacePoint( const Scene::Ray& ray, Scene::SurfacePoint& surfacePoint, double& distance ) const override;
+	virtual bool CalculateSurfacePoint( const Scene::Ray& ray, Scene::SurfacePoint& surfacePoint ) const override;
 
 private:
 	c3ga::dualSphere dualSphere;

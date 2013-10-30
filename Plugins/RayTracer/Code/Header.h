@@ -16,11 +16,13 @@
 class Scene;
 class RayTracerPlugin;
 class AmbientLight;
+class PointLight;
 class Sphere;
 
 #include "Scene.h"
 #include "RayTracer.h"
 #include "Lights/AmbientLight.h"
+#include "Lights/PointLight.h"
 #include "Objects/Sphere.h"
 
 // Header.h
