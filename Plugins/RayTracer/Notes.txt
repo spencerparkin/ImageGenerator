@@ -2,10 +2,10 @@
 NOTES
 =====
 
-I believe that there is something wrong with the view projection rays, because
-sphere appear warped that are not front and center.
-
-I should probably re-implement the sphere-to-ray intersection test using traditional
-methods, because this may be the reason why I can't generate shadows with point-lights.
-In any case, there is something wrong with point-light shadow generation, and I don't
-know what it is yet.
+-- Add menu-bar support for IG plugins.
+-- Write scene loader.
+-- Implement soft shadows.
+-- Get refraction working.
+-- Implement texturing.
+-- Implement Tyler's idea for anti-aliasing.
+-- Support quadric surfaces.

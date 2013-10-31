@@ -16,6 +16,7 @@
 *.ncb
 *.suo
 *.user
+*.tss
 
 # Intermediates and other built files
 Build/
