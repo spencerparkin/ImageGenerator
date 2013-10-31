@@ -56,8 +56,8 @@ public:
 	{
 	public:
 
-		void Reflect( const Ray& ray, Ray& reflectionRay ) const;
-		void Refract( const Ray& ray, Ray& refractionRay ) const;
+		void Reflect( const Ray& ray, Ray& reflectedRay ) const;
+		void Refract( const Ray& ray, Ray& refractedRay ) const;
 
 		c3ga::vectorE3GA point;
 		c3ga::vectorE3GA normal;		// This should always be a unit-length vector.

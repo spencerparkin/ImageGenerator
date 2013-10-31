@@ -3,10 +3,11 @@
 #include "../Header.h"
 
 //===========================================================================
-PointLight::PointLight( const c3ga::vectorE3GA& intensity, const c3ga::vectorE3GA& point )
+PointLight::PointLight( const c3ga::vectorE3GA& intensity, const c3ga::vectorE3GA& point, bool castShadows /*= false*/ )
 {
 	this->intensity = intensity;
 	this->point = point;
+	this->castShadows = castShadows;
 
 	attenuationCoeficients.constant = 1.0;
 	attenuationCoeficients.linear = 0.0;
@@ -21,7 +22,7 @@ PointLight::PointLight( const c3ga::vectorE3GA& intensity, const c3ga::vectorE3G
 //===========================================================================
 /*virtual*/ Scene::Element* PointLight::Clone( void ) const
 {
-	return new PointLight( intensity, point );
+	return new PointLight( intensity, point, castShadows );
 }
 
 //===========================================================================
@@ -46,17 +47,24 @@ PointLight::PointLight( const c3ga::vectorE3GA& intensity, const c3ga::vectorE3G
 	if( dotProduct < 0.0 )
 		return;
 
-	Scene::Ray surfacePointToLightRay;
-	surfacePointToLightRay.point = surfacePoint.point;
-	surfacePointToLightRay.direction = surfacePointToLightDirection;
-	Scene::SurfacePoint obstructingSurfacePoint;
-	if( scene.CalculateVisibleSurfacePoint( surfacePointToLightRay, obstructingSurfacePoint, 1e-5 ) )
+	if( castShadows )
 	{
-		// In this case there is an obstruction keeping light from reaching the surface point.
-		// If we were to get fancy here, we would try to see if the obstruction was transparent,
-		// etc., but that sounds way too complicated.  Instead, we'll simply consider the
-		// surface point to be in shadow by not accumulating any intensity.
-		return;
+		Scene::Ray surfacePointToLightRay;
+		surfacePointToLightRay.point = surfacePoint.point;
+		surfacePointToLightRay.direction = surfacePointToLightDirection;
+		Scene::SurfacePoint obstructingSurfacePoint;
+		if( scene.CalculateVisibleSurfacePoint( surfacePointToLightRay, obstructingSurfacePoint, 1e-5 ) )
+		{
+			double distanceToObstruction = c3ga::norm( surfacePoint.point - obstructingSurfacePoint.point );
+			if( distanceToLight > distanceToObstruction )
+			{
+				// In this case there is an obstruction keeping light from reaching the surface point.
+				// If we were to get fancy here, we would try to see if the obstruction was transparent,
+				// etc., but that sounds way too complicated.  Instead, we'll simply consider the
+				// surface point to be in shadow by not accumulating any intensity.
+				return;
+			}
+		}
 	}
 
 	lightSourceIntensities.diffuseLightIntensity +=

@@ -74,7 +74,7 @@ void Scene::CalculateVisibleLight( const Ray& ray, c3ga::vectorE3GA& visibleLigh
 	// Determine the surface point, if any, that can be seen
 	// by the given ray and its material properties.
 	SurfacePoint surfacePoint;
-	if( CalculateVisibleSurfacePoint( ray, surfacePoint ) )
+	if( CalculateVisibleSurfacePoint( ray, surfacePoint, 1e-5 ) )
 	{
 		// Determine the various light intensities that are reaching this surface point.
 		LightSourceIntensities lightSourceIntensities;
@@ -129,20 +129,20 @@ void Scene::AccumulateSurfacePointLight( const Ray& ray, const SurfacePoint& sur
 	// If the material reflects visible light, determine how much reflected light it is receiving.
 	if( c3ga::norm2( surfacePoint.materialProperties.reflectedLightCoeficient ) > 0.0 )
 	{
-		Ray reflectionRay;
-		surfacePoint.Reflect( ray, reflectionRay );
+		Ray reflectedRay;
+		surfacePoint.Reflect( ray, reflectedRay );
 		c3ga::vectorE3GA reflectedLight;
-		CalculateVisibleLight( reflectionRay, reflectedLight );
+		CalculateVisibleLight( reflectedRay, reflectedLight );
 		lightSourceIntensities.reflectedLightIntensity += reflectedLight;
 	}
 
 	// If the material refracts visible light, determine how much refracted light it is receiving.
 	if( c3ga::norm2( surfacePoint.materialProperties.reflectedLightCoeficient ) > 0.0 )
 	{
-		Ray refractionRay;
-		surfacePoint.Refract( ray, refractionRay );
+		Ray refractedRay;
+		surfacePoint.Refract( ray, refractedRay );
 		c3ga::vectorE3GA refractedLight;
-		CalculateVisibleLight( refractionRay, refractedLight );
+		CalculateVisibleLight( refractedRay, refractedLight );
 		lightSourceIntensities.refractedLightIntensity += refractedLight;
 	}
 	
@@ -206,12 +206,18 @@ Scene* Scene::Clone( void ) const
 }
 
 //===========================================================================
-void Scene::SurfacePoint::Reflect( const Ray& ray, Ray& reflectionRay ) const
+void Scene::SurfacePoint::Reflect( const Ray& ray, Ray& reflectedRay ) const
 {
+	reflectedRay.point = point;
+	reflectedRay.direction = normal * -ray.direction * normal;
+
+	// The direction vector is already normalized, but renormalize it
+	// again to account for accumulated round-off error.
+	reflectedRay.direction = c3ga::unit( reflectedRay.direction );
 }
 
 //===========================================================================
-void Scene::SurfacePoint::Refract( const Ray& ray, Ray& refractionRay ) const
+void Scene::SurfacePoint::Refract( const Ray& ray, Ray& refractedRay ) const
 {
 }
 

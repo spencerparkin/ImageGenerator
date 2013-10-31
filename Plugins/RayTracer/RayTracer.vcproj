@@ -246,6 +246,14 @@
 				Name="Objects"
 				>
 				<File
+					RelativePath=".\Code\Objects\Plane.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Code\Objects\Plane.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Code\Objects\Sphere.cpp"
 					>
 				</File>

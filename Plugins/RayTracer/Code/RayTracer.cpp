@@ -38,12 +38,14 @@ RayTracerPlugin::RayTracerPlugin( void )
 
 	scene->AddLight( new PointLight(
 					c3ga::vectorE3GA( c3ga::vectorE3GA::coord_e1_e2_e3, 1.0, 1.0, 1.0 ),
-					c3ga::vectorE3GA( c3ga::vectorE3GA::coord_e1_e2_e3, -10.0, 0.0, 0.0 ) ) );
+					c3ga::vectorE3GA( c3ga::vectorE3GA::coord_e1_e2_e3, -0.0, 10.0, 0.0 ),
+					true ) );
 
 	Scene::MaterialProperties materialProperties;
 
 	materialProperties.ambientLightCoeficient.set( c3ga::vectorE3GA::coord_e1_e2_e3, 1.0, 0.0, 0.0 );
 	materialProperties.diffuseReflectionCoeficient.set( c3ga::vectorE3GA::coord_e1_e2_e3, 1.0, 0.0, 0.0 );
+	materialProperties.reflectedLightCoeficient.set( c3ga::vectorE3GA::coord_e1_e2_e3, 1.0, 1.0, 1.0 );
 	scene->AddObject( new Sphere(
 					c3ga::vectorE3GA( c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, 0.0, 0.0 ),
 					2.0,
@@ -51,14 +53,32 @@ RayTracerPlugin::RayTracerPlugin( void )
 
 	materialProperties.ambientLightCoeficient.set( c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, 1.0, 0.0 );
 	materialProperties.diffuseReflectionCoeficient.set( c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, 1.0, 0.0 );
+	materialProperties.reflectedLightCoeficient.set( c3ga::vectorE3GA::coord_e1_e2_e3, 1.0, 1.0, 1.0 );
 	scene->AddObject( new Sphere(
 					c3ga::vectorE3GA( c3ga::vectorE3GA::coord_e1_e2_e3, 4.0, 3.0, -5.0 ),
 					4.5,
 					materialProperties ) );
 
-	view.eye.set( c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, 0.0, 30.0 );
+	materialProperties.ambientLightCoeficient.set( c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, 1.0, 1.0 );
+	materialProperties.diffuseReflectionCoeficient.set( c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, 1.0, 1.0 );
+	materialProperties.reflectedLightCoeficient.set( c3ga::vectorE3GA::coord_e1_e2_e3, 1.0, 1.0, 1.0 );
+	scene->AddObject( new Sphere(
+					c3ga::vectorE3GA( c3ga::vectorE3GA::coord_e1_e2_e3, -4.0, 2.0, -4.0 ),
+					3.0,
+					materialProperties ) );
+
+	materialProperties.ambientLightCoeficient.set( c3ga::vectorE3GA::coord_e1_e2_e3, 0.5, 0.5, 0.5 );
+	materialProperties.diffuseReflectionCoeficient.set( c3ga::vectorE3GA::coord_e1_e2_e3, 0.5, 0.5, 0.5 );
+	materialProperties.reflectedLightCoeficient.set( c3ga::vectorE3GA::coord_e1_e2_e3, 0.5, 0.5, 0.5 );
+	scene->AddObject( new Plane(
+					c3ga::vectorE3GA( c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, -4.0, 0.0 ),
+					c3ga::unit( c3ga::vectorE3GA( c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, 1.0, 0.0 ) ),
+					-100.0,
+					materialProperties ) );
+
+	view.eye.set( c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, 10.0, 30.0 );
 	view.up.set( c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, 1.0, 0.0 );
-	view.direction.set( c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, 0.0, -1.0 );
+	view.direction = c3ga::unit( -view.eye );
 	view.angle = M_PI / 5.0;
 	view.focalLength = 10.0;
 

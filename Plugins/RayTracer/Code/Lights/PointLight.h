@@ -5,7 +5,7 @@ class PointLight : public Scene::Light
 {
 public:
 
-	PointLight( const c3ga::vectorE3GA& intensity, const c3ga::vectorE3GA& point );
+	PointLight( const c3ga::vectorE3GA& intensity, const c3ga::vectorE3GA& point, bool castShadows = false );
 	virtual ~PointLight( void );
 
 	virtual Scene::Element* Clone( void ) const override;
@@ -27,6 +27,7 @@ private:
 
 	c3ga::vectorE3GA intensity;
 	c3ga::vectorE3GA point;
+	bool castShadows;
 };
 
 // PointLight.h
