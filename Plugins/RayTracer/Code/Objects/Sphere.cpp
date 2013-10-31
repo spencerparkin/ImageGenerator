@@ -46,7 +46,12 @@ Sphere::Sphere( const c3ga::vectorE3GA& center, double radius, const Scene::Mate
 		return false;		// No.
 
 	surfacePoint.point = ray.CalculateRayPoint( lambda );
+
+	// The surface normal needs to face the ray.
 	surfacePoint.normal = c3ga::unit( surfacePoint.point - center );
+	if( quadratic.C < 0.0 )
+		surfacePoint.normal = -surfacePoint.normal;
+	
 	surfacePoint.materialProperties = materialProperties;
 	return true;
 }
