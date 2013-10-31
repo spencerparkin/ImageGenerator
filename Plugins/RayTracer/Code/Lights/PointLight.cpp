@@ -46,19 +46,18 @@ PointLight::PointLight( const c3ga::vectorE3GA& intensity, const c3ga::vectorE3G
 	if( dotProduct < 0.0 )
 		return;
 
-	// This bit of code prevents anything anywhere from being lit.  Why?
-	/*Scene::Ray surfacePointToLightRay;
+	Scene::Ray surfacePointToLightRay;
 	surfacePointToLightRay.point = surfacePoint.point;
 	surfacePointToLightRay.direction = surfacePointToLightDirection;
 	Scene::SurfacePoint obstructingSurfacePoint;
-	if( scene.CalculateVisibleSurfacePoint( surfacePointToLightRay, obstructingSurfacePoint ) )
+	if( scene.CalculateVisibleSurfacePoint( surfacePointToLightRay, obstructingSurfacePoint, 1e-5 ) )
 	{
 		// In this case there is an obstruction keeping light from reaching the surface point.
 		// If we were to get fancy here, we would try to see if the obstruction was transparent,
 		// etc., but that sounds way too complicated.  Instead, we'll simply consider the
 		// surface point to be in shadow by not accumulating any intensity.
 		return;
-	}*/
+	}
 
 	lightSourceIntensities.diffuseLightIntensity +=
 					c3ga::gp( intensity, attenuationFactor * dotProduct );

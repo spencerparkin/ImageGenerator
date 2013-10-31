@@ -13,7 +13,7 @@ public:
 	//===========================================================================
 	struct Ray
 	{
-		bool CanSee( const c3ga::vectorE3GA& surfacePoint ) const;
+		c3ga::vectorE3GA CalculateRayPoint( double lambda ) const;
 
 		c3ga::vectorE3GA point;
 		c3ga::vectorE3GA direction;		// This should always be a unit-length vector.
@@ -64,16 +64,21 @@ public:
 		MaterialProperties materialProperties;
 	};
 
-	void CalculateVisibleLight( const Ray& ray, c3ga::vectorE3GA& visibleLight ) const;
-	bool CalculateVisibleSurfacePoint( const Ray& ray, SurfacePoint& surfacePoint ) const;
+	void CalculateVisibleLight(
+						const Ray& ray,
+						c3ga::vectorE3GA& visibleLight ) const;
+	bool CalculateVisibleSurfacePoint(
+						const Ray& ray,
+						SurfacePoint& surfacePoint,
+						double minimumDistance = 0.0 ) const;
 	void AccumulateSurfacePointLight(
-								const Ray& ray,
-								const SurfacePoint& surfacePoint,
-								LightSourceIntensities& lightSourceIntensities ) const;
+						const Ray& ray,
+						const SurfacePoint& surfacePoint,
+						LightSourceIntensities& lightSourceIntensities ) const;
 	void CalculateSurfacePointIllumination(
-								const SurfacePoint& surfacePoint,
-								LightSourceIntensities& lightSourceIntensities,
-								c3ga::vectorE3GA& visibleLight ) const;
+						const SurfacePoint& surfacePoint,
+						LightSourceIntensities& lightSourceIntensities,
+						c3ga::vectorE3GA& visibleLight ) const;
 
 	Scene* Clone( void ) const;
 
@@ -98,7 +103,8 @@ public:
 		virtual ~Object( void ) {}
 
 		// Return the point on the surface of this object that is seen by the given ray, if any.
-		// It is important that returned surface point by in front of the given ray, not behind it.
+		// By definition, this must be a point that is on the given ray, which is no necessarily
+		// a point on the line determined by the ray.
 		virtual bool CalculateSurfacePoint( const Ray& ray, SurfacePoint& surfacePoint ) const = 0;
 
 	protected:

@@ -183,6 +183,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Code\Quadratic.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Code\Quadratic.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Code\RayTracer.cpp"
 				>
 			</File>

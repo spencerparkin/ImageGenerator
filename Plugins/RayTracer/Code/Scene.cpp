@@ -89,7 +89,7 @@ void Scene::CalculateVisibleLight( const Ray& ray, c3ga::vectorE3GA& visibleLigh
 //===========================================================================
 // Return the surface characteristics of the point that can be seen by the
 // given ray.  If no surface point is seen from the given ray, false is returned.
-bool Scene::CalculateVisibleSurfacePoint( const Ray& ray, SurfacePoint& surfacePoint ) const
+bool Scene::CalculateVisibleSurfacePoint( const Ray& ray, SurfacePoint& surfacePoint, double minimumDistance /*= 0.0*/ ) const
 {
 	SurfacePoint nearestSurfacePoint;
 	double smallestDistance = -1.0;
@@ -102,13 +102,11 @@ bool Scene::CalculateVisibleSurfacePoint( const Ray& ray, SurfacePoint& surfaceP
 		double distance;
 		if( object->CalculateSurfacePoint( ray, surfacePoint ) )
 		{
-			wxASSERT( ray.CanSee( surfacePoint.point ) );
-
 			distance = c3ga::norm( surfacePoint.point - ray.point );
 
-			// Do not consider objects at a zero distance, because we may
-			// want to see what's visible from the surface of an object.
-			if( distance > 1e-2 && ( distance < smallestDistance || smallestDistance == -1.0 ) )
+			// The minimum distance constraint lets us see what's visible
+			// from the surface of an object without detecting that object.
+			if( distance >= minimumDistance && ( distance < smallestDistance || smallestDistance == -1.0 ) )
 			{
 				nearestSurfacePoint = surfacePoint;
 				smallestDistance = distance;
@@ -244,13 +242,9 @@ Scene::Object::Object( const MaterialProperties& materialProperties )
 }
 
 //===========================================================================
-// Here we verify that the given surface point is on the line determined
-// by the given ray and that the point is in front of (not behind) the
-// the origin point of the ray.
-bool Scene::Ray::CanSee( const c3ga::vectorE3GA& surfacePoint ) const
+c3ga::vectorE3GA Scene::Ray::CalculateRayPoint( double lambda ) const
 {
-	//...
-	return true;
+	return point + c3ga::gp( direction, lambda );
 }
 
 // Scene.cpp

@@ -15,12 +15,14 @@
 
 class Scene;
 class RayTracerPlugin;
+class Quadratic;
 class AmbientLight;
 class PointLight;
 class Sphere;
 
 #include "Scene.h"
 #include "RayTracer.h"
+#include "Quadratic.h"
 #include "Lights/AmbientLight.h"
 #include "Lights/PointLight.h"
 #include "Objects/Sphere.h"

@@ -34,7 +34,7 @@ RayTracerPlugin::RayTracerPlugin( void )
 	// we have that in place, hard code a scene.
 
 	scene->AddLight( new AmbientLight(
-					c3ga::vectorE3GA( c3ga::vectorE3GA::coord_e1_e2_e3, 0.5, 0.5, 0.5 ) ) );
+					c3ga::vectorE3GA( c3ga::vectorE3GA::coord_e1_e2_e3, 0.1, 0.1, 0.1 ) ) );
 
 	scene->AddLight( new PointLight(
 					c3ga::vectorE3GA( c3ga::vectorE3GA::coord_e1_e2_e3, 1.0, 1.0, 1.0 ),
@@ -52,14 +52,13 @@ RayTracerPlugin::RayTracerPlugin( void )
 	materialProperties.ambientLightCoeficient.set( c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, 1.0, 0.0 );
 	materialProperties.diffuseReflectionCoeficient.set( c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, 1.0, 0.0 );
 	scene->AddObject( new Sphere(
-					c3ga::vectorE3GA( c3ga::vectorE3GA::coord_e1_e2_e3, 5.0, 0.0, 0.0 ),
-					2.5,
+					c3ga::vectorE3GA( c3ga::vectorE3GA::coord_e1_e2_e3, 4.0, 3.0, -5.0 ),
+					4.5,
 					materialProperties ) );
 
-	//view.eye.set( c3ga::vectorE3GA::coord_e1_e2_e3, 30.0, 30.0, 30.0 );
-	view.eye.set( c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, 0.0, -30.0 );
+	view.eye.set( c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, 0.0, 30.0 );
 	view.up.set( c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, 1.0, 0.0 );
-	view.direction = c3ga::unit( -view.eye );
+	view.direction.set( c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, 0.0, -1.0 );
 	view.angle = M_PI / 5.0;
 	view.focalLength = 10.0;
 
@@ -114,7 +113,7 @@ RayTracerPlugin::ImageGenerator::ImageGenerator( void )
 	// Make a right-handed coordinate frame from our viewing parameters.
 	c3ga::vectorE3GA zAxis = -view.direction;
 	c3ga::vectorE3GA yAxis = c3ga::unit( c3ga::lc( view.direction, c3ga::op( view.direction, view.up ) ) );
-	c3ga::vectorE3GA xAxis = c3ga::rc( c3ga::trivectorE3GA( c3ga::trivectorE3GA::coord_e1e2e3, 1.0 ), c3ga::op( yAxis, zAxis ) );
+	c3ga::vectorE3GA xAxis = c3ga::lc( c3ga::op( zAxis, yAxis ), c3ga::trivectorE3GA( c3ga::trivectorE3GA::coord_e1e2e3, 1.0 ) );
 
 	// Calculate our viewing window on the viewing plane.
 	double xMax = view.focalLength * tan( view.angle * 0.5 );
