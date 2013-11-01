@@ -128,6 +128,7 @@ bool igCanvas::GenerateCachedBitmap( void )
 {
 	if( !cachedBitmap )
 	{
+		wxGetApp().ImageCriticalSection()->Enter();
 		wxImage* image = wxGetApp().Image();
 		if( image )
 		{
@@ -150,6 +151,7 @@ bool igCanvas::GenerateCachedBitmap( void )
 			cachedBitmap = new wxBitmap( scaledImage );
 			SetVirtualSize( size );
 		}
+		wxGetApp().ImageCriticalSection()->Leave();
 	}
 
 	return cachedBitmap ? true : false;
