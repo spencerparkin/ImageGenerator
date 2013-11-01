@@ -111,13 +111,15 @@ void igApp::RestoreConfiguration( void )
 //===========================================================================
 /*virtual*/ bool igApp::OnInit( void )
 {
-	frame = new igFrame( frameLayout.pos, frameLayout.size );
+	frame = new igFrame();
 
 	if( !wxApp::OnInit() )
 		return false;
 
 	wxInitAllImageHandlers();
 	
+	frame->SetPosition( frameLayout.pos );
+	frame->SetSize( frameLayout.size );
 	frame->UpdateTitle();
 	frame->Show();
 
