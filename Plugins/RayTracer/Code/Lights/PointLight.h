@@ -5,10 +5,12 @@ class PointLight : public Scene::Light
 {
 public:
 
-	PointLight( const c3ga::vectorE3GA& intensity, const c3ga::vectorE3GA& point, bool castShadows = false );
+	PointLight( void );
+	PointLight( const c3ga::vectorE3GA& intensity, const c3ga::vectorE3GA& point, double shadowCastCoeficient = 1.0 );
 	virtual ~PointLight( void );
 
 	virtual Scene::Element* Clone( void ) const override;
+	virtual bool Configure( wxXmlNode* xmlNode ) override;
 	virtual void AccumulateSurfacePointLight(
 						const Scene::SurfacePoint& surfacePoint,
 						const Scene& scene,
@@ -27,7 +29,7 @@ private:
 
 	c3ga::vectorE3GA intensity;
 	c3ga::vectorE3GA point;
-	bool castShadows;
+	double shadowCastCoeficient;
 };
 
 // PointLight.h

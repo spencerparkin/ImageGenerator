@@ -3,6 +3,14 @@
 #include "../Header.h"
 
 //===========================================================================
+Plane::Plane( void )
+{
+	center.set( c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, 0.0, 0.0 );
+	normal.set( c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, 1.0, 0.0 );
+	maximumDistance = 100.0;
+}
+
+//===========================================================================
 Plane::Plane(
 		const c3ga::vectorE3GA& center,
 		const c3ga::vectorE3GA& normal,
@@ -23,6 +31,17 @@ Plane::Plane(
 /*virtual*/ Scene::Element* Plane::Clone( void ) const
 {
 	return new Plane( center, normal, maximumDistance, materialProperties );
+}
+
+//===========================================================================
+/*virtual*/ bool Plane::Configure( wxXmlNode* xmlNode )
+{
+	if( !materialProperties.Configure( Scene::FindNode( xmlNode, "material" ) ) )
+		return false;
+
+	center = Scene::LoadVector( xmlNode, "center", center );
+	normal = Scene::LoadVector( xmlNode, "normal", normal );
+	return true;
 }
 
 //===========================================================================

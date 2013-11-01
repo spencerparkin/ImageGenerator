@@ -28,6 +28,8 @@ public:
 
 		MaterialProperties( void );
 
+		bool Configure( wxXmlNode* xmlNode );
+
 		c3ga::vectorE3GA ambientLightCoeficient;
 		c3ga::vectorE3GA diffuseReflectionCoeficient;
 		c3ga::vectorE3GA specularReflectionCoeficient;
@@ -92,6 +94,9 @@ public:
 
 		// Return a copy of this scene element.
 		virtual Element* Clone( void ) const = 0;
+
+		// Configure this scene element using the given XML node.
+		virtual bool Configure( wxXmlNode* xmlNode ) = 0;
 	};
 
 	//===========================================================================
@@ -99,6 +104,7 @@ public:
 	{
 	public:
 
+		Object( void ) {}
 		Object( const MaterialProperties& materialProperties );
 		virtual ~Object( void ) {}
 
@@ -137,6 +143,12 @@ public:
 	void AddObject( Object* object );
 
 	void Clear( void );
+
+	static c3ga::vectorE3GA LoadColor( wxXmlNode* xmlNode, const wxString& nodeName, const c3ga::vectorE3GA& defaultColor );
+	static c3ga::vectorE3GA LoadVector( wxXmlNode* xmlNode, const wxString& nodeName, const c3ga::vectorE3GA& defaultVector );
+	static c3ga::vectorE3GA LoadTriplet( wxXmlNode* xmlNode, const wxString& nodeName, const c3ga::vectorE3GA& defaultTriplet, const char* components );
+	static double LoadNumber( wxXmlNode* xmlNode, const wxString& nodeName, double defaultNumber );
+	static wxXmlNode* FindNode( wxXmlNode* xmlNode, const wxString& nodeName );
 
 private:
 

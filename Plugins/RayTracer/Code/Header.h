@@ -5,6 +5,10 @@
 #include <wx/gdicmn.h>
 #include <wx/image.h>
 #include <wx/utils.h>
+#include <wx/menu.h>
+#include <wx/filedlg.h>
+#include <wx/msgdlg.h>
+#include <wx/xml/xml.h>
 
 #include <igPlugin.h>
 

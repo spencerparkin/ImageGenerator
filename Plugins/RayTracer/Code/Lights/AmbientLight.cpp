@@ -3,6 +3,12 @@
 #include "../Header.h"
 
 //===========================================================================
+AmbientLight::AmbientLight( void )
+{
+	intensity.set( c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, 0.0, 0.0 );
+}
+
+//===========================================================================
 AmbientLight::AmbientLight( const c3ga::vectorE3GA& intensity )
 {
 	this->intensity = intensity;
@@ -18,6 +24,13 @@ AmbientLight::AmbientLight( const c3ga::vectorE3GA& intensity )
 {
 	AmbientLight* ambientLight = new AmbientLight( intensity );
 	return ambientLight;
+}
+
+//===========================================================================
+/*virtual*/ bool AmbientLight::Configure( wxXmlNode* xmlNode )
+{
+	intensity = Scene::LoadColor( xmlNode, "intensity", intensity );
+	return true;
 }
 
 //===========================================================================

@@ -3,6 +3,13 @@
 #include "../Header.h"
 
 //===========================================================================
+Sphere::Sphere( void )
+{
+	center.set( c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, 0.0, 0.0 );
+	radius = 1.0;
+}
+
+//===========================================================================
 Sphere::Sphere( const c3ga::vectorE3GA& center, double radius, const Scene::MaterialProperties& materialProperties ) : Object( materialProperties )
 {
 	this->center = center;
@@ -18,6 +25,17 @@ Sphere::Sphere( const c3ga::vectorE3GA& center, double radius, const Scene::Mate
 /*virtual*/ Scene::Element* Sphere::Clone( void ) const
 {
 	return new Sphere( center, radius, materialProperties );
+}
+
+//===========================================================================
+/*virtual*/ bool Sphere::Configure( wxXmlNode* xmlNode )
+{
+	if( !materialProperties.Configure( Scene::FindNode( xmlNode, "material" ) ) )
+		return false;
+
+	center = Scene::LoadVector( xmlNode, "center", center );
+	radius = Scene::LoadNumber( xmlNode, "radius", radius );
+	return true;
 }
 
 //===========================================================================

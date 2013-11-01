@@ -4,6 +4,7 @@
 class Plane : public Scene::Object
 {
 public:
+	Plane( void );
 	Plane(
 		const c3ga::vectorE3GA& center,
 		const c3ga::vectorE3GA& normal,
@@ -12,6 +13,7 @@ public:
 	virtual ~Plane( void );
 
 	virtual Scene::Element* Clone( void ) const override;
+	virtual bool Configure( wxXmlNode* xmlNode ) override;
 	virtual bool CalculateSurfacePoint( const Scene::Ray& ray, Scene::SurfacePoint& surfacePoint ) const override;
 
 private:

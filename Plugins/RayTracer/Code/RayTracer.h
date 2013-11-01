@@ -4,14 +4,15 @@
 class RayTracerPlugin : public igPlugin
 {
 	friend class ImageGenerator;
+	friend class MenuEventHandler;
 
 public:
 
 	RayTracerPlugin( void );
 	virtual ~RayTracerPlugin( void );
 
-	virtual bool Initialize( void ) override;
-	virtual bool Finalize( void ) override;
+	virtual bool Initialize( wxMenuBar* menuBar ) override;
+	virtual bool Finalize( wxMenuBar* menuBar ) override;
 
 	virtual wxString Name( void ) override;
 
@@ -36,6 +37,35 @@ public:
 
 private:
 
+	//===========================================================================
+	class MenuEventHandler : public wxEvtHandler
+	{
+	public:
+
+		MenuEventHandler( RayTracerPlugin* rayTracerPlugin );
+		virtual ~MenuEventHandler( void );
+
+		void InsertMenu( wxMenuBar* menuBar );
+		void RemoveMenu( wxMenuBar* menuBar );
+
+	private:
+
+		void OnLoadScene( wxCommandEvent& event );
+		void OnUnloadScene( wxCommandEvent& event );
+
+		void OnUpdateMenuItemUI( wxUpdateUIEvent& event );
+
+		int ID_LoadScene;
+		int ID_UnloadScene;
+		RayTracerPlugin* rayTracerPlugin;
+	};
+
+	bool LoadScene( const wxString& sceneFile );
+	bool UnloadScene( void );
+	bool LoadView( wxXmlNode* xmlNode );
+	bool LoadElement( wxXmlNode* xmlNode );
+
+	//===========================================================================
 	struct View
 	{
 		c3ga::vectorE3GA eye;
@@ -47,6 +77,7 @@ private:
 
 	View view;
 	Scene* scene;
+	MenuEventHandler menuEventHandler;
 };
 
 // RayTracer.h

@@ -19,6 +19,8 @@ igApp::igApp( void )
 
 	frameLayout.pos = wxDefaultPosition;
 	frameLayout.size = wxDefaultSize;
+
+	frame = 0;
 }
 
 //===========================================================================
@@ -109,12 +111,13 @@ void igApp::RestoreConfiguration( void )
 //===========================================================================
 /*virtual*/ bool igApp::OnInit( void )
 {
+	frame = new igFrame( frameLayout.pos, frameLayout.size );
+
 	if( !wxApp::OnInit() )
 		return false;
 
 	wxInitAllImageHandlers();
 	
-	igFrame* frame = new igFrame( frameLayout.pos, frameLayout.size );
 	frame->UpdateTitle();
 	frame->Show();
 
@@ -125,7 +128,7 @@ void igApp::RestoreConfiguration( void )
 /*virtual*/ int igApp::OnExit( void )
 {
 	if( plugin || pluginHandle != NULL )
-		UnloadPlugin();
+		UnloadPlugin( true );
 
 	DeleteImage();
 
@@ -156,7 +159,8 @@ bool igApp::LoadPlugin( const wxString& pluginPath )
 		if( !plugin )
 			break;
 
-		if( !plugin->Initialize() )
+		wxMenuBar* menuBar = frame->GetMenuBar();
+		if( !plugin->Initialize( menuBar ) )
 			break;
 
 		success = true;
@@ -170,11 +174,12 @@ bool igApp::LoadPlugin( const wxString& pluginPath )
 }
 
 //===========================================================================
-bool igApp::UnloadPlugin( void )
+bool igApp::UnloadPlugin( bool frameDeleted /*= false*/ )
 {
 	if( plugin )
 	{
-		plugin->Finalize();
+		wxMenuBar* menuBar = frameDeleted ? 0 : frame->GetMenuBar();
+		plugin->Finalize( menuBar );
 
 		if( pluginHandle != NULL )
 		{

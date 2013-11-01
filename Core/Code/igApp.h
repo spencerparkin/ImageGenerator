@@ -19,7 +19,7 @@ public:
 	wxCriticalSection* ImageCriticalSection( void );
 
 	bool LoadPlugin( const wxString& pluginPath );
-	bool UnloadPlugin( void );
+	bool UnloadPlugin( bool frameDeleted = false );
 
 	bool GenerateImage( void );
 	bool DeleteImage( void );
@@ -56,6 +56,8 @@ private:
 	wxCriticalSection imageCriticalSection;
 
 	Options options;
+
+	igFrame* frame;
 };
 
 //===========================================================================

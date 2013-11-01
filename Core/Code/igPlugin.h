@@ -16,8 +16,8 @@ public:
 	typedef igPlugin* ( *NewImageGeneratorPluginFunc )( void );
 	typedef void ( *DeleteImageGeneratorPluginFunc )( igPlugin* );
 
-	virtual bool Initialize( void ) = 0;
-	virtual bool Finalize( void ) = 0;
+	virtual bool Initialize( wxMenuBar* menuBar ) = 0;
+	virtual bool Finalize( wxMenuBar* menuBar ) = 0;
 
 	virtual wxString Name( void ) = 0;
 

@@ -222,6 +222,80 @@ void Scene::SurfacePoint::Refract( const Ray& ray, Ray& refractedRay ) const
 }
 
 //===========================================================================
+/*static*/ c3ga::vectorE3GA Scene::LoadColor(
+							wxXmlNode* xmlNode,
+							const wxString& nodeName,
+							const c3ga::vectorE3GA& defaultColor )
+{
+	const char* components = "rgb";
+	return LoadTriplet( xmlNode, nodeName, defaultColor, components );
+}
+
+//===========================================================================
+/*static*/ c3ga::vectorE3GA Scene::LoadVector(
+							wxXmlNode* xmlNode,
+							const wxString& nodeName,
+							const c3ga::vectorE3GA& defaultVector )
+{
+	const char* components = "xyz";
+	return LoadTriplet( xmlNode, nodeName, defaultVector, components );
+}
+
+//===========================================================================
+/*static*/ c3ga::vectorE3GA Scene::LoadTriplet( wxXmlNode* xmlNode, const wxString& nodeName, const c3ga::vectorE3GA& defaultTriplet, const char* components )
+{
+	c3ga::vectorE3GA triplet = defaultTriplet;
+	xmlNode = FindNode( xmlNode, nodeName );
+	if( xmlNode )
+	{
+		wxString string[3];
+		if( xmlNode->GetAttribute( wxString( components[0] ), &string[0] ) &&
+			xmlNode->GetAttribute( wxString( components[1] ), &string[1] ) &&
+			xmlNode->GetAttribute( wxString( components[2] ), &string[2] ) )
+		{
+			double values[3];
+			if( string[0].ToDouble( &values[0] ) &&
+				string[1].ToDouble( &values[1] ) &&
+				string[2].ToDouble( &values[2] ) )
+			{
+				triplet.set( c3ga::vectorE3GA::coord_e1_e2_e3, values[0], values[1], values[2] );
+			}
+		}
+	}
+	return triplet;
+}
+
+//===========================================================================
+/*static*/ double Scene::LoadNumber( wxXmlNode* xmlNode, const wxString& nodeName, double defaultNumber )
+{
+	double number = defaultNumber;
+	xmlNode = FindNode( xmlNode, nodeName );
+	if( xmlNode )
+	{
+		wxString contents = xmlNode->GetNodeContent();
+		contents.ToDouble( &number );
+	}
+	return number;
+}
+
+//===========================================================================
+/*static*/ wxXmlNode* Scene::FindNode( wxXmlNode* xmlNode, const wxString& nodeName )
+{
+	wxXmlNode* foundNode = 0;
+	
+	if( xmlNode->GetName() == nodeName )
+		foundNode = xmlNode;
+
+	if( !foundNode && xmlNode->GetChildren() )
+		foundNode = FindNode( xmlNode->GetChildren(), nodeName );
+	
+	if( !foundNode && xmlNode->GetNext() )
+		foundNode = FindNode( xmlNode->GetNext(), nodeName );
+
+	return foundNode;
+}
+
+//===========================================================================
 Scene::MaterialProperties::MaterialProperties( void )
 {
 	ambientLightCoeficient.set( c3ga::vectorE3GA::coord_e1_e2_e3, 1.0, 1.0, 1.0 );
@@ -229,6 +303,22 @@ Scene::MaterialProperties::MaterialProperties( void )
 	specularReflectionCoeficient.set( c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, 0.0, 0.0 );
 	reflectedLightCoeficient.set( c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, 0.0, 0.0 );
 	refractedLightCoeficient.set( c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, 0.0, 0.0 );
+}
+
+//===========================================================================
+bool Scene::MaterialProperties::Configure( wxXmlNode* xmlNode )
+{
+	if( !xmlNode )
+		return false;
+
+	c3ga::vectorE3GA zeroCoeficient( c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, 0.0, 0.0 );
+
+	ambientLightCoeficient = LoadColor( xmlNode, "ambient", zeroCoeficient );
+	diffuseReflectionCoeficient = LoadColor( xmlNode, "diffuse", zeroCoeficient );
+	specularReflectionCoeficient = LoadColor( xmlNode, "specular", zeroCoeficient );
+	reflectedLightCoeficient = LoadColor( xmlNode, "reflective", zeroCoeficient );
+	refractedLightCoeficient = LoadColor( xmlNode, "refractive", zeroCoeficient );
+	return true;
 }
 
 //===========================================================================
