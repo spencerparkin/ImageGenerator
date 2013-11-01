@@ -8,7 +8,6 @@ public:
 	Plane(
 		const c3ga::vectorE3GA& center,
 		const c3ga::vectorE3GA& normal,
-		double maximumDistance,
 		const Scene::MaterialProperties& materialProperties );
 	virtual ~Plane( void );
 
@@ -19,7 +18,6 @@ public:
 private:
 	c3ga::vectorE3GA center;
 	c3ga::vectorE3GA normal;
-	double maximumDistance;
 };
 
 // Plane.h

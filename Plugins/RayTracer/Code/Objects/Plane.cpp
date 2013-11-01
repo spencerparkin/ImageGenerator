@@ -7,19 +7,16 @@ Plane::Plane( void )
 {
 	center.set( c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, 0.0, 0.0 );
 	normal.set( c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, 1.0, 0.0 );
-	maximumDistance = 100.0;
 }
 
 //===========================================================================
 Plane::Plane(
 		const c3ga::vectorE3GA& center,
 		const c3ga::vectorE3GA& normal,
-		double maximumDistance,
 		const Scene::MaterialProperties& materialProperties ) : Object( materialProperties )
 {
 	this->center = center;
 	this->normal = normal;
-	this->maximumDistance = maximumDistance;
 }
 
 //===========================================================================
@@ -30,7 +27,7 @@ Plane::Plane(
 //===========================================================================
 /*virtual*/ Scene::Element* Plane::Clone( void ) const
 {
-	return new Plane( center, normal, maximumDistance, materialProperties );
+	return new Plane( center, normal, materialProperties );
 }
 
 //===========================================================================
@@ -57,8 +54,6 @@ Plane::Plane(
 		return false;
 
 	surfacePoint.point = ray.CalculateRayPoint( lambda );
-	if( maximumDistance >= 0.0 && c3ga::norm( surfacePoint.point - ray.point ) > maximumDistance )
-		return false;
 
 	if( numerator < 0.0 )
 		surfacePoint.normal = normal;
