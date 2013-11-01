@@ -11,13 +11,21 @@ public:
 	RayTracerPlugin( void );
 	virtual ~RayTracerPlugin( void );
 
-	virtual bool Initialize( wxMenuBar* menuBar ) override;
-	virtual bool Finalize( wxMenuBar* menuBar ) override;
+	virtual bool Initialize( wxMenuBar* menuBar, wxEvtHandler* updateUIHandler ) override;
+	virtual bool Finalize( wxMenuBar* menuBar, wxEvtHandler* updateUIHandler ) override;
 
 	virtual wxString Name( void ) override;
 
 	virtual bool PreImageGeneration( wxImage* image ) override;
 	virtual bool PostImageGeneration( wxImage* image ) override;
+
+	//===========================================================================
+	struct Sample
+	{
+		wxColour color;
+		volatile bool rayCasted;
+		wxCriticalSection criticalSection;
+	};
 
 	//===========================================================================
 	class ImageGenerator : public igPlugin::ImageGenerator
@@ -27,6 +35,9 @@ public:
 		virtual ~ImageGenerator( void );
 
 		virtual bool GeneratePixel( const wxPoint& point, const wxSize& size, wxColour& color ) override;
+
+		void CalculateColor( const wxPoint& point, const wxSize& size, wxColour& color );
+		void CalculateSample( const wxPoint& point, const wxSize& size, Sample* sample );
 
 		Scene* scene;
 		RayTracerPlugin* plugin;
@@ -40,23 +51,26 @@ private:
 	//===========================================================================
 	class MenuEventHandler : public wxEvtHandler
 	{
+		friend RayTracerPlugin;
+
 	public:
 
 		MenuEventHandler( RayTracerPlugin* rayTracerPlugin );
 		virtual ~MenuEventHandler( void );
 
-		void InsertMenu( wxMenuBar* menuBar );
-		void RemoveMenu( wxMenuBar* menuBar );
+		void InsertMenu( wxMenuBar* menuBar, wxEvtHandler* updateUIHandler );
+		void RemoveMenu( wxMenuBar* menuBar, wxEvtHandler* updateUIHandler );
 
 	private:
 
 		void OnLoadScene( wxCommandEvent& event );
 		void OnUnloadScene( wxCommandEvent& event );
-
+		void OnAntiAlias( wxCommandEvent& event );
 		void OnUpdateMenuItemUI( wxUpdateUIEvent& event );
 
 		int ID_LoadScene;
 		int ID_UnloadScene;
+		int ID_AntiAlias;
 		RayTracerPlugin* rayTracerPlugin;
 	};
 
@@ -78,6 +92,11 @@ private:
 	View view;
 	Scene* scene;
 	MenuEventHandler menuEventHandler;
+	bool antiAlias;
+	Sample** overSample;
+
+	void AllocateOverSampleForImage( const wxImage* image );
+	void DeallocateOverSampleForImage( const wxImage* image );
 };
 
 // RayTracer.h

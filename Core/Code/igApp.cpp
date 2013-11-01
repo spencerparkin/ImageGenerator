@@ -162,7 +162,7 @@ bool igApp::LoadPlugin( const wxString& pluginPath )
 			break;
 
 		wxMenuBar* menuBar = frame->GetMenuBar();
-		if( !plugin->Initialize( menuBar ) )
+		if( !plugin->Initialize( menuBar, frame ) )
 			break;
 
 		success = true;
@@ -181,7 +181,7 @@ bool igApp::UnloadPlugin( bool frameDeleted /*= false*/ )
 	if( plugin )
 	{
 		wxMenuBar* menuBar = frameDeleted ? 0 : frame->GetMenuBar();
-		plugin->Finalize( menuBar );
+		plugin->Finalize( menuBar, ( frameDeleted ? 0 : frame ) );
 
 		if( pluginHandle != NULL )
 		{

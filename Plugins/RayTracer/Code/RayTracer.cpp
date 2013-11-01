@@ -18,6 +18,8 @@ extern "C" __declspec( dllexport ) void DeleteImageGeneratorPlugin( igPlugin* ig
 RayTracerPlugin::RayTracerPlugin( void ) : menuEventHandler( this )
 {
 	scene = 0;
+	antiAlias = false;
+	overSample = 0;
 }
 
 //===========================================================================
@@ -40,7 +42,7 @@ RayTracerPlugin::MenuEventHandler::MenuEventHandler( RayTracerPlugin* rayTracerP
 }
 
 //===========================================================================
-void RayTracerPlugin::MenuEventHandler::InsertMenu( wxMenuBar* menuBar )
+void RayTracerPlugin::MenuEventHandler::InsertMenu( wxMenuBar* menuBar, wxEvtHandler* updateUIHandler )
 {
 	int maxID = -1;
 	for( unsigned int i = 0; i < menuBar->GetMenuCount(); i++ )
@@ -57,30 +59,46 @@ void RayTracerPlugin::MenuEventHandler::InsertMenu( wxMenuBar* menuBar )
 
 	ID_LoadScene = ++maxID;
 	ID_UnloadScene = ++maxID;
+	ID_AntiAlias = ++maxID;
 
 	wxMenu* rayTracerMenu = new wxMenu();
 	wxMenuItem* loadSceneMenuItem = new wxMenuItem( rayTracerMenu, ID_LoadScene, "Load Scene", "Load a scene to be ray-traced." );
 	wxMenuItem* unloadSceneMenuItem = new wxMenuItem( rayTracerMenu, ID_UnloadScene, "Unload Scene", "Unload the currently loaded scene, if any." );
+	wxMenuItem* antiAliasMenuItem = new wxMenuItem( rayTracerMenu, ID_AntiAlias, "Anti Anlias", "Perform anti-aliasing on the image.", wxITEM_CHECK );
 	rayTracerMenu->Append( loadSceneMenuItem );
 	rayTracerMenu->Append( unloadSceneMenuItem );
+	rayTracerMenu->AppendSeparator();
+	rayTracerMenu->Append( antiAliasMenuItem );
 
 	menuBar->Append( rayTracerMenu, "Ray Tracer" );
 
 	menuBar->Bind( wxEVT_MENU, &MenuEventHandler::OnLoadScene, this, ID_LoadScene );
 	menuBar->Bind( wxEVT_MENU, &MenuEventHandler::OnUnloadScene, this, ID_UnloadScene );
-	menuBar->Bind( wxEVT_UPDATE_UI, &MenuEventHandler::OnUpdateMenuItemUI, this, ID_LoadScene );
-	menuBar->Bind( wxEVT_UPDATE_UI, &MenuEventHandler::OnUpdateMenuItemUI, this, ID_UnloadScene );
+	menuBar->Bind( wxEVT_MENU, &MenuEventHandler::OnAntiAlias, this, ID_AntiAlias );
+	updateUIHandler->Bind( wxEVT_UPDATE_UI, &MenuEventHandler::OnUpdateMenuItemUI, this, ID_LoadScene );
+	updateUIHandler->Bind( wxEVT_UPDATE_UI, &MenuEventHandler::OnUpdateMenuItemUI, this, ID_UnloadScene );
+	updateUIHandler->Bind( wxEVT_UPDATE_UI, &MenuEventHandler::OnUpdateMenuItemUI, this, ID_AntiAlias );
 }
 
 //===========================================================================
-void RayTracerPlugin::MenuEventHandler::RemoveMenu( wxMenuBar* menuBar )
+void RayTracerPlugin::MenuEventHandler::RemoveMenu( wxMenuBar* menuBar, wxEvtHandler* updateUIHandler )
 {
-	int menuPos = menuBar->FindMenu( "Ray Tracer" );
-	if( menuPos == wxNOT_FOUND )
-		return;
+	if( updateUIHandler )
+	{
+		updateUIHandler->Unbind( wxEVT_UPDATE_UI, &MenuEventHandler::OnUpdateMenuItemUI, this, ID_LoadScene );
+		updateUIHandler->Unbind( wxEVT_UPDATE_UI, &MenuEventHandler::OnUpdateMenuItemUI, this, ID_UnloadScene );
+		updateUIHandler->Unbind( wxEVT_UPDATE_UI, &MenuEventHandler::OnUpdateMenuItemUI, this, ID_AntiAlias );
+	}
 
-	wxMenu* rayTracerMenu = menuBar->Remove( menuPos );
-	delete rayTracerMenu;
+	if( menuBar )
+	{
+		int menuPos = menuBar->FindMenu( "Ray Tracer" );
+		if( menuPos != wxNOT_FOUND )
+		{
+			wxMenu* rayTracerMenu = menuBar->Remove( menuPos );
+			delete rayTracerMenu;
+		}
+	}
 }
 
 //===========================================================================
@@ -103,6 +121,12 @@ void RayTracerPlugin::MenuEventHandler::OnLoadScene( wxCommandEvent& event )
 }
 
 //===========================================================================
+void RayTracerPlugin::MenuEventHandler::OnAntiAlias( wxCommandEvent& event )
+{
+	rayTracerPlugin->antiAlias = !rayTracerPlugin->antiAlias;
+}
+
+//===========================================================================
 void RayTracerPlugin::MenuEventHandler::OnUnloadScene( wxCommandEvent& event )
 {
 	rayTracerPlugin->UnloadScene();
@@ -115,6 +139,8 @@ void RayTracerPlugin::MenuEventHandler::OnUpdateMenuItemUI( wxUpdateUIEvent& eve
 		event.Enable( rayTracerPlugin->scene ? false : true );
 	else if( event.GetId() == ID_UnloadScene )
 		event.Enable( rayTracerPlugin->scene ? true : false );
+	else if( event.GetId() == ID_AntiAlias )
+		event.Check( rayTracerPlugin->antiAlias );
 }
 
 //===========================================================================
@@ -217,19 +243,19 @@ bool RayTracerPlugin::LoadElement( wxXmlNode* xmlNode )
 }
 
 //===========================================================================
-/*virtual*/ bool RayTracerPlugin::Initialize( wxMenuBar* menuBar )
+/*virtual*/ bool RayTracerPlugin::Initialize( wxMenuBar* menuBar, wxEvtHandler* updateUIHandler )
 {
-	menuEventHandler.InsertMenu( menuBar );
+	menuEventHandler.InsertMenu( menuBar, updateUIHandler );
 	return true;
 }
 
 //===========================================================================
-/*virtual*/ bool RayTracerPlugin::Finalize( wxMenuBar* menuBar )
+/*virtual*/ bool RayTracerPlugin::Finalize( wxMenuBar* menuBar, wxEvtHandler* updateUIHandler )
 {
 	UnloadScene();
 
 	if( menuBar )
-		menuEventHandler.RemoveMenu( menuBar );
+		menuEventHandler.RemoveMenu( menuBar, updateUIHandler );
 
 	return true;
 }
@@ -246,13 +272,43 @@ bool RayTracerPlugin::LoadElement( wxXmlNode* xmlNode )
 	if( !scene )
 		return false;
 
+	// Our anti-aliasing method is simply a down-sampling from an over-sampled image.
+	if( antiAlias )
+		AllocateOverSampleForImage( image );
+
 	return true;
 }
 
 //===========================================================================
 /*virtual*/ bool RayTracerPlugin::PostImageGeneration( wxImage* image )
 {
+	if( antiAlias )
+		DeallocateOverSampleForImage( image );
+
 	return true;
+}
+
+//===========================================================================
+void RayTracerPlugin::AllocateOverSampleForImage( const wxImage* image )
+{
+	wxSize size = image->GetSize();
+	wxSize overSampledSize( size.x + 1, size.y + 1 );
+	overSample = new Sample*[ overSampledSize.x ];
+	for( int x = 0; x < overSampledSize.x; x++ )
+	{
+		overSample[x] = new Sample[ overSampledSize.y ];
+		for( int y = 0; y < overSampledSize.y; y++ )
+			overSample[x][y].rayCasted = false;
+	}
+}
+
+//===========================================================================
+void RayTracerPlugin::DeallocateOverSampleForImage( const wxImage* image )
+{
+	for( int x = 0; x < image->GetWidth() + 1; x++ )
+		delete[] overSample[x];
+	delete[] overSample;
+	overSample = 0;
 }
 
 //===========================================================================
@@ -270,6 +326,53 @@ RayTracerPlugin::ImageGenerator::ImageGenerator( void )
 
 //===========================================================================
 /*virtual*/ bool RayTracerPlugin::ImageGenerator::GeneratePixel( const wxPoint& point, const wxSize& size, wxColour& color )
+{
+	if( !plugin->antiAlias )
+		CalculateColor( point, size, color );
+	else
+	{
+		wxSize overSampledSize( size.x + 1, size.y + 1 );
+
+		wxPoint ulPoint = point;
+		wxPoint urPoint( point.x + 1, point.y );
+		wxPoint llPoint( point.x, point.y + 1 );
+		wxPoint lrPoint( point.x + 1, point.y + 1 );
+
+		Sample* ulSample = &plugin->overSample[ point.x ][ point.y ];
+		Sample* urSample = &plugin->overSample[ point.x + 1 ][ point.y ];
+		Sample* llSample = &plugin->overSample[ point.x ][ point.y + 1 ];
+		Sample* lrSample = &plugin->overSample[ point.x + 1 ][ point.y + 1 ];
+
+		CalculateSample( ulPoint, overSampledSize, ulSample );
+		CalculateSample( urPoint, overSampledSize, urSample );
+		CalculateSample( llPoint, overSampledSize, llSample );
+		CalculateSample( lrPoint, overSampledSize, lrSample );
+
+		color.SetRGB(
+				( unsigned char( float( ulSample->color.Red() + urSample->color.Red() + llSample->color.Red() + lrSample->color.Red() ) / 4.f ) << 0 ) |
+				( unsigned char( float( ulSample->color.Green() + ulSample->color.Green() + llSample->color.Green() + lrSample->color.Green() ) / 4.f ) << 8 ) |
+				( unsigned char( float( ulSample->color.Blue() + ulSample->color.Blue() + llSample->color.Blue() + lrSample->color.Blue() ) / 4.f ) << 16 ) );
+	}
+
+	return true;
+}
+
+//===========================================================================
+void RayTracerPlugin::ImageGenerator::CalculateSample( const wxPoint& point, const wxSize& size, Sample* sample )
+{
+	sample->criticalSection.Enter();
+
+	if( !sample->rayCasted )
+	{
+		CalculateColor( point, size, sample->color );
+		sample->rayCasted = true;
+	}
+
+	sample->criticalSection.Leave();
+}
+
+//===========================================================================
+void RayTracerPlugin::ImageGenerator::CalculateColor( const wxPoint& point, const wxSize& size, wxColour& color )
 {
 	const View& view = plugin->view;
 
@@ -306,8 +409,6 @@ RayTracerPlugin::ImageGenerator::ImageGenerator( void )
 			( wxUint32( 255.0 * visibleLight.get_e1() ) << 0 ) |
 			( wxUint32( 255.0 * visibleLight.get_e2() ) << 8 ) |
 			( wxUint32( 255.0 * visibleLight.get_e3() ) << 16 ) );
-
-	return true;
 }
 
 //===========================================================================
