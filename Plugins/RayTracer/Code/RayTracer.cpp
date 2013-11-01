@@ -188,6 +188,7 @@ bool RayTracerPlugin::LoadElement( wxXmlNode* xmlNode )
 
 		if( type == "sphere" )				{ element = new Sphere(); isObject = true; }
 		else if( type == "plane" )			{ element = new Plane(); isObject = true; }
+		else if( type == "quadric" )		{ element = new Quadric(); isObject = true; }
 		else if( type == "ambientLight" )	{ element = new AmbientLight(); isLight = true; }
 		else if( type == "pointLight" )		{ element = new PointLight(); isLight = true; }
 

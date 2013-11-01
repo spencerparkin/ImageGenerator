@@ -24,6 +24,7 @@ class AmbientLight;
 class PointLight;
 class Sphere;
 class Plane;
+class Quadric;
 
 #include "Scene.h"
 #include "RayTracer.h"
@@ -32,5 +33,6 @@ class Plane;
 #include "Lights/PointLight.h"
 #include "Objects/Sphere.h"
 #include "Objects/Plane.h"
+#include "Objects/Quadric.h"
 
 // Header.h
