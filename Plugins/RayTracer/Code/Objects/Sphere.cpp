@@ -56,12 +56,15 @@ Sphere::Sphere( const c3ga::vectorE3GA& center, double radius, const Scene::Mate
 	if( realSolutionCount == 0 )
 		return false;
 
-	// Choose the closer of the two points.
+	// The positive roots are those that the ray can actually see.
+	// Root zero is always guarenteed to be less than root one.
 	double lambda = realRoots[0];
-
-	// Can the ray see the point?
 	if( lambda < 0.0 )
-		return false;		// No.
+	{
+		lambda = realRoots[1];
+		if( lambda < 0.0 )
+			return false;
+	}
 
 	surfacePoint.point = ray.CalculateRayPoint( lambda );
 

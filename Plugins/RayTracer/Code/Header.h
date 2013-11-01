@@ -20,19 +20,25 @@
 class Scene;
 class RayTracerPlugin;
 class Quadratic;
+class Polynomial;
 class AmbientLight;
 class PointLight;
 class Sphere;
 class Plane;
 class Quadric;
+class AlgebraicSurface;
+class CylindricalInversion;
 
 #include "Scene.h"
 #include "RayTracer.h"
 #include "Quadratic.h"
+#include "Polynomial.h"
 #include "Lights/AmbientLight.h"
 #include "Lights/PointLight.h"
 #include "Objects/Sphere.h"
 #include "Objects/Plane.h"
 #include "Objects/Quadric.h"
+#include "Objects/AlgebraicSurface.h"
+#include "Polynomials/CylindricalInversion.h"
 
 // Header.h

@@ -183,6 +183,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Code\Polynomial.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Code\Polynomial.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Code\Quadratic.cpp"
 				>
 			</File>
@@ -246,6 +254,14 @@
 				Name="Objects"
 				>
 				<File
+					RelativePath=".\Code\Objects\AlgebraicSurface.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Code\Objects\AlgebraicSurface.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Code\Objects\Plane.cpp"
 					>
 				</File>
@@ -267,6 +283,18 @@
 				</File>
 				<File
 					RelativePath=".\Code\Objects\Sphere.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="Polynomials"
+				>
+				<File
+					RelativePath=".\Code\Polynomials\CylindricalInversion.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Code\Polynomials\CylindricalInversion.h"
 					>
 				</File>
 			</Filter>

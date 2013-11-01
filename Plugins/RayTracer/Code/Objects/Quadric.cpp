@@ -56,14 +56,20 @@ Quadric::Quadric( void )
 	if( realSolutionCount == 0 )
 		return false;
 
-	double lambda = realRoots[0];		// This is always the closer of the two ray points.
+	// The positive roots are those that the ray can actually see.
+	// Root zero is always guarenteed to be less than root one.
+	double lambda = realRoots[0];
 	if( lambda < 0.0 )
-		return false;
+	{
+		lambda = realRoots[1];
+		if( lambda < 0.0 )
+			return false;
+	}
 
 	surfacePoint.point = ray.CalculateRayPoint( lambda );
 	surfacePoint.normal = c3ga::unit( EvaluateQuadraticGradient( surfacePoint.point ) );
 
-	// Is there an easier way to make sure that the normal faces the given ray?
+	// The normal needs to be facing to the same side of the surface as the ray point origin.
 	c3ga::vectorE3GA point = surfacePoint.point + surfacePoint.normal;
 	if( ( quadratic.C < 0.0 ) != ( EvaluateQuadratic( point ) < 0.0 ) )
 		surfacePoint.normal = -surfacePoint.normal;
