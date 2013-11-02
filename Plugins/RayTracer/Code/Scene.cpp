@@ -3,10 +3,8 @@
 #include "Header.h"
 
 //===========================================================================
-Scene::Scene( const c3ga::vectorE3GA& eye )
+Scene::Scene( void )
 {
-	this->eye = eye;
-
 	rayBounceDepthCount = 0;
 	maxRayBounceDepthCount = 5;
 }
@@ -21,6 +19,12 @@ Scene::~Scene( void )
 const c3ga::vectorE3GA& Scene::Eye( void ) const
 {
 	return eye;
+}
+
+//===========================================================================
+void Scene::Eye( const c3ga::vectorE3GA& eye )
+{
+	this->eye = eye;
 }
 
 //===========================================================================
@@ -196,7 +200,7 @@ void Scene::CalculateSurfacePointIllumination(
 //===========================================================================
 Scene* Scene::Clone( void ) const
 {
-	Scene* scene = new Scene( eye );
+	Scene* scene = new Scene();
 
 	for( LightList::const_iterator iter = lightList.begin(); iter != lightList.end(); iter++ )
 		scene->lightList.push_back( ( Light* )( *iter )->Clone() );
@@ -205,6 +209,7 @@ Scene* Scene::Clone( void ) const
 		scene->objectList.push_back( ( Object* )( *iter )->Clone() );
 
 	scene->maxRayBounceDepthCount = maxRayBounceDepthCount;
+	scene->eye = eye;
 
 	return scene;
 }

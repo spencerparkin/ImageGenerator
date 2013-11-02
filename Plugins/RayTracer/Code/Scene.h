@@ -7,7 +7,7 @@ class Scene
 
 public:
 
-	Scene( const c3ga::vectorE3GA& eye );
+	Scene( void );
 	~Scene( void );
 
 	//===========================================================================
@@ -156,6 +156,7 @@ public:
 	static wxXmlNode* FindNode( wxXmlNode* xmlNode, const wxString& nodeName );
 
 	const c3ga::vectorE3GA& Eye( void ) const;
+	void Eye( const c3ga::vectorE3GA& eye );
 
 private:
 

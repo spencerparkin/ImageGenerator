@@ -154,7 +154,7 @@ bool RayTracerPlugin::LoadScene( const wxString& sceneFile )
 	if( !xmlRoot || xmlRoot->GetName() != "scene" )
 		return false;
 
-	scene = new Scene( view.eye );
+	scene = new Scene();
 	LoadView(0);
 
 	for( wxXmlNode* xmlNode = xmlRoot->GetChildren(); xmlNode; xmlNode = xmlNode->GetNext() )
@@ -192,6 +192,8 @@ bool RayTracerPlugin::LoadView( wxXmlNode* xmlNode )
 		view.direction = c3ga::unit( Scene::LoadVector( xmlNode, "dir", view.direction ) );
 		view.angle = Scene::LoadNumber( xmlNode, "angle", view.angle * 180.0 / M_PI ) * M_PI / 180.0;
 		view.focalLength = Scene::LoadNumber( xmlNode, "focalLength", view.focalLength );
+
+		scene->Eye( view.eye );
 	}
 
 	return true;
