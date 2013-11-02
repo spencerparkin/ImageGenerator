@@ -1,26 +1,43 @@
 <scene>
 	<light type="ambientLight">
-		<intensity r="1.0" g="1.0" b="1.0"/>
+		<intensity r="0.1" g="0.1" b="0.1"/>
 	</light>
-	<!--
 	<light type="pointLight">
-		<intensity r="1.0" g="1.0" b="1.0"/>
-		<point x="5.0" y="0.0" z="0.0"/>
-		<shadow>1.0</shadow>
+		<intensity r="1.0" g="0.0" b="0.0"/>
+		<point x="0.0" y="0.0" z="0.0"/>
+		<shadow>0.0</shadow>
 	</light>
-	-->
+	<light type="pointLight">
+		<intensity r="0.0" g="1.0" b="0.0"/>
+		<point x="-5.0" y="8.0" z="10.0"/>
+		<shadow>0.0</shadow>
+	</light>
+	<light type="pointLight">
+		<intensity r="0.0" g="0.0" b="1.0"/>
+		<point x="-5.0" y="-8.0" z="10.0"/>
+		<shadow>0.0</shadow>
+	</light>
 	<object type="cylindricalInv">
 		<material>
-			<ambient r="0.0" g="1.0" b="1.0"/>
-			<diffuse r="0.0" g="1.0" b="1.0"/>
-			<reflective r="0.0" g="0.0" b="0.0"/>
+			<ambient r="1.0" g="1.0" b="1.0"/>
+			<diffuse r="1.0" g="1.0" b="1.0"/>
+			<reflective r="1.0" g="1.0" b="1.0"/>
 		</material>
 		<A>11.2</A>
 	</object>
+	<object type="sphere">
+		<material>
+			<ambient r="1.0" g="1.0" b="1.0"/>
+			<diffuse r="1.0" g="1.0" b="1.0"/>
+			<reflective r="1.0" g="1.0" b="1.0"/>
+		</material>
+		<center x="2.5" y="0.0" z="0.0"/>
+		<radius>2.0</radius>
+	</object>
 	<view>
-		<eye x="0.0" y="0.0" z="30.0"/>
+		<eye x="2.0" y="0.0" z="15.0"/>
 		<up x="0.0" y="1.0" z="0.0"/>
-		<dir x="0.0" y="0.0" z="-1.0"/>
+		<dir x="-2.0" y="0.0" z="-15.0"/>
 		<angle>40.0</angle>
 		<focalLength>10.0</focalLength>
 	</view>

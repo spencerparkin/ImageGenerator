@@ -57,7 +57,7 @@ CylindricalInversion::CylindricalInversion( void )
 	double y2 = y * y;
 	double z2 = z * z;
 
-	return 4.0*x2*x + 2.0*A*x2 + A*y2 + A*z2 + 4.0*A*x + 4.0*x*( y2 + z2 );
+	return 4.0*x2*x + 3.0*A*x2 + A*y2 + A*z2 + 4.0*A*x + 4.0*x*( y2 + z2 );
 }
 
 //===========================================================================
@@ -77,7 +77,7 @@ CylindricalInversion::CylindricalInversion( void )
 	double y = point.get_e2();
 	double z = point.get_e3();
 
-	return 4.0*z*z*z + 2.0*A*x*z + 4.0*x*x*z;
+	return 4.0*z*z*z + 2.0*A*x*z + 4.0*A*z + 4.0*x*x*z;
 }
 
 // CylindricalInversion.cpp

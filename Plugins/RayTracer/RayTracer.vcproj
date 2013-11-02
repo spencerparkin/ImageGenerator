@@ -207,6 +207,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Code\RootFinder.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Code\RootFinder.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Code\Scene.cpp"
 				>
 			</File>

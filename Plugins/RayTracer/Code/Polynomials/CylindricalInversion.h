@@ -20,7 +20,7 @@ public:
 
 	// f_y(x,y,z) = 4y^3 + 2Axy + 4x^2y
 
-	// f_z(x,y,z) = 4z^3 + 2Axz + 4x^2z
+	// f_z(x,y,z) = 4z^3 + 2Axz + 4Az + 4x^2z
 
 	virtual double EvaluatePartialX( const c3ga::vectorE3GA& point ) const override;
 	virtual double EvaluatePartialY( const c3ga::vectorE3GA& point ) const override;

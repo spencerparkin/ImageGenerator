@@ -71,8 +71,10 @@ void Scene::CalculateVisibleLight( const Ray& ray, c3ga::vectorE3GA& visibleLigh
 	if( rayBounceDepthCount > maxRayBounceDepthCount )
 		return;
 
-	// Determine the surface point, if any, that can be seen
-	// by the given ray and its material properties.
+	// Determine the surface point, if any, that can be seen by the given ray and its material
+	// properties.  When the given ray originates from an existing surface, the minimum distance
+	// we provide here is supposed to prevent us from seeing that surface, since we want to see
+	// what can be seen from that surface.
 	SurfacePoint surfacePoint;
 	if( CalculateVisibleSurfacePoint( ray, surfacePoint, 1e-5 ) )
 	{
@@ -100,12 +102,9 @@ bool Scene::CalculateVisibleSurfacePoint( const Ray& ray, SurfacePoint& surfaceP
 	{
 		const Object* object = *iter;
 		double distance;
-		if( object->CalculateSurfacePoint( ray, surfacePoint ) )
+		if( object->CalculateSurfacePoint( ray, surfacePoint, minimumDistance ) )
 		{
 			distance = c3ga::norm( surfacePoint.point - ray.point );
-
-			// The minimum distance constraint lets us see what's visible
-			// from the surface of an object without detecting that object.
 			if( distance >= minimumDistance && ( distance < smallestDistance || smallestDistance == -1.0 ) )
 			{
 				nearestSurfacePoint = surfacePoint;

@@ -110,8 +110,9 @@ public:
 
 		// Return the point on the surface of this object that is seen by the given ray, if any.
 		// By definition, this must be a point that is on the given ray, which is no necessarily
-		// a point on the line determined by the ray.
-		virtual bool CalculateSurfacePoint( const Ray& ray, SurfacePoint& surfacePoint ) const = 0;
+		// a point on the line determined by the ray.  The returned point must obey the given
+		// constraint of being the given minimum distance along the given ray.
+		virtual bool CalculateSurfacePoint( const Ray& ray, SurfacePoint& surfacePoint, double minimumDistance ) const = 0;
 
 	protected:
 

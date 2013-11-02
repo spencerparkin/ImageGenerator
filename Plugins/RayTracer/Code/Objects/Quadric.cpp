@@ -44,7 +44,7 @@ Quadric::Quadric( void )
 }
 
 //===========================================================================
-/*virtual*/ bool Quadric::CalculateSurfacePoint( const Scene::Ray& ray, Scene::SurfacePoint& surfacePoint ) const
+/*virtual*/ bool Quadric::CalculateSurfacePoint( const Scene::Ray& ray, Scene::SurfacePoint& surfacePoint, double minimumDistance ) const
 {
 	Quadratic quadratic;
 	quadratic.A = EvaluateQuadratic( ray.direction, false );
@@ -68,12 +68,8 @@ Quadric::Quadric( void )
 
 	surfacePoint.point = ray.CalculateRayPoint( lambda );
 	surfacePoint.normal = c3ga::unit( EvaluateQuadraticGradient( surfacePoint.point ) );
-
-	// The normal needs to be facing to the same side of the surface as the ray point origin.
-	c3ga::vectorE3GA point = surfacePoint.point + surfacePoint.normal;
-	if( ( quadratic.C < 0.0 ) != ( EvaluateQuadratic( point ) < 0.0 ) )
+	if( c3ga::lc( ray.direction, surfacePoint.normal ) > 0.0 )
 		surfacePoint.normal = -surfacePoint.normal;
-
 	surfacePoint.materialProperties = materialProperties;
 	return true;
 }

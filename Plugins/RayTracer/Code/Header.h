@@ -21,6 +21,7 @@ class Scene;
 class RayTracerPlugin;
 class Quadratic;
 class Polynomial;
+class RootFinder;
 class AmbientLight;
 class PointLight;
 class Sphere;
@@ -33,6 +34,7 @@ class CylindricalInversion;
 #include "RayTracer.h"
 #include "Quadratic.h"
 #include "Polynomial.h"
+#include "RootFinder.h"
 #include "Lights/AmbientLight.h"
 #include "Lights/PointLight.h"
 #include "Objects/Sphere.h"

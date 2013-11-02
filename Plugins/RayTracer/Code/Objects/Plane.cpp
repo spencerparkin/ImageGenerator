@@ -42,7 +42,7 @@ Plane::Plane(
 }
 
 //===========================================================================
-/*virtual*/ bool Plane::CalculateSurfacePoint( const Scene::Ray& ray, Scene::SurfacePoint& surfacePoint ) const
+/*virtual*/ bool Plane::CalculateSurfacePoint( const Scene::Ray& ray, Scene::SurfacePoint& surfacePoint, double minimumDistance ) const
 {
 	double numerator = c3ga::lc( center - ray.point, normal );
 	double denominator = c3ga::lc( ray.direction, normal );
