@@ -44,7 +44,7 @@ Quadric::Quadric( void )
 }
 
 //===========================================================================
-/*virtual*/ bool Quadric::CalculateSurfacePoint( const Scene::Ray& ray, Scene::SurfacePoint& surfacePoint, double minimumDistance ) const
+/*virtual*/ bool Quadric::CalculateSurfacePoint( const Scene::Ray& ray, Scene::SurfacePoint& surfacePoint ) const
 {
 	Quadratic quadratic;
 	quadratic.A = EvaluateQuadratic( ray.direction, false );

@@ -43,8 +43,7 @@ Sphere::Sphere( const c3ga::vectorE3GA& center, double radius, const Scene::Mate
 // with a CGA dual line to get a dual point-pair, but it's just too slow.
 /*virtual*/ bool Sphere::CalculateSurfacePoint(
 							const Scene::Ray& ray,
-							Scene::SurfacePoint& surfacePoint,
-							double minimumDistance ) const
+							Scene::SurfacePoint& surfacePoint ) const
 {
 	c3ga::vectorE3GA delta = ray.point - center;
 	Quadratic quadratic;

@@ -71,12 +71,9 @@ void Scene::CalculateVisibleLight( const Ray& ray, c3ga::vectorE3GA& visibleLigh
 	if( rayBounceDepthCount > maxRayBounceDepthCount )
 		return;
 
-	// Determine the surface point, if any, that can be seen by the given ray and its material
-	// properties.  When the given ray originates from an existing surface, the minimum distance
-	// we provide here is supposed to prevent us from seeing that surface, since we want to see
-	// what can be seen from that surface.
+	// Determine the surface point, if any, that can be seen by the given ray and its material properties.
 	SurfacePoint surfacePoint;
-	if( CalculateVisibleSurfacePoint( ray, surfacePoint, 1e-5 ) )
+	if( CalculateVisibleSurfacePoint( ray, surfacePoint ) )
 	{
 		// Determine the various light intensities that are reaching this surface point.
 		LightSourceIntensities lightSourceIntensities;
@@ -91,7 +88,7 @@ void Scene::CalculateVisibleLight( const Ray& ray, c3ga::vectorE3GA& visibleLigh
 //===========================================================================
 // Return the surface characteristics of the point that can be seen by the
 // given ray.  If no surface point is seen from the given ray, false is returned.
-bool Scene::CalculateVisibleSurfacePoint( const Ray& ray, SurfacePoint& surfacePoint, double minimumDistance /*= 0.0*/ ) const
+bool Scene::CalculateVisibleSurfacePoint( const Ray& ray, SurfacePoint& surfacePoint ) const
 {
 	SurfacePoint nearestSurfacePoint;
 	double smallestDistance = -1.0;
@@ -102,10 +99,10 @@ bool Scene::CalculateVisibleSurfacePoint( const Ray& ray, SurfacePoint& surfaceP
 	{
 		const Object* object = *iter;
 		double distance;
-		if( object->CalculateSurfacePoint( ray, surfacePoint, minimumDistance ) )
+		if( object->CalculateSurfacePoint( ray, surfacePoint ) )
 		{
 			distance = c3ga::norm( surfacePoint.point - ray.point );
-			if( distance >= minimumDistance && ( distance < smallestDistance || smallestDistance == -1.0 ) )
+			if( distance < smallestDistance || smallestDistance == -1.0 )
 			{
 				nearestSurfacePoint = surfacePoint;
 				smallestDistance = distance;
@@ -129,17 +126,17 @@ void Scene::AccumulateSurfacePointLight( const Ray& ray, const SurfacePoint& sur
 	if( c3ga::norm2( surfacePoint.materialProperties.reflectedLightCoeficient ) > 0.0 )
 	{
 		Ray reflectedRay;
-		surfacePoint.Reflect( ray, reflectedRay );
+		surfacePoint.Reflect( ray, reflectedRay, 1e-5 );
 		c3ga::vectorE3GA reflectedLight;
 		CalculateVisibleLight( reflectedRay, reflectedLight );
 		lightSourceIntensities.reflectedLightIntensity += reflectedLight;
 	}
 
 	// If the material refracts visible light, determine how much refracted light it is receiving.
-	if( c3ga::norm2( surfacePoint.materialProperties.reflectedLightCoeficient ) > 0.0 )
+	if( c3ga::norm2( surfacePoint.materialProperties.refractedLightCoeficient ) > 0.0 )
 	{
 		Ray refractedRay;
-		surfacePoint.Refract( ray, refractedRay );
+		surfacePoint.Refract( ray, refractedRay, 1e-5 );
 		c3ga::vectorE3GA refractedLight;
 		CalculateVisibleLight( refractedRay, refractedLight );
 		lightSourceIntensities.refractedLightIntensity += refractedLight;
@@ -205,7 +202,7 @@ Scene* Scene::Clone( void ) const
 }
 
 //===========================================================================
-void Scene::SurfacePoint::Reflect( const Ray& ray, Ray& reflectedRay ) const
+void Scene::SurfacePoint::Reflect( const Ray& ray, Ray& reflectedRay, double nudge ) const
 {
 	reflectedRay.point = point;
 	reflectedRay.direction = normal * -ray.direction * normal;
@@ -213,10 +210,14 @@ void Scene::SurfacePoint::Reflect( const Ray& ray, Ray& reflectedRay ) const
 	// The direction vector is already normalized, but renormalize it
 	// again to account for accumulated round-off error.
 	reflectedRay.direction = c3ga::unit( reflectedRay.direction );
+
+	// We nudge the reflected ray originating point a bit, because we
+	// don't want to see the surface we're originating from.
+	reflectedRay.point = reflectedRay.CalculateRayPoint( nudge );
 }
 
 //===========================================================================
-void Scene::SurfacePoint::Refract( const Ray& ray, Ray& refractedRay ) const
+void Scene::SurfacePoint::Refract( const Ray& ray, Ray& refractedRay, double nudge ) const
 {
 }
 

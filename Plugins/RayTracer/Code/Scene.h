@@ -15,8 +15,12 @@ public:
 	{
 		c3ga::vectorE3GA CalculateRayPoint( double lambda ) const;
 
+		// This is the point at which the ray originates.
 		c3ga::vectorE3GA point;
-		c3ga::vectorE3GA direction;		// This should always be a unit-length vector.
+
+		// Always being a unit-length vector, the ray parameter (lambda) may
+		// also be thought of as distance along the ray.
+		c3ga::vectorE3GA direction;
 	};
 
 	//===========================================================================
@@ -58,8 +62,8 @@ public:
 	{
 	public:
 
-		void Reflect( const Ray& ray, Ray& reflectedRay ) const;
-		void Refract( const Ray& ray, Ray& refractedRay ) const;
+		void Reflect( const Ray& ray, Ray& reflectedRay, double nudge ) const;
+		void Refract( const Ray& ray, Ray& refractedRay, double nudge ) const;
 
 		c3ga::vectorE3GA point;
 		c3ga::vectorE3GA normal;		// This should always be a unit-length vector.
@@ -71,8 +75,7 @@ public:
 						c3ga::vectorE3GA& visibleLight ) const;
 	bool CalculateVisibleSurfacePoint(
 						const Ray& ray,
-						SurfacePoint& surfacePoint,
-						double minimumDistance = 0.0 ) const;
+						SurfacePoint& surfacePoint ) const;
 	void AccumulateSurfacePointLight(
 						const Ray& ray,
 						const SurfacePoint& surfacePoint,
@@ -109,10 +112,10 @@ public:
 		virtual ~Object( void ) {}
 
 		// Return the point on the surface of this object that is seen by the given ray, if any.
-		// By definition, this must be a point that is on the given ray, which is no necessarily
-		// a point on the line determined by the ray.  The returned point must obey the given
-		// constraint of being the given minimum distance along the given ray.
-		virtual bool CalculateSurfacePoint( const Ray& ray, SurfacePoint& surfacePoint, double minimumDistance ) const = 0;
+		// By definition, this must be a point that is on the given ray, which is not necessarily
+		// a point on the line determined by the ray.  Specifically, the ray parameter for a ray
+		// point is always a non-negative real number.
+		virtual bool CalculateSurfacePoint( const Ray& ray, SurfacePoint& surfacePoint ) const = 0;
 
 	protected:
 

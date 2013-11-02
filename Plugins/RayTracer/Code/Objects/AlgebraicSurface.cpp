@@ -40,7 +40,7 @@ AlgebraicSurface::AlgebraicSurface( Polynomial* polynomial )
 }
 
 //===========================================================================
-/*virtual*/ bool AlgebraicSurface::CalculateSurfacePoint( const Scene::Ray& ray, Scene::SurfacePoint& surfacePoint, double minimumDistance ) const
+/*virtual*/ bool AlgebraicSurface::CalculateSurfacePoint( const Scene::Ray& ray, Scene::SurfacePoint& surfacePoint ) const
 {
 	// The composition of two continuous functions is continuous.
 	class Function : public RootFinder::ContinuousFunction
@@ -60,7 +60,7 @@ AlgebraicSurface::AlgebraicSurface( Polynomial* polynomial )
 	function.polynomial = polynomial;
 	RootFinder rootFinder( &function );
 	double lambda;
-	if( !rootFinder.FindFirstRoot( minimumDistance, 50.0, 0.05, lambda ) )
+	if( !rootFinder.FindFirstRoot( 0.0, 50.0, 0.05, lambda ) )
 		return false;
 
 	surfacePoint.point = ray.CalculateRayPoint( lambda );

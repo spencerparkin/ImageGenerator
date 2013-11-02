@@ -74,8 +74,9 @@ PointLight::PointLight( const c3ga::vectorE3GA& intensity, const c3ga::vectorE3G
 		Scene::Ray surfacePointToLightRay;
 		surfacePointToLightRay.point = surfacePoint.point;
 		surfacePointToLightRay.direction = surfacePointToLightDirection;
+		surfacePointToLightRay.point = surfacePointToLightRay.CalculateRayPoint( 1e-5 );
 		Scene::SurfacePoint obstructingSurfacePoint;
-		if( scene.CalculateVisibleSurfacePoint( surfacePointToLightRay, obstructingSurfacePoint, 1e-5 ) )
+		if( scene.CalculateVisibleSurfacePoint( surfacePointToLightRay, obstructingSurfacePoint ) )
 		{
 			double distanceToObstruction = c3ga::norm( surfacePoint.point - obstructingSurfacePoint.point );
 			if( distanceToLight > distanceToObstruction )
