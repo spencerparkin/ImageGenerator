@@ -5,6 +5,3 @@ NOTES
 -- Implement soft shadows.
 -- Get refraction working.
 -- Implement texturing.
--- Implement Tyler's idea for anti-aliasing.
--- Why does the quadrics scene have noise in it?
--- Support algebraic surfaces generally?
