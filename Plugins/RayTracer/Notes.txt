@@ -5,3 +5,4 @@ NOTES
 -- Implement soft shadows.
 -- Get refraction working.
 -- Implement texturing.
+-- Get specular highlights working.
