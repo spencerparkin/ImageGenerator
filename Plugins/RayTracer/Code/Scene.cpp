@@ -3,8 +3,10 @@
 #include "Header.h"
 
 //===========================================================================
-Scene::Scene( void )
+Scene::Scene( const c3ga::vectorE3GA& eye )
 {
+	this->eye = eye;
+
 	rayBounceDepthCount = 0;
 	maxRayBounceDepthCount = 5;
 }
@@ -13,6 +15,12 @@ Scene::Scene( void )
 Scene::~Scene( void )
 {
 	Clear();
+}
+
+//===========================================================================
+const c3ga::vectorE3GA& Scene::Eye( void ) const
+{
+	return eye;
 }
 
 //===========================================================================
@@ -188,7 +196,7 @@ void Scene::CalculateSurfacePointIllumination(
 //===========================================================================
 Scene* Scene::Clone( void ) const
 {
-	Scene* scene = new Scene();
+	Scene* scene = new Scene( eye );
 
 	for( LightList::const_iterator iter = lightList.begin(); iter != lightList.end(); iter++ )
 		scene->lightList.push_back( ( Light* )( *iter )->Clone() );
@@ -303,6 +311,7 @@ Scene::MaterialProperties::MaterialProperties( void )
 	specularReflectionCoeficient.set( c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, 0.0, 0.0 );
 	reflectedLightCoeficient.set( c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, 0.0, 0.0 );
 	refractedLightCoeficient.set( c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, 0.0, 0.0 );
+	specularReflectionExponent = 1.0;
 }
 
 //===========================================================================
@@ -311,13 +320,12 @@ bool Scene::MaterialProperties::Configure( wxXmlNode* xmlNode )
 	if( !xmlNode )
 		return false;
 
-	c3ga::vectorE3GA zeroCoeficient( c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, 0.0, 0.0 );
-
-	ambientLightCoeficient = LoadColor( xmlNode, "ambient", zeroCoeficient );
-	diffuseReflectionCoeficient = LoadColor( xmlNode, "diffuse", zeroCoeficient );
-	specularReflectionCoeficient = LoadColor( xmlNode, "specular", zeroCoeficient );
-	reflectedLightCoeficient = LoadColor( xmlNode, "reflective", zeroCoeficient );
-	refractedLightCoeficient = LoadColor( xmlNode, "refractive", zeroCoeficient );
+	ambientLightCoeficient = LoadColor( xmlNode, "ambient", ambientLightCoeficient );
+	diffuseReflectionCoeficient = LoadColor( xmlNode, "diffuse", diffuseReflectionCoeficient );
+	specularReflectionCoeficient = LoadColor( xmlNode, "specular", specularReflectionCoeficient );
+	reflectedLightCoeficient = LoadColor( xmlNode, "reflective", reflectedLightCoeficient );
+	refractedLightCoeficient = LoadColor( xmlNode, "refractive", refractedLightCoeficient );
+	specularReflectionExponent = LoadNumber( xmlNode, "specularExp", specularReflectionExponent );
 	return true;
 }
 

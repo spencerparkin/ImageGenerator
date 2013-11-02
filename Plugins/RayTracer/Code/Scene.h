@@ -7,7 +7,7 @@ class Scene
 
 public:
 
-	Scene( void );
+	Scene( const c3ga::vectorE3GA& eye );
 	~Scene( void );
 
 	//===========================================================================
@@ -39,6 +39,7 @@ public:
 		c3ga::vectorE3GA specularReflectionCoeficient;
 		c3ga::vectorE3GA reflectedLightCoeficient;
 		c3ga::vectorE3GA refractedLightCoeficient;
+		double specularReflectionExponent;
 	};
 
 	//===========================================================================
@@ -154,6 +155,8 @@ public:
 	static double LoadNumber( wxXmlNode* xmlNode, const wxString& nodeName, double defaultNumber );
 	static wxXmlNode* FindNode( wxXmlNode* xmlNode, const wxString& nodeName );
 
+	const c3ga::vectorE3GA& Eye( void ) const;
+
 private:
 
 	//===========================================================================
@@ -177,6 +180,8 @@ private:
 	// of geometries in the scene necessitates it, decide to store
 	// the geometries in some sort of spacial sorting data-structure.
 	ObjectList objectList;
+
+	c3ga::vectorE3GA eye;
 
 	static c3ga::vectorE3GA ComponentWiseMultiply(
 								const c3ga::vectorE3GA& vectorA,

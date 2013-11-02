@@ -154,7 +154,7 @@ bool RayTracerPlugin::LoadScene( const wxString& sceneFile )
 	if( !xmlRoot || xmlRoot->GetName() != "scene" )
 		return false;
 
-	scene = new Scene();
+	scene = new Scene( view.eye );
 	LoadView(0);
 
 	for( wxXmlNode* xmlNode = xmlRoot->GetChildren(); xmlNode; xmlNode = xmlNode->GetNext() )

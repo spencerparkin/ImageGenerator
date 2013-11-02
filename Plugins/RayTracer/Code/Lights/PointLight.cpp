@@ -68,12 +68,14 @@ PointLight::PointLight( const c3ga::vectorE3GA& intensity, const c3ga::vectorE3G
 	if( dotProduct < 0.0 )
 		return;
 
+	Scene::Ray surfacePointToLightRay;
+	surfacePointToLightRay.point = surfacePoint.point;
+	surfacePointToLightRay.direction = surfacePointToLightDirection;
+	
 	bool inShadow = false;
 	if( shadowCastCoeficient < 1.0 )
 	{
-		Scene::Ray surfacePointToLightRay;
-		surfacePointToLightRay.point = surfacePoint.point;
-		surfacePointToLightRay.direction = surfacePointToLightDirection;
+		// Nudge the ray origin a little bit so that we don't see the surface from which we're originating.
 		surfacePointToLightRay.point = surfacePointToLightRay.CalculateRayPoint( 1e-5 );
 		Scene::SurfacePoint obstructingSurfacePoint;
 		if( scene.CalculateVisibleSurfacePoint( surfacePointToLightRay, obstructingSurfacePoint ) )
@@ -92,6 +94,17 @@ PointLight::PointLight( const c3ga::vectorE3GA& intensity, const c3ga::vectorE3G
 
 	lightSourceIntensities.diffuseLightIntensity +=
 						c3ga::gp( intensity, attenuationFactor * dotProduct *
+						( inShadow ? shadowCastCoeficient : 1.0 ) );
+
+	Scene::Ray surfacePointToLightRayReflected;
+	surfacePointToLightRay.point = surfacePoint.point;
+	surfacePoint.Reflect( surfacePointToLightRay, surfacePointToLightRayReflected, 0.0 );
+	c3ga::vectorE3GA surfacePointToObserverDirection = c3ga::unit( scene.Eye() - surfacePoint.point );
+	dotProduct = c3ga::lc( surfacePointToObserverDirection, surfacePointToLightRayReflected.direction );
+
+	lightSourceIntensities.specularLightIntensity +=
+						c3ga::gp( intensity, attenuationFactor *
+						pow( dotProduct, surfacePoint.materialProperties.specularReflectionExponent ) *
 						( inShadow ? shadowCastCoeficient : 1.0 ) );
 }
 
