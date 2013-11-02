@@ -64,7 +64,7 @@ void RayTracerPlugin::MenuEventHandler::InsertMenu( wxMenuBar* menuBar, wxEvtHan
 	wxMenu* rayTracerMenu = new wxMenu();
 	wxMenuItem* loadSceneMenuItem = new wxMenuItem( rayTracerMenu, ID_LoadScene, "Load Scene", "Load a scene to be ray-traced." );
 	wxMenuItem* unloadSceneMenuItem = new wxMenuItem( rayTracerMenu, ID_UnloadScene, "Unload Scene", "Unload the currently loaded scene, if any." );
-	wxMenuItem* antiAliasMenuItem = new wxMenuItem( rayTracerMenu, ID_AntiAlias, "Anti Anlias", "Perform anti-aliasing on the image.", wxITEM_CHECK );
+	wxMenuItem* antiAliasMenuItem = new wxMenuItem( rayTracerMenu, ID_AntiAlias, "Anti Alias", "Perform anti-aliasing on the image.", wxITEM_CHECK );
 	rayTracerMenu->Append( loadSceneMenuItem );
 	rayTracerMenu->Append( unloadSceneMenuItem );
 	rayTracerMenu->AppendSeparator();

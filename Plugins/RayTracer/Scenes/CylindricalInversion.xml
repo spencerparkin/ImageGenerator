@@ -24,6 +24,7 @@
 			<reflective r="1.0" g="1.0" b="1.0"/>
 		</material>
 		<A>11.2</A>
+		<B>28.8</B>
 	</object>
 	<object type="sphere">
 		<material>

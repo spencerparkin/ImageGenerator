@@ -6,6 +6,7 @@
 CylindricalInversion::CylindricalInversion( void )
 {
 	A = 1.0;
+	B = 1.0;
 }
 
 //===========================================================================
@@ -18,6 +19,7 @@ CylindricalInversion::CylindricalInversion( void )
 {
 	CylindricalInversion* cylindricalInversion = new CylindricalInversion();
 	cylindricalInversion->A = A;
+	cylindricalInversion->B = B;
 	return cylindricalInversion;
 }
 
@@ -25,6 +27,7 @@ CylindricalInversion::CylindricalInversion( void )
 /*virtual*/ bool CylindricalInversion::Configure( wxXmlNode* xmlNode )
 {
 	A = Scene::LoadNumber( xmlNode, "A", A );
+	B = Scene::LoadNumber( xmlNode, "B", B );
 	return true;
 }
 
@@ -43,7 +46,7 @@ CylindricalInversion::CylindricalInversion( void )
 	double y4 = y2 * y2;
 	double z4 = z2 * z2;
 
-	return x4 + y4 + z4 + A*x*( x2 + y2 + z2 ) + 2.0*A*( x2 + z2 ) + 2.0*x2*( y2 + z2 );
+	return x4 + y4 + z4 + A*x*( x2 + y2 + z2 ) + B*( x2 + z2 ) + 2.0*x2*( y2 + z2 );
 }
 
 //===========================================================================
@@ -57,7 +60,7 @@ CylindricalInversion::CylindricalInversion( void )
 	double y2 = y * y;
 	double z2 = z * z;
 
-	return 4.0*x2*x + 3.0*A*x2 + A*y2 + A*z2 + 4.0*A*x + 4.0*x*( y2 + z2 );
+	return 4.0*x2*x + 3.0*A*x2 + A*y2 + A*z2 + 2.0*B*x + 4.0*x*( y2 + z2 );
 }
 
 //===========================================================================
@@ -77,7 +80,7 @@ CylindricalInversion::CylindricalInversion( void )
 	double y = point.get_e2();
 	double z = point.get_e3();
 
-	return 4.0*z*z*z + 2.0*A*x*z + 4.0*A*z + 4.0*x*x*z;
+	return 4.0*z*z*z + 2.0*A*x*z + 2.0*B*z + 4.0*x*x*z;
 }
 
 // CylindricalInversion.cpp
