@@ -1,0 +1,321 @@
+<scene>
+	<light type="ambientLight">
+		<intensity r="0.1" g="0.1" b="0.1"/>
+	</light>
+	<light type="pointLight">
+		<intensity r="1.0" g="1.0" b="1.0"/>
+		<point x="10" y="10" z="5"/>
+		<shadow>1.0</shadow>
+	</light>
+	<!--<light type="pointLight">
+		<intensity r="1.0" g="1.0" b="1.0"/>
+		<point x="-10" y="-10" z="5"/>
+		<shadow>1.0</shadow>
+	</light>-->
+	
+	<!-- The refractive sphere! -->
+	<object type="sphere">
+		<material>
+			<ambient r="0.0" g="0.0" b="0.0"/>
+			<diffuse r="0.0" g="0.0" b="0.0"/>
+			<specular r="0.0" g="0.0" b="0.0"/>
+			<refractive r="1.0" g="1.0" b="1.0"/>
+			<refractionIndex>1.15</refractionIndex>
+		</material>
+		<center x="0.0" y="0.0" z="0.0"/>
+		<radius>3.5</radius>
+	</object>
+	
+	<!-- First row of spheres. -->
+	<object type="sphere">
+		<material>
+			<ambient r="0.0" g="1.0" b="1.0"/>
+			<diffuse r="0.0" g="1.0" b="1.0"/>
+			<specular r="1.0" g="1.0" b="1.0"/>
+			<reflective r="0.3" g="0.3" b="0.3"/>
+			<specularExp>50.0</specularExp>
+		</material>
+		<center x="-4.0" y="4.0" z="-6.0"/>
+		<radius>1.0</radius>
+	</object>
+	<object type="sphere">
+		<material>
+			<ambient r="1.0" g="1.0" b="0.0"/>
+			<diffuse r="1.0" g="1.0" b="0.0"/>
+			<specular r="1.0" g="1.0" b="1.0"/>
+			<reflective r="0.3" g="0.3" b="0.3"/>
+			<specularExp>50.0</specularExp>
+		</material>
+		<center x="-2.0" y="4.0" z="-6.0"/>
+		<radius>1.0</radius>
+	</object>
+	<object type="sphere">
+		<material>
+			<ambient r="1.0" g="0.0" b="1.0"/>
+			<diffuse r="1.0" g="0.0" b="1.0"/>
+			<specular r="1.0" g="1.0" b="1.0"/>
+			<reflective r="0.3" g="0.3" b="0.3"/>
+			<specularExp>50.0</specularExp>
+		</material>
+		<center x="0.0" y="4.0" z="-6.0"/>
+		<radius>1.0</radius>
+	</object>
+	<object type="sphere">
+		<material>
+			<ambient r="1.0" g="0.0" b="0.0"/>
+			<diffuse r="1.0" g="0.0" b="0.0"/>
+			<specular r="1.0" g="1.0" b="1.0"/>
+			<reflective r="0.3" g="0.3" b="0.3"/>
+			<specularExp>50.0</specularExp>
+		</material>
+		<center x="2.0" y="4.0" z="-6.0"/>
+		<radius>1.0</radius>
+	</object>
+	<object type="sphere">
+		<material>
+			<ambient r="1.0" g="1.0" b="1.0"/>
+			<diffuse r="1.0" g="1.0" b="1.0"/>
+			<specular r="1.0" g="1.0" b="1.0"/>
+			<reflective r="0.3" g="0.3" b="0.3"/>
+			<specularExp>50.0</specularExp>
+		</material>
+		<center x="4.0" y="4.0" z="-6.0"/>
+		<radius>1.0</radius>
+	</object>
+	
+	<!-- Second row of spheres-->
+	<object type="sphere">
+		<material>
+			<ambient r="0.0" g="1.0" b="1.0"/>
+			<diffuse r="0.0" g="1.0" b="1.0"/>
+			<specular r="1.0" g="1.0" b="1.0"/>
+			<reflective r="0.3" g="0.3" b="0.3"/>
+			<specularExp>50.0</specularExp>
+		</material>
+		<center x="-4.0" y="2.0" z="-6.0"/>
+		<radius>1.0</radius>
+	</object>
+	<object type="sphere">
+		<material>
+			<ambient r="1.0" g="1.0" b="0.0"/>
+			<diffuse r="1.0" g="1.0" b="0.0"/>
+			<specular r="1.0" g="1.0" b="1.0"/>
+			<reflective r="0.3" g="0.3" b="0.3"/>
+			<specularExp>50.0</specularExp>
+		</material>
+		<center x="-2.0" y="2.0" z="-6.0"/>
+		<radius>1.0</radius>
+	</object>
+	<object type="sphere">
+		<material>
+			<ambient r="1.0" g="0.0" b="1.0"/>
+			<diffuse r="1.0" g="0.0" b="1.0"/>
+			<specular r="1.0" g="1.0" b="1.0"/>
+			<reflective r="0.3" g="0.3" b="0.3"/>
+			<specularExp>50.0</specularExp>
+		</material>
+		<center x="0.0" y="2.0" z="-6.0"/>
+		<radius>1.0</radius>
+	</object>
+	<object type="sphere">
+		<material>
+			<ambient r="1.0" g="0.0" b="0.0"/>
+			<diffuse r="1.0" g="0.0" b="0.0"/>
+			<specular r="1.0" g="1.0" b="1.0"/>
+			<reflective r="0.3" g="0.3" b="0.3"/>
+			<specularExp>50.0</specularExp>
+		</material>
+		<center x="2.0" y="2.0" z="-6.0"/>
+		<radius>1.0</radius>
+	</object>
+	<object type="sphere">
+		<material>
+			<ambient r="1.0" g="1.0" b="1.0"/>
+			<diffuse r="1.0" g="1.0" b="1.0"/>
+			<specular r="1.0" g="1.0" b="1.0"/>
+			<reflective r="0.3" g="0.3" b="0.3"/>
+			<specularExp>50.0</specularExp>
+		</material>
+		<center x="4.0" y="2.0" z="-6.0"/>
+		<radius>1.0</radius>
+	</object>
+	
+	<!-- Third row of spheres-->
+	<object type="sphere">
+		<material>
+			<ambient r="0.0" g="1.0" b="1.0"/>
+			<diffuse r="0.0" g="1.0" b="1.0"/>
+			<specular r="1.0" g="1.0" b="1.0"/>
+			<reflective r="0.3" g="0.3" b="0.3"/>
+			<specularExp>50.0</specularExp>
+		</material>
+		<center x="-4.0" y="0.0" z="-6.0"/>
+		<radius>1.0</radius>
+	</object>
+	<object type="sphere">
+		<material>
+			<ambient r="1.0" g="1.0" b="0.0"/>
+			<diffuse r="1.0" g="1.0" b="0.0"/>
+			<specular r="1.0" g="1.0" b="1.0"/>
+			<reflective r="0.3" g="0.3" b="0.3"/>
+			<specularExp>50.0</specularExp>
+		</material>
+		<center x="-2.0" y="0.0" z="-6.0"/>
+		<radius>1.0</radius>
+	</object>
+	<object type="sphere">
+		<material>
+			<ambient r="1.0" g="0.0" b="1.0"/>
+			<diffuse r="1.0" g="0.0" b="1.0"/>
+			<specular r="1.0" g="1.0" b="1.0"/>
+			<reflective r="0.3" g="0.3" b="0.3"/>
+			<specularExp>50.0</specularExp>
+		</material>
+		<center x="0.0" y="0.0" z="-6.0"/>
+		<radius>1.0</radius>
+	</object>
+	<object type="sphere">
+		<material>
+			<ambient r="1.0" g="0.0" b="0.0"/>
+			<diffuse r="1.0" g="0.0" b="0.0"/>
+			<specular r="1.0" g="1.0" b="1.0"/>
+			<reflective r="0.3" g="0.3" b="0.3"/>
+			<specularExp>50.0</specularExp>
+		</material>
+		<center x="2.0" y="0.0" z="-6.0"/>
+		<radius>1.0</radius>
+	</object>
+	<object type="sphere">
+		<material>
+			<ambient r="1.0" g="1.0" b="1.0"/>
+			<diffuse r="1.0" g="1.0" b="1.0"/>
+			<specular r="1.0" g="1.0" b="1.0"/>
+			<reflective r="0.3" g="0.3" b="0.3"/>
+			<specularExp>50.0</specularExp>
+		</material>
+		<center x="4.0" y="0.0" z="-6.0"/>
+		<radius>1.0</radius>
+	</object>
+	
+	<!-- Fourth row of spheres-->
+	<object type="sphere">
+		<material>
+			<ambient r="0.0" g="1.0" b="1.0"/>
+			<diffuse r="0.0" g="1.0" b="1.0"/>
+			<specular r="1.0" g="1.0" b="1.0"/>
+			<reflective r="0.3" g="0.3" b="0.3"/>
+			<specularExp>50.0</specularExp>
+		</material>
+		<center x="-4.0" y="-2.0" z="-6.0"/>
+		<radius>1.0</radius>
+	</object>
+	<object type="sphere">
+		<material>
+			<ambient r="1.0" g="1.0" b="0.0"/>
+			<diffuse r="1.0" g="1.0" b="0.0"/>
+			<specular r="1.0" g="1.0" b="1.0"/>
+			<reflective r="0.3" g="0.3" b="0.3"/>
+			<specularExp>50.0</specularExp>
+		</material>
+		<center x="-2.0" y="-2.0" z="-6.0"/>
+		<radius>1.0</radius>
+	</object>
+	<object type="sphere">
+		<material>
+			<ambient r="1.0" g="0.0" b="1.0"/>
+			<diffuse r="1.0" g="0.0" b="1.0"/>
+			<specular r="1.0" g="1.0" b="1.0"/>
+			<reflective r="0.3" g="0.3" b="0.3"/>
+			<specularExp>50.0</specularExp>
+		</material>
+		<center x="0.0" y="-2.0" z="-6.0"/>
+		<radius>1.0</radius>
+	</object>
+	<object type="sphere">
+		<material>
+			<ambient r="1.0" g="0.0" b="0.0"/>
+			<diffuse r="1.0" g="0.0" b="0.0"/>
+			<specular r="1.0" g="1.0" b="1.0"/>
+			<reflective r="0.3" g="0.3" b="0.3"/>
+			<specularExp>50.0</specularExp>
+		</material>
+		<center x="2.0" y="-2.0" z="-6.0"/>
+		<radius>1.0</radius>
+	</object>
+	<object type="sphere">
+		<material>
+			<ambient r="1.0" g="1.0" b="1.0"/>
+			<diffuse r="1.0" g="1.0" b="1.0"/>
+			<specular r="1.0" g="1.0" b="1.0"/>
+			<reflective r="0.3" g="0.3" b="0.3"/>
+			<specularExp>50.0</specularExp>
+		</material>
+		<center x="4.0" y="-2.0" z="-6.0"/>
+		<radius>1.0</radius>
+	</object>
+	
+	<!-- Fifth row of spheres-->
+	<object type="sphere">
+		<material>
+			<ambient r="0.0" g="1.0" b="1.0"/>
+			<diffuse r="0.0" g="1.0" b="1.0"/>
+			<specular r="1.0" g="1.0" b="1.0"/>
+			<reflective r="0.3" g="0.3" b="0.3"/>
+			<specularExp>50.0</specularExp>
+		</material>
+		<center x="-4.0" y="-4.0" z="-6.0"/>
+		<radius>1.0</radius>
+	</object>
+	<object type="sphere">
+		<material>
+			<ambient r="1.0" g="1.0" b="0.0"/>
+			<diffuse r="1.0" g="1.0" b="0.0"/>
+			<specular r="1.0" g="1.0" b="1.0"/>
+			<reflective r="0.3" g="0.3" b="0.3"/>
+			<specularExp>50.0</specularExp>
+		</material>
+		<center x="-2.0" y="-4.0" z="-6.0"/>
+		<radius>1.0</radius>
+	</object>
+	<object type="sphere">
+		<material>
+			<ambient r="1.0" g="0.0" b="1.0"/>
+			<diffuse r="1.0" g="0.0" b="1.0"/>
+			<specular r="1.0" g="1.0" b="1.0"/>
+			<reflective r="0.3" g="0.3" b="0.3"/>
+			<specularExp>50.0</specularExp>
+		</material>
+		<center x="0.0" y="-4.0" z="-6.0"/>
+		<radius>1.0</radius>
+	</object>
+	<object type="sphere">
+		<material>
+			<ambient r="1.0" g="0.0" b="0.0"/>
+			<diffuse r="1.0" g="0.0" b="0.0"/>
+			<specular r="1.0" g="1.0" b="1.0"/>
+			<reflective r="0.3" g="0.3" b="0.3"/>
+			<specularExp>50.0</specularExp>
+		</material>
+		<center x="2.0" y="-4.0" z="-6.0"/>
+		<radius>1.0</radius>
+	</object>
+	<object type="sphere">
+		<material>
+			<ambient r="1.0" g="1.0" b="1.0"/>
+			<diffuse r="1.0" g="1.0" b="1.0"/>
+			<specular r="1.0" g="1.0" b="1.0"/>
+			<reflective r="0.3" g="0.3" b="0.3"/>
+			<specularExp>50.0</specularExp>
+		</material>
+		<center x="4.0" y="-4.0" z="-6.0"/>
+		<radius>1.0</radius>
+	</object>
+	
+	<view>
+		<eye x="0.0" y="0.0" z="12.0"/>
+		<up x="0.0" y="1.0" z="0.0"/>
+		<dir x="0.0" y="0.0" z="-12.0"/>
+		<angle>36.0</angle>
+		<focalLength>10.0</focalLength>
+	</view>
+</scene>

@@ -7,6 +7,8 @@ Scene::Scene( void )
 {
 	rayBounceDepthCount = 0;
 	maxRayBounceDepthCount = 5;
+
+	spaceColor.set( c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, 0.0, 0.0 );
 }
 
 //===========================================================================
@@ -25,6 +27,18 @@ const c3ga::vectorE3GA& Scene::Eye( void ) const
 void Scene::Eye( const c3ga::vectorE3GA& eye )
 {
 	this->eye = eye;
+}
+
+//===========================================================================
+const c3ga::vectorE3GA&  Scene::SpaceColor( void ) const
+{
+	return spaceColor;
+}
+
+//===========================================================================
+void Scene::SpaceColor( const c3ga::vectorE3GA& spaceColor )
+{
+	this->spaceColor = spaceColor;
 }
 
 //===========================================================================
@@ -77,7 +91,7 @@ Scene::RayBounceDepthCounter::~RayBounceDepthCounter( void )
 // looking in the given direction.
 void Scene::CalculateVisibleLight( const Ray& ray, c3ga::vectorE3GA& visibleLight ) const
 {
-	visibleLight.set( c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, 0.0, 0.0 );
+	visibleLight = spaceColor;
 
 	RayBounceDepthCounter rayBounceDepthCounter( this );
 	if( rayBounceDepthCount > maxRayBounceDepthCount )
@@ -210,6 +224,7 @@ Scene* Scene::Clone( void ) const
 
 	scene->maxRayBounceDepthCount = maxRayBounceDepthCount;
 	scene->eye = eye;
+	scene->spaceColor = spaceColor;
 
 	return scene;
 }
@@ -217,7 +232,6 @@ Scene* Scene::Clone( void ) const
 //===========================================================================
 void Scene::SurfacePoint::Reflect( const Ray& ray, Ray& reflectedRay, double nudge ) const
 {
-	reflectedRay.point = point;
 	reflectedRay.direction = normal * -ray.direction * normal;
 
 	// The direction vector is already normalized, but renormalize it
@@ -226,12 +240,28 @@ void Scene::SurfacePoint::Reflect( const Ray& ray, Ray& reflectedRay, double nud
 
 	// We nudge the reflected ray originating point a bit, because we
 	// don't want to see the surface we're originating from.
+	reflectedRay.point = point;
 	reflectedRay.point = reflectedRay.CalculateRayPoint( nudge );
 }
 
 //===========================================================================
 void Scene::SurfacePoint::Refract( const Ray& ray, Ray& refractedRay, double nudge ) const
 {
+	double cosRayAngle = c3ga::lc( normal, -ray.direction );
+	double sinRayAngle = sqrt( 1.0 - cosRayAngle * cosRayAngle );
+	double refractionAngle = asin( sinRayAngle / materialProperties.indexOfRefraction );
+	c3ga::bivectorE3GA blade = c3ga::unit( c3ga::op( normal, -ray.direction ) );
+	c3ga::rotorE3GA rotor = c3ga::exp( blade * -refractionAngle * 0.5 );
+	refractedRay.direction = c3ga::applyUnitVersor( rotor, -normal );
+
+	// The direction vector is already normalized, but again, here we
+	// renormalize it to account for any accumulated round-off error.
+	refractedRay.direction = c3ga::unit( refractedRay.direction );
+
+	// Again, nudge the ray origin point so that we can see beyond
+	// the surface from which it originates.
+	refractedRay.point = point;
+	refractedRay.point = refractedRay.CalculateRayPoint( nudge );
 }
 
 //===========================================================================
@@ -317,6 +347,7 @@ Scene::MaterialProperties::MaterialProperties( void )
 	reflectedLightCoeficient.set( c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, 0.0, 0.0 );
 	refractedLightCoeficient.set( c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, 0.0, 0.0 );
 	specularReflectionExponent = 1.0;
+	indexOfRefraction = 1.0;
 }
 
 //===========================================================================
@@ -331,6 +362,7 @@ bool Scene::MaterialProperties::Configure( wxXmlNode* xmlNode )
 	reflectedLightCoeficient = LoadColor( xmlNode, "reflective", reflectedLightCoeficient );
 	refractedLightCoeficient = LoadColor( xmlNode, "refractive", refractedLightCoeficient );
 	specularReflectionExponent = LoadNumber( xmlNode, "specularExp", specularReflectionExponent );
+	indexOfRefraction = LoadNumber( xmlNode, "refractionIndex", indexOfRefraction );
 	return true;
 }
 

@@ -157,6 +157,8 @@ bool RayTracerPlugin::LoadScene( const wxString& sceneFile )
 	scene = new Scene();
 	LoadView(0);
 
+	scene->SpaceColor( Scene::LoadColor( xmlRoot, "spaceColor", scene->SpaceColor() ) );
+
 	for( wxXmlNode* xmlNode = xmlRoot->GetChildren(); xmlNode; xmlNode = xmlNode->GetNext() )
 	{
 		if( xmlNode->GetName() == "view" )

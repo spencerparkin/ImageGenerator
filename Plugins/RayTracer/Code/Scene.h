@@ -40,6 +40,7 @@ public:
 		c3ga::vectorE3GA reflectedLightCoeficient;
 		c3ga::vectorE3GA refractedLightCoeficient;
 		double specularReflectionExponent;
+		double indexOfRefraction;		// This should be greater than or equal to one.
 	};
 
 	//===========================================================================
@@ -158,6 +159,9 @@ public:
 	const c3ga::vectorE3GA& Eye( void ) const;
 	void Eye( const c3ga::vectorE3GA& eye );
 
+	const c3ga::vectorE3GA& SpaceColor( void ) const;
+	void SpaceColor( const c3ga::vectorE3GA& spaceColor );
+
 private:
 
 	//===========================================================================
@@ -183,6 +187,7 @@ private:
 	ObjectList objectList;
 
 	c3ga::vectorE3GA eye;
+	c3ga::vectorE3GA spaceColor;
 
 	static c3ga::vectorE3GA ComponentWiseMultiply(
 								const c3ga::vectorE3GA& vectorA,
