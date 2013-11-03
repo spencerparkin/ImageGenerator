@@ -34,6 +34,8 @@ RayTracerPlugin::MenuEventHandler::MenuEventHandler( RayTracerPlugin* rayTracerP
 
 	ID_LoadScene = -1;
 	ID_UnloadScene = -1;
+	ID_MaxRayBounceDepth = -1;
+	ID_AntiAlias = -1;
 }
 
 //===========================================================================
@@ -59,14 +61,18 @@ void RayTracerPlugin::MenuEventHandler::InsertMenu( wxMenuBar* menuBar, wxEvtHan
 
 	ID_LoadScene = ++maxID;
 	ID_UnloadScene = ++maxID;
+	ID_MaxRayBounceDepth = ++maxID;
 	ID_AntiAlias = ++maxID;
 
 	wxMenu* rayTracerMenu = new wxMenu();
 	wxMenuItem* loadSceneMenuItem = new wxMenuItem( rayTracerMenu, ID_LoadScene, "Load Scene", "Load a scene to be ray-traced." );
 	wxMenuItem* unloadSceneMenuItem = new wxMenuItem( rayTracerMenu, ID_UnloadScene, "Unload Scene", "Unload the currently loaded scene, if any." );
+	wxMenuItem* maxRayBounceDepthMenuItem = new wxMenuItem( rayTracerMenu, ID_MaxRayBounceDepth, "Max Ray-Bounce Depth", "Specify the maximum depth of recursive ray bounces." );
 	wxMenuItem* antiAliasMenuItem = new wxMenuItem( rayTracerMenu, ID_AntiAlias, "Anti Alias", "Perform anti-aliasing on the image.", wxITEM_CHECK );
 	rayTracerMenu->Append( loadSceneMenuItem );
 	rayTracerMenu->Append( unloadSceneMenuItem );
+	rayTracerMenu->AppendSeparator();
+	rayTracerMenu->Append( maxRayBounceDepthMenuItem );
 	rayTracerMenu->AppendSeparator();
 	rayTracerMenu->Append( antiAliasMenuItem );
 
@@ -74,9 +80,11 @@ void RayTracerPlugin::MenuEventHandler::InsertMenu( wxMenuBar* menuBar, wxEvtHan
 
 	menuBar->Bind( wxEVT_MENU, &MenuEventHandler::OnLoadScene, this, ID_LoadScene );
 	menuBar->Bind( wxEVT_MENU, &MenuEventHandler::OnUnloadScene, this, ID_UnloadScene );
+	menuBar->Bind( wxEVT_MENU, &MenuEventHandler::OnMaxRayBounceDepth, this, ID_MaxRayBounceDepth );
 	menuBar->Bind( wxEVT_MENU, &MenuEventHandler::OnAntiAlias, this, ID_AntiAlias );
 	updateUIHandler->Bind( wxEVT_UPDATE_UI, &MenuEventHandler::OnUpdateMenuItemUI, this, ID_LoadScene );
 	updateUIHandler->Bind( wxEVT_UPDATE_UI, &MenuEventHandler::OnUpdateMenuItemUI, this, ID_UnloadScene );
+	updateUIHandler->Bind( wxEVT_UPDATE_UI, &MenuEventHandler::OnUpdateMenuItemUI, this, ID_MaxRayBounceDepth );
 	updateUIHandler->Bind( wxEVT_UPDATE_UI, &MenuEventHandler::OnUpdateMenuItemUI, this, ID_AntiAlias );
 }
 
@@ -87,6 +95,7 @@ void RayTracerPlugin::MenuEventHandler::RemoveMenu( wxMenuBar* menuBar, wxEvtHan
 	{
 		updateUIHandler->Unbind( wxEVT_UPDATE_UI, &MenuEventHandler::OnUpdateMenuItemUI, this, ID_LoadScene );
 		updateUIHandler->Unbind( wxEVT_UPDATE_UI, &MenuEventHandler::OnUpdateMenuItemUI, this, ID_UnloadScene );
+		updateUIHandler->Unbind( wxEVT_UPDATE_UI, &MenuEventHandler::OnUpdateMenuItemUI, this, ID_MaxRayBounceDepth );
 		updateUIHandler->Unbind( wxEVT_UPDATE_UI, &MenuEventHandler::OnUpdateMenuItemUI, this, ID_AntiAlias );
 	}
 
@@ -121,6 +130,21 @@ void RayTracerPlugin::MenuEventHandler::OnLoadScene( wxCommandEvent& event )
 }
 
 //===========================================================================
+void RayTracerPlugin::MenuEventHandler::OnMaxRayBounceDepth( wxCommandEvent& event )
+{
+	if( rayTracerPlugin->scene )
+	{
+		int count = ( int )wxGetNumberFromUser(
+					"Please enter the maximum aloud depth of recursive ray bounces in the scene.",
+					"Max ray-bounce depth (1-20):", "Enter Max Ray-Bounce Depth",
+					rayTracerPlugin->scene->GetMaxRayBounceDepthCount(),
+					1, 20 );
+		if( count != -1 )
+			rayTracerPlugin->scene->SetMaxRayBounceDepthCount( count );
+	}
+}
+
+//===========================================================================
 void RayTracerPlugin::MenuEventHandler::OnAntiAlias( wxCommandEvent& event )
 {
 	rayTracerPlugin->antiAlias = !rayTracerPlugin->antiAlias;
@@ -138,6 +162,8 @@ void RayTracerPlugin::MenuEventHandler::OnUpdateMenuItemUI( wxUpdateUIEvent& eve
 	if( event.GetId() == ID_LoadScene )
 		event.Enable( rayTracerPlugin->scene ? false : true );
 	else if( event.GetId() == ID_UnloadScene )
+		event.Enable( rayTracerPlugin->scene ? true : false );
+	else if( event.GetId() == ID_MaxRayBounceDepth )
 		event.Enable( rayTracerPlugin->scene ? true : false );
 	else if( event.GetId() == ID_AntiAlias )
 		event.Check( rayTracerPlugin->antiAlias );

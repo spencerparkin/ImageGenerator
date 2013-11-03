@@ -42,6 +42,18 @@ void Scene::SpaceColor( const c3ga::vectorE3GA& spaceColor )
 }
 
 //===========================================================================
+void Scene::SetMaxRayBounceDepthCount( int count )
+{
+	maxRayBounceDepthCount = count;
+}
+
+//===========================================================================
+int Scene::GetMaxRayBounceDepthCount( void ) const
+{
+	return maxRayBounceDepthCount;
+}
+
+//===========================================================================
 void Scene::AddLight( Light* light )
 {
 	lightList.push_back( light );

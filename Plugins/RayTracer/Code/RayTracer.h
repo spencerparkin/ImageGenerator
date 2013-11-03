@@ -66,10 +66,12 @@ private:
 		void OnLoadScene( wxCommandEvent& event );
 		void OnUnloadScene( wxCommandEvent& event );
 		void OnAntiAlias( wxCommandEvent& event );
+		void OnMaxRayBounceDepth( wxCommandEvent& event );
 		void OnUpdateMenuItemUI( wxUpdateUIEvent& event );
 
 		int ID_LoadScene;
 		int ID_UnloadScene;
+		int ID_MaxRayBounceDepth;
 		int ID_AntiAlias;
 		RayTracerPlugin* rayTracerPlugin;
 	};

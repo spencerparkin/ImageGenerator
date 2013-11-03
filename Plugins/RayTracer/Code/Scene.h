@@ -162,6 +162,9 @@ public:
 	const c3ga::vectorE3GA& SpaceColor( void ) const;
 	void SpaceColor( const c3ga::vectorE3GA& spaceColor );
 
+	void SetMaxRayBounceDepthCount( int count );
+	int GetMaxRayBounceDepthCount( void ) const;
+
 private:
 
 	//===========================================================================
@@ -177,7 +180,7 @@ private:
 	// This counter variable is one reason why we need each thread to use
 	// its own clone of the scene class instance;
 	mutable int rayBounceDepthCount;
-	mutable int maxRayBounceDepthCount;
+	int maxRayBounceDepthCount;
 
 	LightList lightList;
 

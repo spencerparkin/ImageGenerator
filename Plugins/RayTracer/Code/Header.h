@@ -8,6 +8,7 @@
 #include <wx/menu.h>
 #include <wx/filedlg.h>
 #include <wx/msgdlg.h>
+#include <wx/numdlg.h>
 #include <wx/xml/xml.h>
 
 #include <igPlugin.h>

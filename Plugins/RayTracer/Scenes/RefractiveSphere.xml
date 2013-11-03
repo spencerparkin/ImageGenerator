@@ -1,4 +1,5 @@
 <scene>
+	<spaceColor r="0.0" g="0.0" b="0.0"/>
 	<light type="ambientLight">
 		<intensity r="0.1" g="0.1" b="0.1"/>
 	</light>
