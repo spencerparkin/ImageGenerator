@@ -19,6 +19,15 @@ Quadratic::Quadratic( double A, double B, double C )
 //===========================================================================
 int Quadratic::Solve( double* realRoots ) const
 {
+	if( A == 0.0 && B == 0.0 )
+		return 0;		// If C == 0.0, we have infinitely many roots.  If C != 0.0, we have no roots at all.
+
+	if( A == 0.0 )
+	{
+		realRoots[0] = -C / B;
+		return 1;
+	}
+
 	double descriminant = B * B - 4.0 * A * C;
 	if( descriminant < 0.0 )
 		return 0;
