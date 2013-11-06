@@ -74,7 +74,15 @@ Sphere::Sphere( const c3ga::vectorE3GA& center, double radius, const Scene::Mate
 		surfacePoint.normal = -surfacePoint.normal;
 	
 	surfacePoint.materialProperties = materialProperties;
+	surfacePoint.object = this;
 	return true;
+}
+
+//===========================================================================
+/*virtual*/ Scene::Object::Side Sphere::CalculateRaySide( const Scene::Ray& ray ) const
+{
+	double distance = c3ga::norm( ray.point - center );
+	return distance <= radius ? INSIDE : OUTSIDE;
 }
 
 // Sphere.cpp

@@ -74,7 +74,7 @@ public:
 		c3ga::vectorE3GA point;
 		c3ga::vectorE3GA normal;		// This should always be a unit-length vector.
 		MaterialProperties materialProperties;
-		Object* object;
+		const Object* object;
 	};
 
 	void CalculateVisibleLight(

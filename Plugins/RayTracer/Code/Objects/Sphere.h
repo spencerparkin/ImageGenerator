@@ -11,6 +11,7 @@ public:
 	virtual Scene::Element* Clone( void ) const override;
 	virtual bool Configure( wxXmlNode* xmlNode ) override;
 	virtual bool CalculateSurfacePoint( const Scene::Ray& ray, Scene::SurfacePoint& surfacePoint ) const override;
+	virtual Side CalculateRaySide( const Scene::Ray& ray ) const override;
 
 private:
 	c3ga::vectorE3GA center;
