@@ -259,6 +259,15 @@ void Scene::SurfacePoint::Reflect( const Ray& ray, Ray& reflectedRay, double nud
 //===========================================================================
 void Scene::SurfacePoint::Refract( const Ray& ray, Ray& refractedRay, double nudge ) const
 {
+	// TODO: This isn't quite right.  To make this work, we need to define
+	//       which side of the surface is the inside and which is the outside.
+	//       We then need to adjust our refraction angle calculation based upon
+	//       indices of refraction that represent the mediums for the inside
+	//       and outside spaces.  Can the surface point contain information
+	//       about which way the normal is pointing?  That is, can it tell us
+	//       whether it's pointing to the inside or to the outside?  It is not
+	//       always easy to determine this.
+
 	double cosRayAngle = c3ga::lc( normal, -ray.direction );
 	double sinRayAngle = sqrt( 1.0 - cosRayAngle * cosRayAngle );
 	double refractionAngle = asin( sinRayAngle / materialProperties.indexOfRefraction );
