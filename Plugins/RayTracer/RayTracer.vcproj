@@ -305,6 +305,14 @@
 					RelativePath=".\Code\Polynomials\CylindricalInversion.h"
 					>
 				</File>
+				<File
+					RelativePath=".\Code\Polynomials\DoubleTorus.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Code\Polynomials\Torus.h"
+					>
+				</File>
 			</Filter>
 		</Filter>
 		<File
