@@ -259,18 +259,31 @@ void Scene::SurfacePoint::Reflect( const Ray& ray, Ray& reflectedRay, double nud
 //===========================================================================
 void Scene::SurfacePoint::Refract( const Ray& ray, Ray& refractedRay, double nudge ) const
 {
-	// TODO: This isn't quite right.  To make this work, we need to define
-	//       which side of the surface is the inside and which is the outside.
-	//       We then need to adjust our refraction angle calculation based upon
-	//       indices of refraction that represent the mediums for the inside
-	//       and outside spaces.  Can the surface point contain information
-	//       about which way the normal is pointing?  That is, can it tell us
-	//       whether it's pointing to the inside or to the outside?  It is not
-	//       always easy to determine this.
+	Object::Side side = Object::OUTSIDE;
+	if( object )
+		side = object->CalculateRaySide( ray );
+
+	double indexOfRefractionForSpace = 1.0;	// In the future, we might let this be configurable.
+	double indexOfRefractionForOldMedium, indexOfRefractionForNewMedium;
+	switch( side )
+	{
+		case Object::OUTSIDE:
+		{
+			indexOfRefractionForOldMedium = indexOfRefractionForSpace;
+			indexOfRefractionForNewMedium = materialProperties.indexOfRefraction;
+			break;
+		}
+		case Object::INSIDE:
+		{
+			indexOfRefractionForOldMedium = materialProperties.indexOfRefraction;
+			indexOfRefractionForNewMedium = indexOfRefractionForSpace;
+			break;
+		}
+	}
 
 	double cosRayAngle = c3ga::lc( normal, -ray.direction );
 	double sinRayAngle = sqrt( 1.0 - cosRayAngle * cosRayAngle );
-	double refractionAngle = asin( sinRayAngle / materialProperties.indexOfRefraction );
+	double refractionAngle = asin( sinRayAngle * ( indexOfRefractionForOldMedium / indexOfRefractionForNewMedium ) );
 	c3ga::bivectorE3GA blade = c3ga::unit( c3ga::op( normal, -ray.direction ) );
 	c3ga::rotorE3GA rotor = c3ga::exp( blade * -refractionAngle * 0.5 );
 	refractedRay.direction = c3ga::applyUnitVersor( rotor, -normal );
