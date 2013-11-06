@@ -398,6 +398,12 @@ Scene::LightSourceIntensities::LightSourceIntensities( void )
 }
 
 //===========================================================================
+Scene::SurfacePoint::SurfacePoint( void )
+{
+	object = 0;
+}
+
+//===========================================================================
 Scene::Object::Object( const MaterialProperties& materialProperties )
 {
 	this->materialProperties = materialProperties;

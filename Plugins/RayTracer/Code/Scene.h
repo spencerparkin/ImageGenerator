@@ -59,10 +59,14 @@ public:
 		c3ga::vectorE3GA refractedLightIntensity;
 	};
 
+	class Object;
+
 	//===========================================================================
 	class SurfacePoint
 	{
 	public:
+
+		SurfacePoint( void );
 
 		void Reflect( const Ray& ray, Ray& reflectedRay, double nudge ) const;
 		void Refract( const Ray& ray, Ray& refractedRay, double nudge ) const;
@@ -70,6 +74,7 @@ public:
 		c3ga::vectorE3GA point;
 		c3ga::vectorE3GA normal;		// This should always be a unit-length vector.
 		MaterialProperties materialProperties;
+		Object* object;
 	};
 
 	void CalculateVisibleLight(
@@ -118,6 +123,14 @@ public:
 		// a point on the line determined by the ray.  Specifically, the ray parameter for a ray
 		// point is always a non-negative real number.
 		virtual bool CalculateSurfacePoint( const Ray& ray, SurfacePoint& surfacePoint ) const = 0;
+
+		// The given ray will be incident to (striking) the surface of this object.  Is it doing so
+		// from the inside or outside of the object?  Some objects don't have an inside or outside,
+		// such as a plane.  But some objects do, such as a sphere.  Objects that are just surfaces
+		// that enclose a space, like spheres, can be thought of as solid for the purpose of accurately
+		// calculating refraction rays through them.
+		enum Side { INSIDE, OUTSIDE };
+		virtual Side CalculateRaySide( const Ray& ray ) const { return OUTSIDE; }
 
 	protected:
 
