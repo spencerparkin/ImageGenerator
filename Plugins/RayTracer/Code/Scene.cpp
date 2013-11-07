@@ -103,7 +103,7 @@ Scene::RayBounceDepthCounter::~RayBounceDepthCounter( void )
 // looking in the given direction.
 void Scene::CalculateVisibleLight( const Ray& ray, c3ga::vectorE3GA& visibleLight ) const
 {
-	visibleLight = spaceColor;
+	visibleLight.set( c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, 0.0, 0.0 );
 
 	RayBounceDepthCounter rayBounceDepthCounter( this );
 	if( rayBounceDepthCount > maxRayBounceDepthCount )
@@ -120,6 +120,13 @@ void Scene::CalculateVisibleLight( const Ray& ray, c3ga::vectorE3GA& visibleLigh
 		// Now calculate the light reflected from the surface point
 		// by the light gathered from various light sources.
 		CalculateSurfacePointIllumination( surfacePoint, lightSourceIntensities, visibleLight );
+	}
+	else if( rayBounceDepthCount == 1 )
+	{
+		// This doesn't quite work in all cases.
+		// A better solution may be to ray-trace something
+		// inside of a box or sphere of one solid color.
+		visibleLight = spaceColor;
 	}
 }
 
