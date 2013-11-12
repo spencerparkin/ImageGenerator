@@ -1,6 +1,6 @@
 <scene>
   <light type="ambientLight">
-    <intensity r="0.1" g="0.1" b="0.1"/>
+    <intensity r="0.3" g="0.3" b="0.3"/>
   </light>
   <light type="pointLight">
     <intensity r="1.0" g="1.0" b="1.0"/>
@@ -9,16 +9,13 @@
   </light>
   <object type="sphere">
     <material>
-      <ambient r="1.0" g="0.0" b="0.0"/>
-      <diffuse r="1.0" g="0.0" b="0.0"/>
-      <reflective r="1.0" g="1.0" b="1.0"/>
-      <specular r="1.0" g="1.0" b="1.0"/>
+      <specular r="0.1" g="0.1" b="0.1"/>
       <specularExp>50.0</specularExp>
     </material>
-    <texture mode="clamp" type="ambient">C:\ImageGenerator\Plugins\RayTracer\Scenes\YellowSmileyFace.png</texture>
-    <texture mode="clamp" type="diffuse">C:\ImageGenerator\Plugins\RayTracer\Scenes\YellowSmileyFace.png</texture>
+    <texture mode="clamp" type="ambient">C:\ImageGenerator\Plugins\RayTracer\Scenes\Globe.png</texture>
+    <texture mode="clamp" type="diffuse">C:\ImageGenerator\Plugins\RayTracer\Scenes\Globe.png</texture>
     <center x="0.0" y="0.0" z="0.0"/>
-    <radius>2.0</radius>
+    <radius>5.0</radius>
   </object>
   <view>
     <eye x="0.0" y="10.0" z="30.0"/>

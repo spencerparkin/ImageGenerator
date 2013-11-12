@@ -331,6 +331,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Scenes\TexturedPlane.xml"
+				>
+			</File>
+			<File
 				RelativePath=".\Scenes\TexturedSphere.xml"
 				>
 			</File>

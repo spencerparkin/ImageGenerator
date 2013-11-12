@@ -44,7 +44,13 @@ public:
 			WRAP,
 		};
 
-		Texture( Type type = DIFFUSE_REFLECTION, Mode mode = CLAMP );
+		enum Filter
+		{
+			NEAREST,
+			BILINEAR,
+		};
+
+		Texture( Type type = DIFFUSE_REFLECTION, Mode mode = CLAMP, Filter filter = BILINEAR );
 		virtual ~Texture( void );
 
 		void SetType( Type type );
@@ -58,11 +64,16 @@ public:
 		Texture* Clone( void ) const;
 
 		bool CalculateTextureData( const c3ga::vectorE3GA& textureCoordinates, c3ga::vectorE3GA& textureData ) const;
+		bool CalculateTexel( double u, double v, unsigned char& r, unsigned char& g, unsigned char& b ) const;
 
 	private:
+
+		static double Lerp( double v0, double v1, double t );
+
 		wxImage* image;
 		Type type;
 		Mode mode;
+		Filter filter;
 	};
 
 	//===========================================================================

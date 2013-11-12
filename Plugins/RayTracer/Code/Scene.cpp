@@ -529,10 +529,11 @@ void Scene::SurfacePoint::ApplyTexture( const Texture* texture, const c3ga::vect
 }
 
 //===========================================================================
-Scene::Texture::Texture( Type type /*= DIFFUSE_REFLECTION*/, Mode mode /*= CLAMP*/ )
+Scene::Texture::Texture( Type type /*= DIFFUSE_REFLECTION*/, Mode mode /*= CLAMP*/, Filter filter /*= BILINEAR*/ )
 {
 	this->type = type;
 	this->mode = mode;
+	this->filter = filter;
 	image = 0;
 }
 
@@ -577,6 +578,15 @@ bool Scene::Texture::Configure( wxXmlNode* xmlNode )
 			mode = WRAP;
 		else if( modeString == "clamp" )
 			mode = CLAMP;
+	}
+
+	wxString filterString;
+	if( xmlNode->GetAttribute( "filter", &filterString ) )
+	{
+		if( filterString == "nearest" )
+			filter = NEAREST;
+		else if( filterString == "bilinear" )
+			filter = BILINEAR;
 	}
 
 	wxString textureFile = xmlNode->GetNodeContent();
@@ -631,12 +641,8 @@ bool Scene::Texture::CalculateTextureData( const c3ga::vectorE3GA& textureCoordi
 				if( v < 0.0 ) v += 1.0;
 			}
 
-			int col = int( u * double( image->GetWidth() ) );
-			int row = int( v * double( image->GetHeight() ) );
-
-			unsigned char r = image->GetRed( col, row );
-			unsigned char g = image->GetGreen( col, row );
-			unsigned char b = image->GetBlue( col, row );
+			unsigned char r, g, b;
+			CalculateTexel( u, v, r, g, b );
 
 			textureData.set( c3ga::vectorE3GA::coord_e1_e2_e3,
 									double( r ) / 255.0,
@@ -647,6 +653,72 @@ bool Scene::Texture::CalculateTextureData( const c3ga::vectorE3GA& textureCoordi
 	}
 
 	return false;
+}
+
+//===========================================================================
+bool Scene::Texture::CalculateTexel( double u, double v, unsigned char& r, unsigned char& g, unsigned char& b ) const
+{
+	if( u < 0.0 || u > 1.0 ) return false;
+	if( v < 0.0 || v > 1.0 ) return false;
+
+	switch( filter )
+	{
+		case NEAREST:
+		{
+			int col = int( u * double( image->GetWidth() - 1 ) );
+			int row = int( v * double( image->GetHeight() - 1 ) );
+
+			r = image->GetRed( col, row );
+			g = image->GetGreen( col, row );
+			b = image->GetBlue( col, row );
+
+			return true;
+		}
+		case BILINEAR:
+		{
+			double col = u * double( image->GetWidth() - 1 );
+			double row = v * double( image->GetHeight() - 1 );
+
+			double col_floor = floor( col );
+			double row_floor = floor( row );
+			
+			double col_lerp = col - col_floor;
+			double row_lerp = row - row_floor;
+
+			int col0 = int( col_floor );
+			int col1 = col0 + 1;
+			if( col1 >= image->GetWidth() )
+				col1 = image->GetWidth() - 1;
+
+			int row0 = int( row_floor );
+			int row1 = row0 + 1;
+			if( row1 >= image->GetHeight() )
+				row1 = image->GetHeight() - 1;
+
+			r = unsigned char( Lerp(
+					Lerp( double( image->GetRed( col0, row0 ) ), double( image->GetRed( col1, row0 ) ), col_lerp ),
+					Lerp( double( image->GetRed( col0, row1 ) ), double( image->GetRed( col1, row1 ) ), col_lerp ),
+					row_lerp ) );
+			g = unsigned char( Lerp(
+					Lerp( double( image->GetGreen( col0, row0 ) ), double( image->GetGreen( col1, row0 ) ), col_lerp ),
+					Lerp( double( image->GetGreen( col0, row1 ) ), double( image->GetGreen( col1, row1 ) ), col_lerp ),
+					row_lerp ) );
+			b = unsigned char( Lerp(
+					Lerp( double( image->GetBlue( col0, row0 ) ), double( image->GetBlue( col1, row0 ) ), col_lerp ),
+					Lerp( double( image->GetBlue( col0, row1 ) ), double( image->GetBlue( col1, row1 ) ), col_lerp ),
+					row_lerp ) );
+
+			return true;
+		}
+	}
+
+	return false;
+}
+
+//===========================================================================
+/*static*/ double Scene::Texture::Lerp( double v0, double v1, double t )
+{
+	return v0 + ( v1 - v0 ) * t;
 }
 
 //===========================================================================

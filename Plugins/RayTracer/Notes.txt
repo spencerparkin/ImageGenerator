@@ -2,13 +2,6 @@
 NOTES
 =====
 
-TODO: I think there's a bug in the refraction code.  I need to know which side of a surface that a given ray is on so that
-      I use the correct indices of refraction in the right places in the refractance vector calculation equation.
-      This is hard, because I need to know whether the ray is "inside" or "outside" a surface, and knowing that requires
-      knowing something about the topology of the surface, unless we assume that we go from one to the other and start outside.
-      A plane, for example, has no inside or outside.  But a sphere does.
-
 -- Implement soft shadows.
--- Get refraction working.
--- Implement texturing.
--- Get specular highlights working.
+-- The texturing needs MIP-maps.
+-- With my plane fading into the distance, why does it turn to grey near infinity?

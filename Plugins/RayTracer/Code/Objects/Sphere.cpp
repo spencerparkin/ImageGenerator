@@ -101,7 +101,7 @@ Sphere::Sphere( const c3ga::vectorE3GA& center, double radius, const Scene::Mate
 	if( longitudeAngle < 0.0 )
 		longitudeAngle += 2.0 * M_PI;
 
-	textureCoordinates.set( c3ga::vectorE3GA::coord_e1_e2_e3, longitudeAngle / ( 2.0 * M_PI ), lattitudeAngle / M_PI, 0.0 );
+	textureCoordinates.set( c3ga::vectorE3GA::coord_e1_e2_e3, 1.0 - longitudeAngle / ( 2.0 * M_PI ), lattitudeAngle / M_PI, 0.0 );
 	return true;
 }
 
