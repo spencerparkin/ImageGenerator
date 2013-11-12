@@ -24,6 +24,48 @@ public:
 	};
 
 	//===========================================================================
+	// A texture can contain ambient light coeficients, diffuse light coeficients,
+	// or even lighting normals.
+	class Texture
+	{
+	public:
+
+		enum Type
+		{
+			AMBIENT_LIGHT,
+			DIFFUSE_REFLECTION,
+			SPECULAR_REFLECTION,
+			BUMP_MAP,
+		};
+
+		enum Mode
+		{
+			CLAMP,
+			WRAP,
+		};
+
+		Texture( Type type = DIFFUSE_REFLECTION, Mode mode = CLAMP );
+		virtual ~Texture( void );
+
+		void SetType( Type type );
+		Type GetType( void ) const;
+
+		bool Configure( wxXmlNode* xmlNode );
+
+		// If we were memory conscious, we would reference count textures (share them),
+		// but we're going to clone them anyway.  It should be thread-safe to share them,
+		// but cloning them guarentees it.
+		Texture* Clone( void ) const;
+
+		bool CalculateTextureData( const c3ga::vectorE3GA& textureCoordinates, c3ga::vectorE3GA& textureData ) const;
+
+	private:
+		wxImage* image;
+		Type type;
+		Mode mode;
+	};
+
+	//===========================================================================
 	// Here we characterize a material by the percentages of various types of
 	// light intensities that are absorbed/reflected by the material's surface.
 	class MaterialProperties
@@ -71,6 +113,8 @@ public:
 		void Reflect( const Ray& ray, Ray& reflectedRay, double nudge ) const;
 		void Refract( const Ray& ray, Ray& refractedRay, double nudge ) const;
 
+		void ApplyTexture( const Texture* texture, const c3ga::vectorE3GA& textureCoordinates );
+
 		c3ga::vectorE3GA point;
 		c3ga::vectorE3GA normal;		// This should always be a unit-length vector.
 		MaterialProperties materialProperties;
@@ -116,7 +160,7 @@ public:
 
 		Object( void ) {}
 		Object( const MaterialProperties& materialProperties );
-		virtual ~Object( void ) {}
+		virtual ~Object( void );
 
 		// Return the point on the surface of this object that is seen by the given ray, if any.
 		// By definition, this must be a point that is on the given ray, which is not necessarily
@@ -132,9 +176,23 @@ public:
 		enum Side { INSIDE, OUTSIDE };
 		virtual Side CalculateRaySide( const Ray& ray ) const { return OUTSIDE; }
 
+		// If a derived class overloads this virtual method, they can call
+		// our overload to configure textures.
+		virtual bool Configure( wxXmlNode* xmlNode ) override;
+
+		void CloneTextures( const Object* object );
+		void DeleteTextures( void );
+
+		void ApplyTextures( SurfacePoint& surfacePoint ) const;
+
+		virtual bool CalculateTextureCoordinates( const c3ga::vectorE3GA& point, c3ga::vectorE3GA& textureCoordinates ) const;
+
 	protected:
 
 		MaterialProperties materialProperties;
+
+		typedef std::list< Texture* > TextureList;
+		TextureList textureList;
 	};
 
 	typedef std::list< Object* > ObjectList;

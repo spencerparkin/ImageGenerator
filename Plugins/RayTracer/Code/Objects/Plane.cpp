@@ -27,7 +27,9 @@ Plane::Plane(
 //===========================================================================
 /*virtual*/ Scene::Element* Plane::Clone( void ) const
 {
-	return new Plane( center, normal, materialProperties );
+	Plane* plane = new Plane( center, normal, materialProperties );
+	plane->CloneTextures( this );
+	return plane;
 }
 
 //===========================================================================
@@ -61,6 +63,7 @@ Plane::Plane(
 		surfacePoint.normal = -normal;
 
 	surfacePoint.materialProperties = materialProperties;
+	ApplyTextures( surfacePoint );
 	return true;
 }
 

@@ -24,12 +24,17 @@ Sphere::Sphere( const c3ga::vectorE3GA& center, double radius, const Scene::Mate
 //===========================================================================
 /*virtual*/ Scene::Element* Sphere::Clone( void ) const
 {
-	return new Sphere( center, radius, materialProperties );
+	Sphere* sphere = new Sphere( center, radius, materialProperties );
+	sphere->CloneTextures( this );
+	return sphere;
 }
 
 //===========================================================================
 /*virtual*/ bool Sphere::Configure( wxXmlNode* xmlNode )
 {
+	if( !Object::Configure( xmlNode ) )
+		return false;
+
 	if( !materialProperties.Configure( Scene::FindNode( xmlNode, "material" ) ) )
 		return false;
 
@@ -75,6 +80,7 @@ Sphere::Sphere( const c3ga::vectorE3GA& center, double radius, const Scene::Mate
 	
 	surfacePoint.materialProperties = materialProperties;
 	surfacePoint.object = this;
+	ApplyTextures( surfacePoint );
 	return true;
 }
 
@@ -83,6 +89,20 @@ Sphere::Sphere( const c3ga::vectorE3GA& center, double radius, const Scene::Mate
 {
 	double distance = c3ga::norm( ray.point - center );
 	return distance <= radius ? INSIDE : OUTSIDE;
+}
+
+//===========================================================================
+/*virtual*/ bool Sphere::CalculateTextureCoordinates( const c3ga::vectorE3GA& point, c3ga::vectorE3GA& textureCoordinates ) const
+{
+	c3ga::vectorE3GA unitSpherePoint = c3ga::unit( point - center );
+
+	double lattitudeAngle = acos( unitSpherePoint.get_e2() );
+	double longitudeAngle = atan2( unitSpherePoint.get_e3(), unitSpherePoint.get_e1() );
+	if( longitudeAngle < 0.0 )
+		longitudeAngle += 2.0 * M_PI;
+
+	textureCoordinates.set( c3ga::vectorE3GA::coord_e1_e2_e3, longitudeAngle / ( 2.0 * M_PI ), lattitudeAngle / M_PI, 0.0 );
+	return true;
 }
 
 // Sphere.cpp

@@ -12,6 +12,7 @@ public:
 	virtual bool Configure( wxXmlNode* xmlNode ) override;
 	virtual bool CalculateSurfacePoint( const Scene::Ray& ray, Scene::SurfacePoint& surfacePoint ) const override;
 	virtual Side CalculateRaySide( const Scene::Ray& ray ) const override;
+	virtual bool CalculateTextureCoordinates( const c3ga::vectorE3GA& point, c3ga::vectorE3GA& textureCoordinates ) const override;
 
 private:
 	c3ga::vectorE3GA center;

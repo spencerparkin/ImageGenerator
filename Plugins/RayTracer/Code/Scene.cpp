@@ -430,6 +430,226 @@ Scene::Object::Object( const MaterialProperties& materialProperties )
 }
 
 //===========================================================================
+/*virtual*/ Scene::Object::~Object( void )
+{
+	DeleteTextures();
+}
+
+//===========================================================================
+/*virtual*/ bool Scene::Object::Configure( wxXmlNode* xmlNode )
+{
+	for( wxXmlNode* textureNode = xmlNode->GetChildren(); textureNode; textureNode = textureNode->GetNext() )
+	{
+		if( textureNode->GetName() == "texture" )
+		{
+			Texture* texture = new Texture();
+			if( !texture->Configure( textureNode ) )
+				delete texture;
+			else
+				textureList.push_back( texture );
+		}
+	}
+
+	return true;
+}
+
+//===========================================================================
+void Scene::Object::DeleteTextures( void )
+{
+	while( textureList.size() > 0 )
+	{
+		TextureList::iterator iter = textureList.begin();
+		Texture* texture = *iter;
+		delete texture;
+		textureList.erase( iter );
+	}
+}
+
+//===========================================================================
+void Scene::Object::CloneTextures( const Object* object )
+{
+	for( TextureList::const_iterator iter = object->textureList.begin(); iter != object->textureList.end(); iter++ )
+	{
+		const Texture* texture = *iter;
+		Texture* clone = texture->Clone();
+		textureList.push_back( clone );
+	}
+}
+
+//===========================================================================
+void Scene::Object::ApplyTextures( SurfacePoint& surfacePoint ) const
+{
+	c3ga::vectorE3GA textureCoordinates;
+	if( CalculateTextureCoordinates( surfacePoint.point, textureCoordinates ) )
+	{
+		for( TextureList::const_iterator iter = textureList.begin(); iter != textureList.end(); iter++ )
+		{
+			const Texture* texture = *iter;
+			surfacePoint.ApplyTexture( texture, textureCoordinates );
+		}
+	}
+}
+
+//===========================================================================
+/*virtual*/ bool Scene::Object::CalculateTextureCoordinates( const c3ga::vectorE3GA& point, c3ga::vectorE3GA& textureCoordinates ) const
+{
+	return false;
+}
+
+//===========================================================================
+void Scene::SurfacePoint::ApplyTexture( const Texture* texture, const c3ga::vectorE3GA& textureCoordinates )
+{
+	c3ga::vectorE3GA textureData;
+	if( texture->CalculateTextureData( textureCoordinates, textureData ) )
+	{
+		switch( texture->GetType() )
+		{
+			case Texture::AMBIENT_LIGHT:
+			{
+				materialProperties.ambientLightCoeficient = textureData;
+				break;
+			}
+			case Texture::DIFFUSE_REFLECTION:
+			{
+				materialProperties.diffuseReflectionCoeficient = textureData;
+				break;
+			}
+			case Texture::SPECULAR_REFLECTION:
+			{
+				materialProperties.specularReflectionCoeficient = textureData;
+				break;
+			}
+			case Texture::BUMP_MAP:
+			{
+				normal = textureData;
+				break;
+			}
+		}
+	}
+}
+
+//===========================================================================
+Scene::Texture::Texture( Type type /*= DIFFUSE_REFLECTION*/, Mode mode /*= CLAMP*/ )
+{
+	this->type = type;
+	this->mode = mode;
+	image = 0;
+}
+
+//===========================================================================
+/*virtual*/ Scene::Texture::~Texture( void )
+{
+	delete image;
+}
+
+//===========================================================================
+void Scene::Texture::SetType( Type type )
+{
+	this->type = type;
+}
+
+//===========================================================================
+Scene::Texture::Type Scene::Texture::GetType( void ) const
+{
+	return type;
+}
+
+//===========================================================================
+bool Scene::Texture::Configure( wxXmlNode* xmlNode )
+{
+	wxString typeString;
+	if( xmlNode->GetAttribute( "type", &typeString ) )
+	{
+		if( typeString == "ambient" )
+			type = AMBIENT_LIGHT;
+		else if( typeString == "diffuse" )
+			type = DIFFUSE_REFLECTION;
+		else if( typeString == "specular" )
+			type = SPECULAR_REFLECTION;
+		else if( typeString == "bump" )
+			type = BUMP_MAP;
+	}
+
+	wxString modeString;
+	if( xmlNode->GetAttribute( "mode", &modeString ) )
+	{
+		if( modeString == "wrap" )
+			mode = WRAP;
+		else if( modeString == "clamp" )
+			mode = CLAMP;
+	}
+
+	wxString textureFile = xmlNode->GetNodeContent();
+	if( textureFile.IsEmpty() )
+		return false;
+
+	image = new wxImage();
+	if( !image->LoadFile( textureFile ) )
+		return false;
+
+	return true;
+}
+
+//===========================================================================
+Scene::Texture* Scene::Texture::Clone( void ) const
+{
+	Texture* texture = new Texture( type, mode );
+	if( image )
+		texture->image = new wxImage( image->GetWidth(), image->GetHeight(), image->GetData(), 0, true );
+	return texture;
+}
+
+//===========================================================================
+bool Scene::Texture::CalculateTextureData( const c3ga::vectorE3GA& textureCoordinates, c3ga::vectorE3GA& textureData ) const
+{
+	if( !image )
+		return false;
+
+	// We might support 3D textures in the future.
+	switch( type )
+	{
+		case AMBIENT_LIGHT:
+		case DIFFUSE_REFLECTION:
+		case SPECULAR_REFLECTION:
+		case BUMP_MAP:
+		{
+			double u = textureCoordinates.get_e1();
+			double v = textureCoordinates.get_e2();
+			
+			if( mode == CLAMP )
+			{
+				if( u < 0.0 ) u = 0.0;
+				if( u > 1.0 ) u = 1.0;
+				if( v < 0.0 ) v = 0.0;
+				if( v > 1.0 ) v = 1.0;
+			}
+			else if( mode == WRAP )
+			{
+				u = fmod( u, 1.0 );
+				v = fmod( v, 1.0 );
+				if( u < 0.0 ) u += 1.0;
+				if( v < 0.0 ) v += 1.0;
+			}
+
+			int col = int( u * double( image->GetWidth() ) );
+			int row = int( v * double( image->GetHeight() ) );
+
+			unsigned char r = image->GetRed( col, row );
+			unsigned char g = image->GetGreen( col, row );
+			unsigned char b = image->GetBlue( col, row );
+
+			textureData.set( c3ga::vectorE3GA::coord_e1_e2_e3,
+									double( r ) / 255.0,
+									double( g ) / 255.0,
+									double( b ) / 255.0 );
+			return true;
+		}
+	}
+
+	return false;
+}
+
+//===========================================================================
 c3ga::vectorE3GA Scene::Ray::CalculateRayPoint( double lambda ) const
 {
 	return point + c3ga::gp( direction, lambda );

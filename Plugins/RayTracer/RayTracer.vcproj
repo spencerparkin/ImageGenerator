@@ -315,6 +315,30 @@
 				</File>
 			</Filter>
 		</Filter>
+		<Filter
+			Name="Scenes"
+			>
+			<File
+				RelativePath=".\Scenes\CylindricalInversion.xml"
+				>
+			</File>
+			<File
+				RelativePath=".\Scenes\Quadrics.xml"
+				>
+			</File>
+			<File
+				RelativePath=".\Scenes\RefractiveSphere.xml"
+				>
+			</File>
+			<File
+				RelativePath=".\Scenes\TexturedSphere.xml"
+				>
+			</File>
+			<File
+				RelativePath=".\Scenes\ThreeSpheres.xml"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath=".\Notes.txt"
 			>
