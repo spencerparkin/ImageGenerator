@@ -34,14 +34,14 @@ FractalPlugin::FractalPlugin( void )
 }
 
 //===========================================================================
-/*virtual*/ bool FractalPlugin::Initialize( void )
+/*virtual*/ bool FractalPlugin::Initialize( wxMenuBar* menuBar, wxEvtHandler* updateUIHandler )
 {
 	GenerateColorTable();
 	return true;
 }
 
 //===========================================================================
-/*virtual*/ bool FractalPlugin::Finalize( void )
+/*virtual*/ bool FractalPlugin::Finalize( wxMenuBar* menuBar, wxEvtHandler* updateUIHandler )
 {
 	delete[] colorTable;
 	colorTable = 0;

@@ -4,6 +4,7 @@
 #include <wx/colour.h>
 #include <wx/gdicmn.h>
 #include <wx/image.h>
+#include <wx/menu.h>
 #include <igPlugin.h>
 
 //===========================================================================
@@ -16,8 +17,8 @@ public:
 	FractalPlugin( void );
 	virtual ~FractalPlugin( void );
 
-	virtual bool Initialize( void ) override;
-	virtual bool Finalize( void ) override;
+	virtual bool Initialize( wxMenuBar* menuBar, wxEvtHandler* updateUIHandler ) override;
+	virtual bool Finalize( wxMenuBar* menuBar, wxEvtHandler* updateUIHandler ) override;
 
 	virtual wxString Name( void ) override;
 
