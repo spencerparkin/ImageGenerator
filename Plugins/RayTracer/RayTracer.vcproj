@@ -306,7 +306,15 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Code\Polynomials\DoubleTorus.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\Code\Polynomials\DoubleTorus.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Code\Polynomials\Torus.cpp"
 					>
 				</File>
 				<File
@@ -320,6 +328,10 @@
 			>
 			<File
 				RelativePath=".\Scenes\CylindricalInversion.xml"
+				>
+			</File>
+			<File
+				RelativePath=".\Scenes\DoubleTorus.xml"
 				>
 			</File>
 			<File
@@ -340,6 +352,10 @@
 			</File>
 			<File
 				RelativePath=".\Scenes\ThreeSpheres.xml"
+				>
+			</File>
+			<File
+				RelativePath=".\Scenes\Torus.xml"
 				>
 			</File>
 		</Filter>

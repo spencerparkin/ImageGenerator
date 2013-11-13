@@ -30,6 +30,8 @@ class Plane;
 class Quadric;
 class AlgebraicSurface;
 class CylindricalInversion;
+class Torus;
+class DoubleTorus;
 
 #include "Scene.h"
 #include "RayTracer.h"
@@ -43,5 +45,7 @@ class CylindricalInversion;
 #include "Objects/Quadric.h"
 #include "Objects/AlgebraicSurface.h"
 #include "Polynomials/CylindricalInversion.h"
+#include "Polynomials/Torus.h"
+#include "Polynomials/DoubleTorus.h"
 
 // Header.h

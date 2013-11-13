@@ -246,6 +246,8 @@ bool RayTracerPlugin::LoadElement( wxXmlNode* xmlNode )
 		else if( type == "plane" )			{ element = new Plane(); isObject = true; }
 		else if( type == "quadric" )		{ element = new Quadric(); isObject = true; }
 		else if( type == "cylindricalInv" )	{ element = new AlgebraicSurface( new CylindricalInversion() ); isObject = true; }
+		else if( type == "torus" )			{ element = new AlgebraicSurface( new Torus() ); isObject = true; }
+		else if( type == "doubleTorus" )	{ element = new AlgebraicSurface( new DoubleTorus() ); isObject = true; }
 		else if( type == "ambientLight" )	{ element = new AmbientLight(); isLight = true; }
 		else if( type == "pointLight" )		{ element = new PointLight(); isLight = true; }
 
