@@ -144,7 +144,7 @@ bool Scene::CalculateVisibleSurfacePoint( const Ray& ray, SurfacePoint& surfaceP
 	{
 		const Object* object = *iter;
 		double distance;
-		if( object->CalculateSurfacePoint( ray, surfacePoint ) )
+		if( object->CalculateSurfacePoint( ray, *this, surfacePoint ) )
 		{
 			distance = c3ga::norm( surfacePoint.point - ray.point );
 			if( distance < smallestDistance || smallestDistance == -1.0 )
@@ -477,15 +477,16 @@ void Scene::Object::CloneTextures( const Object* object )
 }
 
 //===========================================================================
-void Scene::Object::ApplyTextures( SurfacePoint& surfacePoint ) const
+void Scene::Object::ApplyTextures( SurfacePoint& surfacePoint, const c3ga::vectorE3GA& eye ) const
 {
 	c3ga::vectorE3GA textureCoordinates;
+	double distanceFromEyeToSurfacePoint = c3ga::norm( surfacePoint.point - eye );
 	if( CalculateTextureCoordinates( surfacePoint.point, textureCoordinates ) )
 	{
 		for( TextureList::const_iterator iter = textureList.begin(); iter != textureList.end(); iter++ )
 		{
 			const Texture* texture = *iter;
-			surfacePoint.ApplyTexture( texture, textureCoordinates );
+			surfacePoint.ApplyTexture( texture, textureCoordinates, distanceFromEyeToSurfacePoint );
 		}
 	}
 }
@@ -497,10 +498,10 @@ void Scene::Object::ApplyTextures( SurfacePoint& surfacePoint ) const
 }
 
 //===========================================================================
-void Scene::SurfacePoint::ApplyTexture( const Texture* texture, const c3ga::vectorE3GA& textureCoordinates )
+void Scene::SurfacePoint::ApplyTexture( const Texture* texture, const c3ga::vectorE3GA& textureCoordinates, double distanceFromEyeToSurfacePoint )
 {
 	c3ga::vectorE3GA textureData;
-	if( texture->CalculateTextureData( textureCoordinates, textureData ) )
+	if( texture->CalculateTextureData( textureCoordinates, distanceFromEyeToSurfacePoint, textureData ) )
 	{
 		switch( texture->GetType() )
 		{
@@ -529,18 +530,24 @@ void Scene::SurfacePoint::ApplyTexture( const Texture* texture, const c3ga::vect
 }
 
 //===========================================================================
-Scene::Texture::Texture( Type type /*= DIFFUSE_REFLECTION*/, Mode mode /*= CLAMP*/, Filter filter /*= BILINEAR*/ )
+Scene::Texture::Texture( Type type /*= DIFFUSE_REFLECTION*/, Mode mode /*= CLAMP*/, Filter filter /*= TRILINEAR*/ )
 {
 	this->type = type;
 	this->mode = mode;
 	this->filter = filter;
-	image = 0;
+	mipDistance = 20.0;
 }
 
 //===========================================================================
 /*virtual*/ Scene::Texture::~Texture( void )
 {
-	delete image;
+	while( imageList.size() > 0 )
+	{
+		ImageList::iterator iter = imageList.begin();
+		wxImage* image = *iter;
+		delete image;
+		imageList.erase( iter );
+	}
 }
 
 //===========================================================================
@@ -587,15 +594,30 @@ bool Scene::Texture::Configure( wxXmlNode* xmlNode )
 			filter = NEAREST;
 		else if( filterString == "bilinear" )
 			filter = BILINEAR;
+		else if( filterString == "trilinear" )
+			filter = TRILINEAR;
 	}
+
+	mipDistance = Scene::LoadNumber( xmlNode, "mipDistance", mipDistance );
 
 	wxString textureFile = xmlNode->GetNodeContent();
 	if( textureFile.IsEmpty() )
 		return false;
 
-	image = new wxImage();
+	wxImage* image = new wxImage();
+	imageList.push_back( image );
 	if( !image->LoadFile( textureFile ) )
 		return false;
+
+	wxSize size = image->GetSize();
+	while( size.GetWidth() > 1 && size.GetHeight() > 1 )
+	{
+		// Always down-sample each MIP from the original image.
+		wxImage* downSampledImage = new wxImage( image->GetWidth(), image->GetHeight(), image->GetData(), 0, true );
+		downSampledImage->Rescale( size.GetWidth() / 2, size.GetHeight() / 2, wxIMAGE_QUALITY_HIGH );
+		imageList.push_back( downSampledImage );
+		size = downSampledImage->GetSize();
+	}
 
 	return true;
 }
@@ -604,15 +626,20 @@ bool Scene::Texture::Configure( wxXmlNode* xmlNode )
 Scene::Texture* Scene::Texture::Clone( void ) const
 {
 	Texture* texture = new Texture( type, mode );
-	if( image )
-		texture->image = new wxImage( image->GetWidth(), image->GetHeight(), image->GetData(), 0, true );
+	
+	for( ImageList::const_iterator iter = imageList.begin(); iter != imageList.end(); iter++ )
+	{
+		wxImage* image = *iter;
+		texture->imageList.push_back( new wxImage( image->GetWidth(), image->GetHeight(), image->GetData(), 0, true ) );
+	}
+
 	return texture;
 }
 
 //===========================================================================
-bool Scene::Texture::CalculateTextureData( const c3ga::vectorE3GA& textureCoordinates, c3ga::vectorE3GA& textureData ) const
+bool Scene::Texture::CalculateTextureData( const c3ga::vectorE3GA& textureCoordinates, double distanceFromEyeToSurfacePoint, c3ga::vectorE3GA& textureData ) const
 {
-	if( !image )
+	if( imageList.size() == 0 )
 		return false;
 
 	// We might support 3D textures in the future.
@@ -642,7 +669,28 @@ bool Scene::Texture::CalculateTextureData( const c3ga::vectorE3GA& textureCoordi
 			}
 
 			unsigned char r, g, b;
-			CalculateTexel( u, v, r, g, b );
+
+			if( filter == NEAREST || filter == BILINEAR )
+			{
+				wxImage* image = *imageList.begin();
+				CalculateTexel( image, u, v, r, g, b );
+			}
+			else if( filter == TRILINEAR )
+			{
+				double lerp;
+				wxImage* image0, *image1;
+				CalculateImageDetail( distanceFromEyeToSurfacePoint, image0, image1, lerp );
+
+				unsigned char r0, g0, b0;
+				unsigned char r1, g1, b1;
+
+				CalculateTexel( image0, u, v, r0, g0, b0 );
+				CalculateTexel( image1, u, v, r1, g1, b1 );
+
+				r = unsigned char( Lerp( r0, r1, lerp ) );
+				g = unsigned char( Lerp( g0, g1, lerp ) );
+				b = unsigned char( Lerp( b0, b1, lerp ) );
+			}
 
 			textureData.set( c3ga::vectorE3GA::coord_e1_e2_e3,
 									double( r ) / 255.0,
@@ -656,7 +704,40 @@ bool Scene::Texture::CalculateTextureData( const c3ga::vectorE3GA& textureCoordi
 }
 
 //===========================================================================
-bool Scene::Texture::CalculateTexel( double u, double v, unsigned char& r, unsigned char& g, unsigned char& b ) const
+bool Scene::Texture::CalculateImageDetail( double distanceFromEyeToSurfacePoint, wxImage*& image0, wxImage*& image1, double& lerp ) const
+{
+	double minDistance = 0.0;
+	double maxDistance = mipDistance;
+
+	for( ImageList::const_iterator iter = imageList.begin(); iter != imageList.end(); iter++ )
+	{
+		image0 = *iter;
+
+		ImageList::const_iterator nextIter = iter;
+		nextIter++;
+		if( nextIter == imageList.end() )
+		{
+			image1 = image0;
+			lerp = 0.0;
+			break;
+		}
+
+		if( minDistance <= distanceFromEyeToSurfacePoint && distanceFromEyeToSurfacePoint < maxDistance )
+		{
+			image1 = *nextIter;
+			lerp = ( distanceFromEyeToSurfacePoint - minDistance ) / ( maxDistance - minDistance );
+			break;
+		}
+
+		minDistance = maxDistance;
+		maxDistance = 2.0 * minDistance;
+	}
+
+	return true;
+}
+
+//===========================================================================
+bool Scene::Texture::CalculateTexel( const wxImage* image, double u, double v, unsigned char& r, unsigned char& g, unsigned char& b ) const
 {
 	if( u < 0.0 || u > 1.0 ) return false;
 	if( v < 0.0 || v > 1.0 ) return false;
@@ -674,6 +755,7 @@ bool Scene::Texture::CalculateTexel( double u, double v, unsigned char& r, unsig
 
 			return true;
 		}
+		case TRILINEAR:
 		case BILINEAR:
 		{
 			double col = u * double( image->GetWidth() - 1 );

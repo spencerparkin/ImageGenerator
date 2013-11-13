@@ -40,7 +40,7 @@ AlgebraicSurface::AlgebraicSurface( Polynomial* polynomial )
 }
 
 //===========================================================================
-/*virtual*/ bool AlgebraicSurface::CalculateSurfacePoint( const Scene::Ray& ray, Scene::SurfacePoint& surfacePoint ) const
+/*virtual*/ bool AlgebraicSurface::CalculateSurfacePoint( const Scene::Ray& ray, const Scene& scene, Scene::SurfacePoint& surfacePoint ) const
 {
 	// The composition of two continuous functions is continuous.
 	class Function : public RootFinder::ContinuousFunction

@@ -48,9 +48,10 @@ public:
 		{
 			NEAREST,
 			BILINEAR,
+			TRILINEAR,
 		};
 
-		Texture( Type type = DIFFUSE_REFLECTION, Mode mode = CLAMP, Filter filter = BILINEAR );
+		Texture( Type type = DIFFUSE_REFLECTION, Mode mode = CLAMP, Filter filter = TRILINEAR );
 		virtual ~Texture( void );
 
 		void SetType( Type type );
@@ -63,14 +64,19 @@ public:
 		// but cloning them guarentees it.
 		Texture* Clone( void ) const;
 
-		bool CalculateTextureData( const c3ga::vectorE3GA& textureCoordinates, c3ga::vectorE3GA& textureData ) const;
-		bool CalculateTexel( double u, double v, unsigned char& r, unsigned char& g, unsigned char& b ) const;
+		bool CalculateTextureData( const c3ga::vectorE3GA& textureCoordinates, double distanceFromEyeToSurfacePoint, c3ga::vectorE3GA& textureData ) const;
+		bool CalculateTexel( const wxImage* image, double u, double v, unsigned char& r, unsigned char& g, unsigned char& b ) const;
+		bool CalculateImageDetail( double distanceFromEyeToSurfacePoint, wxImage*& image0, wxImage*& image1, double& lerp ) const;
 
 	private:
 
 		static double Lerp( double v0, double v1, double t );
 
-		wxImage* image;
+		typedef std::list< wxImage* > ImageList;
+		ImageList imageList;
+
+		double mipDistance;
+
 		Type type;
 		Mode mode;
 		Filter filter;
@@ -124,7 +130,7 @@ public:
 		void Reflect( const Ray& ray, Ray& reflectedRay, double nudge ) const;
 		void Refract( const Ray& ray, Ray& refractedRay, double nudge ) const;
 
-		void ApplyTexture( const Texture* texture, const c3ga::vectorE3GA& textureCoordinates );
+		void ApplyTexture( const Texture* texture, const c3ga::vectorE3GA& textureCoordinates, double distanceFromEyeToSurfacePoint );
 
 		c3ga::vectorE3GA point;
 		c3ga::vectorE3GA normal;		// This should always be a unit-length vector.
@@ -177,7 +183,7 @@ public:
 		// By definition, this must be a point that is on the given ray, which is not necessarily
 		// a point on the line determined by the ray.  Specifically, the ray parameter for a ray
 		// point is always a non-negative real number.
-		virtual bool CalculateSurfacePoint( const Ray& ray, SurfacePoint& surfacePoint ) const = 0;
+		virtual bool CalculateSurfacePoint( const Ray& ray, const Scene& scene, SurfacePoint& surfacePoint ) const = 0;
 
 		// The given ray will be incident to (striking) the surface of this object.  Is it doing so
 		// from the inside or outside of the object?  Some objects don't have an inside or outside,
@@ -194,7 +200,7 @@ public:
 		void CloneTextures( const Object* object );
 		void DeleteTextures( void );
 
-		void ApplyTextures( SurfacePoint& surfacePoint ) const;
+		void ApplyTextures( SurfacePoint& surfacePoint, const c3ga::vectorE3GA& eye ) const;
 
 		virtual bool CalculateTextureCoordinates( const c3ga::vectorE3GA& point, c3ga::vectorE3GA& textureCoordinates ) const;
 

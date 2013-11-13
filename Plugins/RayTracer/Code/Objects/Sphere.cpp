@@ -48,6 +48,7 @@ Sphere::Sphere( const c3ga::vectorE3GA& center, double radius, const Scene::Mate
 // with a CGA dual line to get a dual point-pair, but it's just too slow.
 /*virtual*/ bool Sphere::CalculateSurfacePoint(
 							const Scene::Ray& ray,
+							const Scene& scene,
 							Scene::SurfacePoint& surfacePoint ) const
 {
 	c3ga::vectorE3GA delta = ray.point - center;
@@ -80,7 +81,7 @@ Sphere::Sphere( const c3ga::vectorE3GA& center, double radius, const Scene::Mate
 	
 	surfacePoint.materialProperties = materialProperties;
 	surfacePoint.object = this;
-	ApplyTextures( surfacePoint );
+	ApplyTextures( surfacePoint, scene.Eye() );
 	return true;
 }
 

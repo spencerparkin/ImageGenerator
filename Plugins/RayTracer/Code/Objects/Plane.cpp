@@ -53,7 +53,7 @@ Plane::Plane(
 }
 
 //===========================================================================
-/*virtual*/ bool Plane::CalculateSurfacePoint( const Scene::Ray& ray, Scene::SurfacePoint& surfacePoint ) const
+/*virtual*/ bool Plane::CalculateSurfacePoint( const Scene::Ray& ray, const Scene& scene, Scene::SurfacePoint& surfacePoint ) const
 {
 	double numerator = c3ga::lc( center - ray.point, normal );
 	double denominator = c3ga::lc( ray.direction, normal );
@@ -72,7 +72,7 @@ Plane::Plane(
 		surfacePoint.normal = -normal;
 
 	surfacePoint.materialProperties = materialProperties;
-	ApplyTextures( surfacePoint );
+	ApplyTextures( surfacePoint, scene.Eye() );
 	return true;
 }
 

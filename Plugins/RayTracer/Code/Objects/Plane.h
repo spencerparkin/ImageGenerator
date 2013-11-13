@@ -13,7 +13,7 @@ public:
 
 	virtual Scene::Element* Clone( void ) const override;
 	virtual bool Configure( wxXmlNode* xmlNode ) override;
-	virtual bool CalculateSurfacePoint( const Scene::Ray& ray, Scene::SurfacePoint& surfacePoint ) const override;
+	virtual bool CalculateSurfacePoint( const Scene::Ray& ray, const Scene& scene, Scene::SurfacePoint& surfacePoint ) const override;
 	virtual bool CalculateTextureCoordinates( const c3ga::vectorE3GA& point, c3ga::vectorE3GA& textureCoordinates ) const override;
 
 private:
