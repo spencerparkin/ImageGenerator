@@ -4,14 +4,28 @@
   </light>
   <light type="pointLight">
     <intensity r="0.3" g="0.3" b="0.3"/>
-    <point x="-10" y="35" z="0"/>
-    <shadow>1.0</shadow>
+    <point x="-8" y="2" z="0"/>
+    <shadow>0.0</shadow>
   </light>
   <light type="pointLight">
     <intensity r="0.3" g="0.3" b="0.3"/>
-    <point x="10" y="35" z="0"/>
-    <shadow>1.0</shadow>
+    <point x="0" y="19" z="0"/>
+    <shadow>0.0</shadow>
   </light>
+  
+  <object type="plane">
+    <material>
+      <ambient r="1.0" g="0.0" b="0.0"/>
+      <diffuse r="1.0" g="0.0" b="0.0"/>
+      <reflective r="0.2" g="0.2" b="0.2"/>
+    </material>
+    <texture mode="wrap" type="ambient" filter="trilinear">C:\ImageGenerator\Plugins\RayTracer\Scenes\CheckerBoard.png</texture>
+    <texture mode="wrap" type="diffuse" filter="trilinear">C:\ImageGenerator\Plugins\RayTracer\Scenes\CheckerBoard.png</texture>
+    <textureScale>5.0</textureScale>
+    <center x="0.0" y="-4.0" z="0.0"/>
+    <normal x="0.0" y="1.0" z="0.0"/>
+  </object>
+
   <object type="plane">
     <material>
       <ambient r="1.0" g="0.0" b="0.0"/>
@@ -20,30 +34,171 @@
     <texture mode="wrap" type="ambient" filter="trilinear">C:\ImageGenerator\Plugins\RayTracer\Scenes\CheckerBoard.png</texture>
     <texture mode="wrap" type="diffuse" filter="trilinear">C:\ImageGenerator\Plugins\RayTracer\Scenes\CheckerBoard.png</texture>
     <textureScale>5.0</textureScale>
-    <center x="0.0" y="-4.0" z="0.0"/>
-    <normal x="0.0" y="1.0" z="0.0"/>
+    <center x="0.0" y="20.0" z="0.0"/>
+    <normal x="0.0" y="-1.0" z="0.0"/>
+  </object>
+  
+  <object type="plane">
+    <material>
+      <ambient r="1.0" g="0.0" b="0.0"/>
+      <diffuse r="1.0" g="0.0" b="0.0"/>
+    </material>
+    <texture mode="wrap" type="ambient" filter="trilinear">C:\ImageGenerator\Plugins\RayTracer\Scenes\CheckerBoard.png</texture>
+    <texture mode="wrap" type="diffuse" filter="trilinear">C:\ImageGenerator\Plugins\RayTracer\Scenes\CheckerBoard.png</texture>
+    <textureScale>5.0</textureScale>
+    <center x="0.0" y="0.0" z="-10.0"/>
+    <normal x="0.0" y="0.0" z="1.0"/>
+  </object>
+
+  <object type="plane">
+    <material>
+      <ambient r="1.0" g="0.0" b="0.0"/>
+      <diffuse r="1.0" g="0.0" b="0.0"/>
+    </material>
+    <texture mode="wrap" type="ambient" filter="trilinear">C:\ImageGenerator\Plugins\RayTracer\Scenes\CheckerBoard.png</texture>
+    <texture mode="wrap" type="diffuse" filter="trilinear">C:\ImageGenerator\Plugins\RayTracer\Scenes\CheckerBoard.png</texture>
+    <textureScale>5.0</textureScale>
+    <center x="-10.0" y="0.0" z="0.0"/>
+    <normal x="1.0" y="0.0" z="0.0"/>
+  </object>
+
+  <object type="plane">
+    <material>
+      <ambient r="1.0" g="0.0" b="0.0"/>
+      <diffuse r="1.0" g="0.0" b="0.0"/>
+    </material>
+    <texture mode="wrap" type="ambient" filter="trilinear">C:\ImageGenerator\Plugins\RayTracer\Scenes\CheckerBoard.png</texture>
+    <texture mode="wrap" type="diffuse" filter="trilinear">C:\ImageGenerator\Plugins\RayTracer\Scenes\CheckerBoard.png</texture>
+    <textureScale>5.0</textureScale>
+    <center x="10.0" y="0.0" z="0.0"/>
+    <normal x="-1.0" y="0.0" z="0.0"/>
+  </object>
+
+  <object type="plane">
+    <material>
+      <ambient r="1.0" g="0.0" b="0.0"/>
+      <diffuse r="1.0" g="0.0" b="0.0"/>
+    </material>
+    <texture mode="wrap" type="ambient" filter="trilinear">C:\ImageGenerator\Plugins\RayTracer\Scenes\CheckerBoard.png</texture>
+    <texture mode="wrap" type="diffuse" filter="trilinear">C:\ImageGenerator\Plugins\RayTracer\Scenes\CheckerBoard.png</texture>
+    <textureScale>5.0</textureScale>
+    <center x="0.0" y="0.0" z="31.0"/>
+    <normal x="0.0" y="0.0" z="-1.0"/>
+  </object>
+  
+  <object type="sphere">
+    <material>
+      <ambient r="0.0" g="0.0" b="0.0"/>
+      <diffuse r="0.0" g="0.0" b="0.0"/>
+      <reflective r="1.0" g="1.0" b="1.0"/>
+      <specular r="1.0" g="1.0" b="1.0"/>
+      <specularExp>50.0</specularExp>
+    </material>
+    <center x="5.0" y="3.0" z="0.0"/>
+    <radius>4.0</radius>
+  </object>
+  
+  <object type="sphere">
+    <material>
+      <ambient r="0.0" g="0.0" b="0.0"/>
+      <diffuse r="0.0" g="0.0" b="0.0"/>
+      <refractive r="1.0" g="1.0" b="1.0"/>
+      <refractionIndex>1.02</refractionIndex>
+      <specular r="1.0" g="1.0" b="1.0"/>
+      <specularExp>50.0</specularExp>
+    </material>
+    <center x="-3.0" y="2.0" z="5.0"/>
+    <radius>4.0</radius>
+  </object>
+  
+  <object type="sphere">
+    <material>
+      <ambient r="1.0" g="0.0" b="0.0"/>
+      <diffuse r="1.0" g="0.0" b="0.0"/>
+      <specular r="1.0" g="1.0" b="1.0"/>
+      <specularExp>50.0</specularExp>
+    </material>
+    <center x="5.0" y="-1.0" z="5.0"/>
+    <radius>1.5</radius>
+  </object>
+  <object type="sphere">
+    <material>
+      <ambient r="1.0" g="1.0" b="0.0"/>
+      <diffuse r="1.0" g="1.0" b="0.0"/>
+      <specular r="1.0" g="1.0" b="1.0"/>
+      <specularExp>50.0</specularExp>
+    </material>
+    <center x="5.0" y="-1.0" z="8.0"/>
+    <radius>1.5</radius>
   </object>
   <object type="sphere">
     <material>
       <ambient r="0.0" g="0.0" b="0.0"/>
       <diffuse r="0.0" g="0.0" b="0.0"/>
       <reflective r="1.0" g="1.0" b="1.0"/>
+      <specular r="1.0" g="1.0" b="1.0"/>
+      <specularExp>50.0</specularExp>
     </material>
-    <center x="5.0" y="3.0" z="-5.0"/>
-    <radius>4.7</radius>
+    <center x="2.0" y="-1.0" z="5.0"/>
+    <radius>1.5</radius>
+  </object>
+  <object type="sphere">
+    <material>
+      <ambient r="0.0" g="0.0" b="1.0"/>
+      <diffuse r="0.0" g="0.0" b="1.0"/>
+      <specular r="1.0" g="1.0" b="1.0"/>
+      <specularExp>50.0</specularExp>
+    </material>
+    <texture mode="wrap" type="ambient" filter="trilinear">C:\ImageGenerator\Plugins\RayTracer\Scenes\Globe.png</texture>
+    <texture mode="wrap" type="diffuse" filter="trilinear">C:\ImageGenerator\Plugins\RayTracer\Scenes\Globe.png</texture>
+    <center x="2.0" y="-1.0" z="8.0"/>
+    <radius>1.5</radius>
+  </object>
+
+  <object type="sphere">
+    <material>
+      <ambient r="1.0" g="0.0" b="0.0"/>
+      <diffuse r="1.0" g="0.0" b="0.0"/>
+      <specular r="1.0" g="1.0" b="1.0"/>
+      <specularExp>50.0</specularExp>
+    </material>
+    <center x="-5.0" y="-1.0" z="-5.0"/>
+    <radius>1.5</radius>
+  </object>
+  <object type="sphere">
+    <material>
+      <ambient r="1.0" g="1.0" b="0.0"/>
+      <diffuse r="1.0" g="1.0" b="0.0"/>
+      <specular r="1.0" g="1.0" b="1.0"/>
+      <specularExp>50.0</specularExp>
+    </material>
+    <center x="-5.0" y="-1.0" z="-8.0"/>
+    <radius>1.5</radius>
   </object>
   <object type="sphere">
     <material>
       <ambient r="0.0" g="0.0" b="0.0"/>
       <diffuse r="0.0" g="0.0" b="0.0"/>
-      <refractive r="1.0" g="1.0" b="1.0"/>
-      <refractionIndex>1.15</refractionIndex>
-      <!--<specular r="1.0" g="1.0" b="1.0"/>
-      <specularExp>50.0</specularExp>-->
+      <reflective r="1.0" g="1.0" b="1.0"/>
+      <specular r="1.0" g="1.0" b="1.0"/>
+      <specularExp>50.0</specularExp>
     </material>
-    <center x="-5.0" y="3.0" z="-5.0"/>
-    <radius>4.7</radius>
+    <center x="-2.0" y="-1.0" z="-5.0"/>
+    <radius>1.5</radius>
   </object>
+  <object type="sphere">
+    <material>
+      <ambient r="0.0" g="0.0" b="1.0"/>
+      <diffuse r="0.0" g="0.0" b="1.0"/>
+      <specular r="1.0" g="1.0" b="1.0"/>
+      <specularExp>50.0</specularExp>
+    </material>
+    <texture mode="wrap" type="ambient" filter="trilinear">C:\ImageGenerator\Plugins\RayTracer\Scenes\Globe.png</texture>
+    <texture mode="wrap" type="diffuse" filter="trilinear">C:\ImageGenerator\Plugins\RayTracer\Scenes\Globe.png</texture>
+    <center x="-2.0" y="-1.0" z="-8.0"/>
+    <radius>1.5</radius>
+  </object>
+  
   <view>
     <eye x="0.0" y="10.0" z="30.0"/>
     <up x="0.0" y="1.0" z="0.0"/>
