@@ -250,11 +250,23 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Code\Lights\DirectionalLight.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Code\Lights\PointLight.cpp"
 					>
 				</File>
 				<File
 					RelativePath=".\Code\Lights\PointLight.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Code\Lights\SpotLight.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Code\Lights\TriangleLight.h"
 					>
 				</File>
 			</Filter>
@@ -267,6 +279,10 @@
 				</File>
 				<File
 					RelativePath=".\Code\Objects\AlgebraicSurface.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Code\Objects\Box.h"
 					>
 				</File>
 				<File
