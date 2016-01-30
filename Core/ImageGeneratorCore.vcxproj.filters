@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Code">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Code\igApp.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\igCanvas.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\igFrame.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\igOptions.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\igThread.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Code\igApp.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\igCanvas.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\igFrame.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\igHeader.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\igOptions.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\igPlugin.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\igThread.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

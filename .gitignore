@@ -17,6 +17,7 @@
 *.suo
 *.user
 *.tss
+*.sdf
 
 # Intermediates and other built files
 Build/
