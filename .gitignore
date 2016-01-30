@@ -18,6 +18,7 @@
 *.user
 *.tss
 *.sdf
+*.opensdf
 
 # Intermediates and other built files
 Build/

@@ -11,7 +11,7 @@ igThread::igThread( Manager* manager, wxImage* image, igPlugin::ImageGenerator* 
 	rect.width = 0;
 	rect.height = 0;
 
-	semaphore = 0;
+	stop = false;
 
 	this->imageGenerator = imageGenerator;
 }
@@ -24,53 +24,79 @@ igThread::igThread( Manager* manager, wxImage* image, igPlugin::ImageGenerator* 
 //===========================================================================
 /*virtual*/ wxThread::ExitCode igThread::Entry( void )
 {
-	semaphore = new wxSemaphore( 0, 1 );
-
-	wxCriticalSection* imageCriticalSection = wxGetApp().ImageCriticalSection();
-	imageCriticalSection->Enter();
 	wxSize size = image->GetSize();
-	imageCriticalSection->Leave();
 
-	// We should probably be calling "TestDestroy()" in this loop and be
-	// doing "TryWait" calls instead of "Wait" calls on the semaphores.
-	do
+	while( !stop )
 	{
-		// Fill in the subregion of the image that we have been given, if any.
-		wxPoint point;
-		for( point.x = rect.x; point.x < rect.x + rect.width; point.x++ )
+		rect.width = 0;
+		rect.height = 0;
+		
+		manager->lazyListCriticalSection.Enter();
+		manager->lazyThreadList.push_back( this );
+		manager->lazyListCriticalSection.Leave();
+
+		// Signal the manager thread to wake up a cure our lazyness.
+		manager->semaphore->Post();
+
+		while( ( rect.width == 0 || rect.height == 0 ) && !stop )
 		{
-			for( point.y = rect.y; point.y < rect.y + rect.height; point.y++ )
+			// Spin here until we get a response from the manager thread.
+			// Something tells me it would be better to use a thread-sync object for this.
+		}
+
+		if( stop )
+			break;
+
+		wxColour** imageData = new wxColour*[ rect.GetWidth() ];
+
+		for( int i = 0; i < rect.GetWidth(); i++ )
+		{
+			if( stop )
+				imageData[i] = nullptr;
+			else
+				imageData[i] = new wxColour[ rect.GetHeight() ];
+
+			for( int j = 0; j < rect.GetHeight(); j++ )
 			{
-				wxColour color;
-				if( imageGenerator->GeneratePixel( point, size, color ) )
+				if( stop )
+					break;
+
+				wxColour* color = &imageData[i][j];
+
+				wxPoint point;
+				point.x = rect.x + i;
+				point.y = rect.y + j;
+
+				if( !imageGenerator->GeneratePixel( point, size, *color ) )
 				{
-					// A performance increase could probably be obtained by realizing that
-					// multiple threads can populate the same pixel buffer without the need
-					// to enter/leave a critical section at all, but for now, since I'm going
-					// through the wxImage class, I have to enter/leave such a section to be
-					// safe, because I can't guarentee the thread-safety of the wxImage class.
-					// In any case, since we'll be spending most of our time formulating the
-					// pixel instead of writing it, maybe it doesn't matter that much.
-					imageCriticalSection->Enter();
-					image->SetRGB( point.x, point.y, color.Red(), color.Green(), color.Blue() );
-					imageCriticalSection->Leave();
+					color->Set( 0.f, 0.f, 0.f, 1.f );
 				}
 			}
 		}
 
-		// We're out of work.  Go ask the manager thread for more work.
-		rect.width = 0;
-		rect.height = 0;
-		manager->semaphore->Post();
+		// We might not actually need this critical section.
+		wxCriticalSection* imageCriticalSection = wxGetApp().ImageCriticalSection();
+		imageCriticalSection->Enter();
 
-		// Wait to be signaled by the manager thread before continuing,
-		// at which point, we'll either have more work to do or need to quit.
-		semaphore->Wait();
+		for( int i = 0; i < rect.GetWidth(); i++ )
+		{
+			if( imageData[i] )
+			{
+				for( int j = 0; j < rect.GetHeight(); j++ )
+				{
+					wxPoint point( rect.x + i, rect.y + j );
+					wxColour* color = &imageData[i][j];
+					image->SetRGB( point.x, point.y, color->Red(), color->Green(), color->Blue() );
+				}
+			}
+
+			delete[] imageData[i];
+		}
+
+		imageCriticalSection->Leave();
+
+		delete[] imageData;
 	}
-	while( rect.width > 0 && rect.height > 0 );
-
-	delete semaphore;
-	semaphore = 0;
 
 	return 0;
 }
@@ -121,71 +147,60 @@ bool igThread::Manager::GenerateImage( int threadCount, int imageAreaDivisor /*=
 	semaphore = new wxSemaphore( 0, threadCount );
 
 	// Go kick off all the worker threads.
-	bool success = true;
 	wxASSERT( threadList.size() == 0 );
-	for( int count = 0; count < threadCount && success; count++ )
+	for( int count = 0; count < threadCount; count++ )
 	{
 		igPlugin::ImageGenerator* imageGenerator = plugin->NewImageGenerator();
-		if( !imageGenerator )
-			success = false;
-		else
+		if( imageGenerator )
 		{
 			igThread* thread = new igThread( this, image, imageGenerator );
 			threadList.push_back( thread );
 			wxThreadError threadError = thread->Run();
 			wxASSERT( threadError == wxTHREAD_NO_ERROR );
-			if( threadError != wxTHREAD_NO_ERROR )
-				success = false;	// I'm not sure we can recover from this unless we start doing "TryWait" on the semaphores.
 		}
 	}
 
 	// Feed the subregions to the worker threads until all parts of the image have been filled in.
 	int rectCount = rectList.size();
-	int count = 0;
 	while( threadList.size() > 0 )
 	{
 		// Go to sleep until a worker thread runs out of work to do.
 		semaphore->Wait();
 
-		// Find a thread that needs work to do.
-		igThread* thread = 0;
-		for( ThreadList::iterator iter = threadList.begin(); iter != threadList.end() && !thread; iter++ )
-			if( ( *iter )->rect.width == 0 && ( *iter )->rect.height == 0 )
-				thread = *iter;
-		wxASSERT( thread != 0 );
+		// Grab a lazy thread.
+		lazyListCriticalSection.Enter();
+		wxASSERT( lazyThreadList.size() > 0 );
+		ThreadList::iterator iter = lazyThreadList.begin();
+		igThread* thread = *iter;
+		lazyThreadList.erase( iter );
+		lazyListCriticalSection.Leave();
 		
 		// Give the thread some work to do or indicate that there is no more work to be done.
-		wxRect rect = thread->rect;
-		if( success && rectList.size() > 0 )
+		if( rectList.size() == 0 )
 		{
-			RectList::iterator iter = rectList.begin();
-			rect = *iter;
-			rectList.erase( iter );
-		}
-		thread->rect = rect;
-		thread->semaphore->Post();
-
-		// If we had told the thread that there is no more work to be done, we can delete the thread.
-		// Notice that we use a local rectangle here, because after the semaphore post, the thread's
-		// rectangle may have changed back to zero area.
-		if( rect.width == 0 && rect.height == 0 )
-		{
-			wxThreadError threadError = thread->Delete( 0, wxTHREAD_WAIT_BLOCK );
-			wxASSERT( threadError == wxTHREAD_NO_ERROR );
-			threadList.remove( thread );
-			plugin->DeleteImageGenerator( thread->imageGenerator );
-			delete thread;
-			thread = 0;
+			StopThread( thread );
+			thread = nullptr;
 		}
 		else
 		{
-			// Take this opportunity to update our progress bar.
-			if( count < rectCount )
+			RectList::iterator iter = rectList.begin();
+			thread->rect = *iter;
+			rectList.erase( iter );
+		}
+
+		int count = rectCount - rectList.size();
+		float percentage = float( count ) / float( rectCount ) * 100.f;
+		progressDialog->Update( count, wxString::Format( "Generating Image: %1.2f%%", percentage ) );
+		
+		if( progressDialog->WasCancelled() )
+		{
+			while( threadList.size() > 0 )
 			{
-				float percentage = float( ++count ) / float( rectCount ) * 100.f;
-				progressDialog->Update( count, wxString::Format( "Generating Image: %1.2f%%", percentage ) );
-				success = !progressDialog->WasCancelled();
+				igThread* thread = *threadList.begin();
+				StopThread( thread );
 			}
+
+			lazyThreadList.clear();
 		}
 	}
 
@@ -194,7 +209,19 @@ bool igThread::Manager::GenerateImage( int threadCount, int imageAreaDivisor /*=
 
 	delete progressDialog;
 
-	return success;
+	return true;
+}
+
+//===========================================================================
+void igThread::Manager::StopThread( igThread* thread )
+{
+	thread->stop = true;
+	wxThreadError threadError = thread->Delete( 0, wxTHREAD_WAIT_BLOCK );
+	wxASSERT( threadError == wxTHREAD_NO_ERROR );
+	threadList.remove( thread );
+	igPlugin* plugin = wxGetApp().Plugin();
+	plugin->DeleteImageGenerator( thread->imageGenerator );
+	delete thread;
 }
 
 //===========================================================================
