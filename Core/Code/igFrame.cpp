@@ -12,6 +12,7 @@ igFrame::igFrame( const wxPoint& pos /*= wxDefaultPosition*/, const wxSize& size
 	wxMenuItem* optionsMenuItem = new wxMenuItem( programMenu, ID_Options, "Options", "Show the options dialog box." );
 	wxMenuItem* generateImageMenuItem = new wxMenuItem( programMenu, ID_GenerateImage, "Generate Image", "Use the currently loaded image generator plugin, if any, to generate an image." );
 	wxMenuItem* saveImageMenuItem = new wxMenuItem( programMenu, ID_SaveImage, "Save Image", "Save the currently generated image, if any." );
+	wxMenuItem* generateVideoMenuItem = new wxMenuItem( programMenu, ID_GenerateVideo, "Generate Video", "Use the currently loaded image generated plugin, if any, to generate a video." );
 	wxMenuItem* exitMenuItem = new wxMenuItem( programMenu, ID_Exit, "Exit", "Exit this program." );
 	programMenu->Append( loadPluginMenuItem );
 	programMenu->Append( unloadPluginMenuItem );
@@ -20,6 +21,8 @@ igFrame::igFrame( const wxPoint& pos /*= wxDefaultPosition*/, const wxSize& size
 	programMenu->AppendSeparator();
 	programMenu->Append( generateImageMenuItem );
 	programMenu->Append( saveImageMenuItem );
+	programMenu->AppendSeparator();
+	programMenu->Append( generateVideoMenuItem );
 	programMenu->AppendSeparator();
 	programMenu->Append( exitMenuItem );
 
@@ -60,6 +63,7 @@ igFrame::igFrame( const wxPoint& pos /*= wxDefaultPosition*/, const wxSize& size
 	Bind( wxEVT_MENU, &igFrame::OnOptions, this, ID_Options );
 	Bind( wxEVT_MENU, &igFrame::OnGenerateImage, this, ID_GenerateImage );
 	Bind( wxEVT_MENU, &igFrame::OnSaveImage, this, ID_SaveImage );
+	Bind( wxEVT_MENU, &igFrame::OnGenerateVideo, this, ID_GenerateVideo );
 	Bind( wxEVT_MENU, &igFrame::OnZoom, this, ID_Zoom25 );
 	Bind( wxEVT_MENU, &igFrame::OnZoom, this, ID_Zoom50 );
 	Bind( wxEVT_MENU, &igFrame::OnZoom, this, ID_Zoom100 );
@@ -71,6 +75,7 @@ igFrame::igFrame( const wxPoint& pos /*= wxDefaultPosition*/, const wxSize& size
 	Bind( wxEVT_UPDATE_UI, &igFrame::OnUpdateMenuItemUI, this, ID_UnloadPlugin );
 	Bind( wxEVT_UPDATE_UI, &igFrame::OnUpdateMenuItemUI, this, ID_GenerateImage );
 	Bind( wxEVT_UPDATE_UI, &igFrame::OnUpdateMenuItemUI, this, ID_SaveImage );
+	Bind( wxEVT_UPDATE_UI, &igFrame::OnUpdateMenuItemUI, this, ID_GenerateVideo );
 	Bind( wxEVT_UPDATE_UI, &igFrame::OnUpdateMenuItemUI, this, ID_Zoom25 );
 	Bind( wxEVT_UPDATE_UI, &igFrame::OnUpdateMenuItemUI, this, ID_Zoom50 );
 	Bind( wxEVT_UPDATE_UI, &igFrame::OnUpdateMenuItemUI, this, ID_Zoom100 );
@@ -165,6 +170,12 @@ void igFrame::OnSaveImage( wxCommandEvent& event )
 }
 
 //===========================================================================
+void igFrame::OnGenerateVideo( wxCommandEvent& event )
+{
+	//...generate/encode video here...
+}
+
+//===========================================================================
 void igFrame::OnZoom( wxCommandEvent& event )
 {
 	igCanvas::Zoom zoom = igCanvas::ZOOM_100;
@@ -197,6 +208,7 @@ void igFrame::OnUpdateMenuItemUI( wxUpdateUIEvent& event )
 		}
 		case ID_UnloadPlugin:
 		case ID_GenerateImage:
+		case ID_GenerateVideo:
 		{
 			event.Enable( wxGetApp().Plugin() ? true : false );
 			break;

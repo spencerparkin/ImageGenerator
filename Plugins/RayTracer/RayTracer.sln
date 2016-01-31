@@ -1,12 +1,11 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RayTracer", "RayTracer.vcproj", "{43831EF6-4C24-44F3-BA0E-1F5D2496302A}"
-	ProjectSection(ProjectDependencies) = postProject
-		{D3589174-DBB4-4CF8-B2BA-52DEDF8DF5B6} = {D3589174-DBB4-4CF8-B2BA-52DEDF8DF5B6}
-	EndProjectSection
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RayTracer", "RayTracer.vcxproj", "{43831EF6-4C24-44F3-BA0E-1F5D2496302A}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ImageGeneratorCore", "..\..\Core\ImageGeneratorCore.vcproj", "{D3589174-DBB4-4CF8-B2BA-52DEDF8DF5B6}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ImageGeneratorCore", "..\..\Core\ImageGeneratorCore.vcxproj", "{D3589174-DBB4-4CF8-B2BA-52DEDF8DF5B6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

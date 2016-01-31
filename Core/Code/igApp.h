@@ -29,6 +29,8 @@ public:
 	struct Options
 	{
 		int threadCount;
+		int frameCount;
+		int frameRate;
 		wxSize imageSize;
 	};
 

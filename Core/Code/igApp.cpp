@@ -16,6 +16,8 @@ igApp::igApp( void )
 
 	options.threadCount = 5;
 	options.imageSize.Set( 1024, 1024 );
+	options.frameCount = 0;
+	options.frameRate = 30;
 
 	frameLayout.pos = wxDefaultPosition;
 	frameLayout.size = wxDefaultSize;
@@ -84,6 +86,8 @@ void igApp::SaveConfiguration( void )
 	wxRegConfig regConfig;
 
 	regConfig.Write( "threadCount", options.threadCount );
+	regConfig.Write( "frameCount", options.frameCount );
+	regConfig.Write( "frameRate", options.frameRate );
 	regConfig.Write( "imageWidth", options.imageSize.x );
 	regConfig.Write( "imageHeight", options.imageSize.y );
 	
@@ -99,6 +103,8 @@ void igApp::RestoreConfiguration( void )
 	wxRegConfig regConfig;
 
 	regConfig.Read( "threadCount", &options.threadCount, 0 );
+	regConfig.Read( "frameCount", &options.frameCount, 0 );
+	regConfig.Read( "frameRate", &options.frameRate, 30 );
 	regConfig.Read( "imageWidth", &options.imageSize.x, 1024 );
 	regConfig.Read( "imageHeight", &options.imageSize.y, 1024 );
 

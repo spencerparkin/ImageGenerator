@@ -1,0 +1,165 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Code">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Code\c3ga">
+      <UniqueIdentifier>{2688f45c-4eeb-40c3-b9df-f72963cad5a5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Lights">
+      <UniqueIdentifier>{ac89882f-694e-4cf8-a3fc-c3ce5a7bddee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Objects">
+      <UniqueIdentifier>{1de47d1d-2437-44d9-8e50-47624360ce97}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Polynomials">
+      <UniqueIdentifier>{d7538c7f-72bc-4068-a7bc-1b5746fa7bb6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scenes">
+      <UniqueIdentifier>{6abe65dc-a727-4241-8ae0-1bf4049c9846}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Code\Header.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Polynomial.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Quadratic.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\RayTracer.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\RootFinder.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Scene.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\c3ga\c3ga.h">
+      <Filter>Code\c3ga</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Lights\AmbientLight.h">
+      <Filter>Code\Lights</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Lights\DirectionalLight.h">
+      <Filter>Code\Lights</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Lights\PointLight.h">
+      <Filter>Code\Lights</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Lights\SpotLight.h">
+      <Filter>Code\Lights</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Lights\TriangleLight.h">
+      <Filter>Code\Lights</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Objects\AlgebraicSurface.h">
+      <Filter>Code\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Objects\Box.h">
+      <Filter>Code\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Objects\Plane.h">
+      <Filter>Code\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Objects\Quadric.h">
+      <Filter>Code\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Objects\Sphere.h">
+      <Filter>Code\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Polynomials\CylindricalInversion.h">
+      <Filter>Code\Polynomials</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Polynomials\DoubleTorus.h">
+      <Filter>Code\Polynomials</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Polynomials\Torus.h">
+      <Filter>Code\Polynomials</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Code\Polynomial.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Quadratic.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\RayTracer.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\RootFinder.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Scene.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\c3ga\c3ga.cpp">
+      <Filter>Code\c3ga</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\c3ga\c3ga_parse_mv.cpp">
+      <Filter>Code\c3ga</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Lights\AmbientLight.cpp">
+      <Filter>Code\Lights</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Lights\PointLight.cpp">
+      <Filter>Code\Lights</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Objects\AlgebraicSurface.cpp">
+      <Filter>Code\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Objects\Plane.cpp">
+      <Filter>Code\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Objects\Quadric.cpp">
+      <Filter>Code\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Objects\Sphere.cpp">
+      <Filter>Code\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Polynomials\CylindricalInversion.cpp">
+      <Filter>Code\Polynomials</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Polynomials\DoubleTorus.cpp">
+      <Filter>Code\Polynomials</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Polynomials\Torus.cpp">
+      <Filter>Code\Polynomials</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="Scenes\CylindricalInversion.xml">
+      <Filter>Scenes</Filter>
+    </Xml>
+    <Xml Include="Scenes\DoubleTorus.xml">
+      <Filter>Scenes</Filter>
+    </Xml>
+    <Xml Include="Scenes\Quadrics.xml">
+      <Filter>Scenes</Filter>
+    </Xml>
+    <Xml Include="Scenes\RefractiveSphere.xml">
+      <Filter>Scenes</Filter>
+    </Xml>
+    <Xml Include="Scenes\TexturedPlane.xml">
+      <Filter>Scenes</Filter>
+    </Xml>
+    <Xml Include="Scenes\TexturedSphere.xml">
+      <Filter>Scenes</Filter>
+    </Xml>
+    <Xml Include="Scenes\ThreeSpheres.xml">
+      <Filter>Scenes</Filter>
+    </Xml>
+    <Xml Include="Scenes\Torus.xml">
+      <Filter>Scenes</Filter>
+    </Xml>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Notes.txt" />
+  </ItemGroup>
+</Project>

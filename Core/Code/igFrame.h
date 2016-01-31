@@ -19,6 +19,7 @@ private:
 		ID_Options,
 		ID_GenerateImage,
 		ID_SaveImage,
+		ID_GenerateVideo,
 		ID_Zoom25,
 		ID_Zoom50,
 		ID_Zoom100,
@@ -33,6 +34,7 @@ private:
 	void OnOptions( wxCommandEvent& event );
 	void OnGenerateImage( wxCommandEvent& event );
 	void OnSaveImage( wxCommandEvent& event );
+	void OnGenerateVideo( wxCommandEvent& event );
 	void OnZoom( wxCommandEvent& event );
 	void OnExit( wxCommandEvent& event );
 	void OnAbout( wxCommandEvent& event );

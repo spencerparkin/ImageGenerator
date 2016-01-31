@@ -24,7 +24,7 @@
 			<refractionIndex>1.15</refractionIndex>
 		</material>
 		<center x="0.0" y="0.0" z="0.0"/>
-		<radius>3.0</radius>
+		<radius>1.6</radius>
 	</object>
 	
 	<!-- First row of spheres. -->

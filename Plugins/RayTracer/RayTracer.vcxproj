@@ -1,0 +1,159 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{43831EF6-4C24-44F3-BA0E-1F5D2496302A}</ProjectGuid>
+    <RootNamespace>RayTracer</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>14.0.23107.0</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>../../Build/$(ProjectName)/$(Configuration)\</OutDir>
+    <IntDir>../../Build/$(ProjectName)/$(Configuration)\</IntDir>
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>../../Build/$(ProjectName)/$(Configuration)\</OutDir>
+    <IntDir>../../Build/$(ProjectName)/$(Configuration)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>../../../wxWidgets-3.0.2/include;../../../wxWidgets-3.0.2/include/msvc;../../Core/Code;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>__WXMSW__;_UNICODE_;WXUSINGDLL;_CRT_SECURE_NO_WARNINGS;_USE_MATH_DEFINES;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader />
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>wxmsw30ud_core.lib;wxbase30ud.lib;comctl32.lib;rpcrt4.lib;advapi32.lib;wsock32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)/RayTracer.ig</OutputFile>
+      <AdditionalLibraryDirectories>../../../wxWidgets-3.0.2/lib/vc_dll;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <AdditionalIncludeDirectories>../../../wxWidgets-2.9.5/include;../../../wxWidgets-2.9.5/include/msvc;../../ImageGeneratorCore/Code;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>__WXMSW__;_UNICODE_;WXUSINGDLL;_CRT_SECURE_NO_WARNINGS;_USE_MATH_DEFINES;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader />
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>wxmsw29u_core.lib;wxbase29u.lib;comctl32.lib;rpcrt4.lib;advapi32.lib;wsock32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)$(ProjectName).ig</OutputFile>
+      <AdditionalLibraryDirectories>../../../wxWidgets-2.9.5/lib/vc_dll;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="Code\c3ga\c3ga.h" />
+    <ClInclude Include="Code\Header.h" />
+    <ClInclude Include="Code\Lights\AmbientLight.h" />
+    <ClInclude Include="Code\Lights\DirectionalLight.h" />
+    <ClInclude Include="Code\Lights\PointLight.h" />
+    <ClInclude Include="Code\Lights\SpotLight.h" />
+    <ClInclude Include="Code\Lights\TriangleLight.h" />
+    <ClInclude Include="Code\Objects\AlgebraicSurface.h" />
+    <ClInclude Include="Code\Objects\Box.h" />
+    <ClInclude Include="Code\Objects\Plane.h" />
+    <ClInclude Include="Code\Objects\Quadric.h" />
+    <ClInclude Include="Code\Objects\Sphere.h" />
+    <ClInclude Include="Code\Polynomial.h" />
+    <ClInclude Include="Code\Polynomials\CylindricalInversion.h" />
+    <ClInclude Include="Code\Polynomials\DoubleTorus.h" />
+    <ClInclude Include="Code\Polynomials\Torus.h" />
+    <ClInclude Include="Code\Quadratic.h" />
+    <ClInclude Include="Code\RayTracer.h" />
+    <ClInclude Include="Code\RootFinder.h" />
+    <ClInclude Include="Code\Scene.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Code\c3ga\c3ga.cpp" />
+    <ClCompile Include="Code\c3ga\c3ga_parse_mv.cpp" />
+    <ClCompile Include="Code\Lights\AmbientLight.cpp" />
+    <ClCompile Include="Code\Lights\PointLight.cpp" />
+    <ClCompile Include="Code\Objects\AlgebraicSurface.cpp" />
+    <ClCompile Include="Code\Objects\Plane.cpp" />
+    <ClCompile Include="Code\Objects\Quadric.cpp" />
+    <ClCompile Include="Code\Objects\Sphere.cpp" />
+    <ClCompile Include="Code\Polynomial.cpp" />
+    <ClCompile Include="Code\Polynomials\CylindricalInversion.cpp" />
+    <ClCompile Include="Code\Polynomials\DoubleTorus.cpp" />
+    <ClCompile Include="Code\Polynomials\Torus.cpp" />
+    <ClCompile Include="Code\Quadratic.cpp" />
+    <ClCompile Include="Code\RayTracer.cpp" />
+    <ClCompile Include="Code\RootFinder.cpp" />
+    <ClCompile Include="Code\Scene.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="Scenes\CylindricalInversion.xml" />
+    <Xml Include="Scenes\DoubleTorus.xml" />
+    <Xml Include="Scenes\Quadrics.xml" />
+    <Xml Include="Scenes\RefractiveSphere.xml" />
+    <Xml Include="Scenes\TexturedPlane.xml" />
+    <Xml Include="Scenes\TexturedSphere.xml" />
+    <Xml Include="Scenes\ThreeSpheres.xml" />
+    <Xml Include="Scenes\Torus.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Notes.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Core\ImageGeneratorCore.vcxproj">
+      <Project>{d3589174-dbb4-4cf8-b2ba-52dedf8df5b6}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
