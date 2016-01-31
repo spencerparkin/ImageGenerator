@@ -21,8 +21,14 @@
 #include <wx/button.h>
 #include <wx/stattext.h>
 #include <wx/msw/regconf.h>
+#include <wx/file.h>
 
 #include <list>
+
+extern "C" {
+#include <libavcodec/avcodec.h>
+#include <libavutil/imgutils.h>
+}
 
 class igPlugin;
 class igApp;

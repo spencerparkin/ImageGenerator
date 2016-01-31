@@ -172,7 +172,17 @@ void igFrame::OnSaveImage( wxCommandEvent& event )
 //===========================================================================
 void igFrame::OnGenerateVideo( wxCommandEvent& event )
 {
-	//...generate/encode video here...
+	wxFileDialog fileDialog( this, "Save generated video",
+								wxEmptyString, wxEmptyString,
+								"MPEG file (*.mpeg)|*.mpeg",
+								wxFD_SAVE | wxFD_OVERWRITE_PROMPT );
+
+	if( fileDialog.ShowModal() == wxID_CANCEL )
+		return;
+
+	wxString videoPath = fileDialog.GetPath();
+	if( !wxGetApp().GenerateVideo( videoPath ) )
+		wxMessageBox( "Failed to generate video." );
 }
 
 //===========================================================================
@@ -258,9 +268,9 @@ void igFrame::OnAbout( wxCommandEvent& event )
 	aboutDialogInfo.SetName( "Image Generator" );
 	aboutDialogInfo.SetVersion( "v1.0" );
 	aboutDialogInfo.SetDescription( "Generate an image on multiple threads." );
-	aboutDialogInfo.SetCopyright( "Copyright (C) 2013" );
+	aboutDialogInfo.SetCopyright( "Copyright (C) 2013, 2016" );
 	aboutDialogInfo.AddDeveloper( "Spencer T. Parkin" );
-	aboutDialogInfo.SetLicense( "MIT License" );
+	aboutDialogInfo.SetLicense( "Not licensed!" );
 
 	wxAboutBox( aboutDialogInfo );
 }

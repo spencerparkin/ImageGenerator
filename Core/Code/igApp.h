@@ -21,8 +21,10 @@ public:
 	bool LoadPlugin( const wxString& pluginPath );
 	bool UnloadPlugin( bool frameDeleted = false );
 
-	bool GenerateImage( void );
+	bool GenerateImage( int frameIndex = 0, bool giveProgress = true );
 	bool DeleteImage( void );
+
+	bool GenerateVideo( const wxString& videoPath );
 
 	enum { COMPONENTS_PER_PIXEL = 3 };
 
@@ -49,6 +51,8 @@ private:
 
 	void SaveConfiguration( void );
 	void RestoreConfiguration( void );
+
+	wxString GetFFMpegError( int ret );
 
 	HMODULE pluginHandle;
 	igPlugin* plugin;

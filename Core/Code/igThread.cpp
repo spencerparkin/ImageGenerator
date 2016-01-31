@@ -113,7 +113,8 @@ igThread::Manager::~Manager( void )
 }
 
 //===========================================================================
-bool igThread::Manager::GenerateImage( int threadCount, int imageAreaDivisor /*= 100*/ )
+bool igThread::Manager::GenerateImage( int threadCount, int frameIndex /*= 0*/, int frameCount /*= 1*/,
+										int imageAreaDivisor /*= 100*/, bool giveProgress /*= true*/ )
 {
 	wxImage* image = wxGetApp().Image();
 	if( !image )
@@ -139,10 +140,15 @@ bool igThread::Manager::GenerateImage( int threadCount, int imageAreaDivisor /*=
 	}
 	wxASSERT( bittenRect.width == 0 && bittenRect.height == 0 );
 
-	wxProgressDialog* progressDialog = new wxProgressDialog(
+	wxProgressDialog* progressDialog = nullptr;
+
+	if( giveProgress )
+	{
+		progressDialog = new wxProgressDialog(
 							"Image Generation In Progress", "Generating Image...",
 							rectList.size(), 0,
 							wxPD_APP_MODAL | wxPD_CAN_ABORT | wxPD_ESTIMATED_TIME | wxPD_AUTO_HIDE );
+	}
 
 	semaphore = new wxSemaphore( 0, threadCount );
 
@@ -153,6 +159,8 @@ bool igThread::Manager::GenerateImage( int threadCount, int imageAreaDivisor /*=
 		igPlugin::ImageGenerator* imageGenerator = plugin->NewImageGenerator();
 		if( imageGenerator )
 		{
+			imageGenerator->frameIndex = frameIndex;
+			imageGenerator->frameCount = frameCount;
 			igThread* thread = new igThread( this, image, imageGenerator );
 			threadList.push_back( thread );
 			wxThreadError threadError = thread->Run();
@@ -188,24 +196,27 @@ bool igThread::Manager::GenerateImage( int threadCount, int imageAreaDivisor /*=
 			rectList.erase( iter );
 		}
 
-		int count = rectCount - rectList.size();
-		float percentage = float( count ) / float( rectCount ) * 100.f;
-		progressDialog->Update( count, wxString::Format( "Generating Image: %1.2f%%", percentage ) );
-		
-		if( progressDialog->WasCancelled() )
+		if( progressDialog )
 		{
-			while( threadList.size() > 0 )
+			int count = rectCount - rectList.size();
+			float percentage = float( count ) / float( rectCount ) * 100.f;
+			progressDialog->Update( count, wxString::Format( "Generating Image: %1.2f%%", percentage ) );
+		
+			if( progressDialog->WasCancelled() )
 			{
-				igThread* thread = *threadList.begin();
-				StopThread( thread );
-			}
+				while( threadList.size() > 0 )
+				{
+					igThread* thread = *threadList.begin();
+					StopThread( thread );
+				}
 
-			lazyThreadList.clear();
+				lazyThreadList.clear();
+			}
 		}
 	}
 
 	delete semaphore;
-	semaphore = 0;
+	semaphore = nullptr;
 
 	delete progressDialog;
 

@@ -34,10 +34,12 @@ public:
 	class ImageGenerator
 	{
 	public:
-		ImageGenerator( void ) {}
+		ImageGenerator( void ) { frameIndex = 0; frameCount = 1; }
 		virtual ~ImageGenerator( void ) {}
 
 		virtual bool GeneratePixel( const wxPoint& point, const wxSize& size, wxColour& color ) = 0;
+
+		int frameIndex, frameCount;
 	};
 
 	virtual ImageGenerator* NewImageGenerator( void ) = 0;
