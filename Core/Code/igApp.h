@@ -53,6 +53,9 @@ private:
 	void RestoreConfiguration( void );
 
 	wxString GetFFMpegError( int ret );
+	bool StuffImageInFrame( AVFrame* frame, int pix_fmt );
+	bool GetSample( int i, int j, float& r, float& g, float& b );
+	void ConvertSampleRGBtoYUV( float r, float g, float b, float& y, float& u, float& v );
 
 	HMODULE pluginHandle;
 	igPlugin* plugin;

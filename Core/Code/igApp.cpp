@@ -288,7 +288,7 @@ bool igApp::GenerateVideo( const wxString& videoPath )
 
 		avcodec_register_all();
 
-		AVCodecID codecId = AV_CODEC_ID_MPEG1VIDEO;
+		AVCodecID codecId = AV_CODEC_ID_H264; //AV_CODEC_ID_MPEG1VIDEO;
 		codec = avcodec_find_encoder( codecId );
 		if( !codec )
 		{
@@ -308,9 +308,9 @@ bool igApp::GenerateVideo( const wxString& videoPath )
 		codecContext->height = options.imageSize.GetHeight();
 		codecContext->time_base.num = 1;
 		codecContext->time_base.den = options.frameRate;
-		//codecContext->gop_size = 10;		// Huh?!
-		//codecContext->max_b_frames = 1;		// Wha?!
-		codecContext->pix_fmt = AV_PIX_FMT_ABGR;
+		codecContext->gop_size = 10;		// Huh?!
+		codecContext->max_b_frames = 1;		// Wha?!
+		codecContext->pix_fmt = AV_PIX_FMT_YUV420P;
 	
 		ret = avcodec_open2( codecContext, codec, NULL );
 		if( ret < 0 )
@@ -349,29 +349,8 @@ bool igApp::GenerateVideo( const wxString& videoPath )
 			if( !GenerateImage( frameIndex, false ) )
 				break;
 
-			// Copy the generated image into the target format for the video.
-			for( int i = 0; i < frame->width; i++ )
-			{
-				for( int j = 0; j < frame->height; j++ )
-				{
-					unsigned char r = image->GetRed( i, j );
-					unsigned char g = image->GetGreen( i, j );
-					unsigned char b = image->GetBlue( i, j );
-					unsigned char a = image->GetAlpha( i, j );
-
-					switch( codecContext->pix_fmt )
-					{
-						case AV_PIX_FMT_ABGR:
-						{
-							frame->data[0][ j * frame->linesize[0] + i ] = a;
-							frame->data[1][ j * frame->linesize[1] + i ] = b;
-							frame->data[2][ j * frame->linesize[2] + i ] = g;
-							frame->data[3][ j * frame->linesize[3] + i ] = r;
-							break;
-						}
-					}
-				}
-			}
+			if( !StuffImageInFrame( frame, codecContext->pix_fmt ) )
+				break;
 
 			frame->pts = frameIndex;
 
@@ -396,9 +375,11 @@ bool igApp::GenerateVideo( const wxString& videoPath )
 			if( gotPacket )
 			{
 				int bytesWritten = videoFile.Write( packet.data, packet.size );
+				int packetSize = packet.size;
+
 				av_packet_unref( &packet );
 
-				if( packet.size != bytesWritten )
+				if( packetSize != bytesWritten )
 				{
 					wxMessageBox( "Failed to write packet!" );
 					break;
@@ -471,6 +452,119 @@ wxString igApp::GetFFMpegError( int ret )
 	if( av_strerror( ret, errbuf, sizeof( errbuf ) ) == 0 )
 		error = errbuf;
 	return error;
+}
+
+bool igApp::StuffImageInFrame( AVFrame* frame, int pix_fmt )
+{
+	switch( pix_fmt )
+	{
+		// This is painful, but supposedly it compressed better in this format.
+		///< planar YUV 4:2:0, 12bpp, (1 Cr & Cb sample per 2x2 Y samples)
+		case AV_PIX_FMT_YUV420P:
+		{
+			if( frame->width != image->GetWidth() )
+				return false;
+			if( frame->linesize[0] != image->GetHeight() )
+				return false;
+			if( frame->linesize[1] != image->GetHeight() / 2 )
+				return false;
+			if( frame->linesize[2] != image->GetHeight() / 2 )
+				return false;
+
+			for( int i = 0; i < image->GetWidth(); i++ )
+			{
+				for( int j = 0; j < image->GetHeight(); j++ )
+				{
+					float r, g, b;
+					float y, u, v;
+
+					GetSample( i, j, r, g, b );
+					ConvertSampleRGBtoYUV( r, g, b, y, u, v );
+
+					unsigned char yByte = y * 255.f;
+					frame->data[0][ j * frame->linesize[0] + i ] = yByte;
+				}
+			}
+
+			for( int i = 0; i < image->GetWidth() / 2; i++ )
+			{
+				for( int j = 0; j < image->GetHeight() / 2; j++ )
+				{
+					float r[4], g[4], b[4];
+
+					GetSample( 2*i, 2*j, r[0], g[0], b[0] );
+					GetSample( 2*i + 1, 2*j, r[1], g[1], b[1] );
+					GetSample( 2*i, 2*j + 1, r[2], g[2], b[2] );
+					GetSample( 2*i + 1, 2*j + 1, r[3], g[3], b[3] );
+
+					float rAvg = ( r[0] + r[1] + r[2] + r[3] ) / 4.f;
+					float gAvg = ( g[0] + g[1] + g[2] + g[3] ) / 4.f;
+					float bAvg = ( b[0] + b[1] + b[2] + b[3] ) / 4.f;
+					
+					float y, u, v;
+					ConvertSampleRGBtoYUV( rAvg, gAvg, bAvg, y, u, v );
+
+					unsigned char uByte = u * 255.f;
+					unsigned char vByte = v * 255.f;
+					frame->data[1][ j * frame->linesize[1] + i ] = uByte;
+					frame->data[2][ j * frame->linesize[2] + i ] = vByte;
+				}
+			}
+
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool igApp::GetSample( int i, int j, float& r, float& g, float& b )
+{
+	if( i < 0 || i > image->GetWidth() - 1 )
+		return false;
+	if( j < 0 || j > image->GetHeight() - 1 )
+		return false;
+
+	r = float( image->GetRed( i, j ) ) / 255.f;
+	g = float( image->GetGreen( i, j ) ) / 255.f;
+	b = float( image->GetBlue( i, j ) ) / 255.f;
+
+	return true;
+}
+
+void igApp::ConvertSampleRGBtoYUV( float r, float g, float b, float& y, float& u, float& v )
+{
+	float m[3][3];
+
+	/*
+	m[0][0] = 0.2126f;
+	m[0][1] = 0.7152f;
+	m[0][2] = 0.0722f;
+
+	m[1][0] = -0.09991f;
+	m[1][1] = -0.33609f;
+	m[1][2] = 0.436f;
+
+	m[2][0] = 0.615f;
+	m[2][1] = -0.55861f;
+	m[2][2] = -0.05639f;
+	*/
+
+	m[0][0] = 0.299f;
+	m[0][1] = 0.587f;
+	m[0][2] = 0.114f;
+
+	m[1][0] = -0.14713f;
+	m[1][1] = -0.28886f;
+	m[1][2] = 0.436f;
+
+	m[2][0] = 0.615f;
+	m[2][1] = -0.51499f;
+	m[2][2] = -0.10001f;
+
+	y = m[0][0] * r + m[0][1] * g + m[0][2] * b;
+	u = m[1][0] * r + m[1][1] * g + m[1][2] * b;
+	v = m[2][0] * r + m[2][1] * g + m[2][2] * b;
 }
 
 // igApp.cpp
