@@ -21,7 +21,7 @@ public:
 	bool LoadPlugin( const wxString& pluginPath );
 	bool UnloadPlugin( bool frameDeleted = false );
 
-	bool GenerateImage( int frameIndex = 0, bool giveProgress = true );
+	bool GenerateImage( int frameIndex = 0, bool giveProgress = true, bool animating = false );
 	bool DeleteImage( void );
 
 	bool GenerateVideo( const wxString& videoPath );

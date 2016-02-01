@@ -15,15 +15,13 @@ extern "C" __declspec( dllexport ) void DeleteImageGeneratorPlugin( igPlugin* ig
 }
 
 //===========================================================================
-FractalPlugin::FractalPlugin( void )
+FractalPlugin::FractalPlugin( void ) : menuEventHandler( this )
 {
 	colorTable = 0;
 	colorTableSize = 0;
 
-	realMin = -2.5;
-	realMax = 2.5;
-	imagMin = -2.5;
-	imagMax = 2.5;
+	ResetRegion();
+	SetTargetRegion();
 
 	maxIters = 5000;
 }
@@ -37,6 +35,9 @@ FractalPlugin::FractalPlugin( void )
 /*virtual*/ bool FractalPlugin::Initialize( wxMenuBar* menuBar, wxEvtHandler* updateUIHandler )
 {
 	GenerateColorTable();
+
+	menuEventHandler.InsertMenu( menuBar, updateUIHandler );
+
 	return true;
 }
 
@@ -46,6 +47,9 @@ FractalPlugin::FractalPlugin( void )
 	delete[] colorTable;
 	colorTable = 0;
 	colorTableSize = 0;
+
+	menuEventHandler.RemoveMenu( menuBar, updateUIHandler );
+
 	return true;
 }
 
@@ -104,13 +108,64 @@ void FractalPlugin::GenerateColorTable( void )
 }
 
 //===========================================================================
-/*virtual*/ bool FractalPlugin::PreImageGeneration( wxImage* image )
+/*virtual*/ bool FractalPlugin::PreImageGeneration( wxImage* image, int frameIndex, int frameCount, bool animating )
 {
+	if( animating )
+	{
+		if( frameIndex == 0 )
+			region = regionSource;
+		else
+		{
+			long double eps = 1e-5;
+
+			long double realMinPhi = CalcPhi( regionSource.realMin, regionTarget.realMin, eps, frameCount );
+			long double realMaxPhi = CalcPhi( regionSource.realMax, regionTarget.realMax, eps, frameCount );
+			long double imagMinPhi = CalcPhi( regionSource.imagMin, regionTarget.imagMin, eps, frameCount );
+			long double imagMaxPhi = CalcPhi( regionSource.imagMax, regionTarget.imagMax, eps, frameCount );
+
+			region.realMin = ApplyPhi( regionSource.realMin, regionTarget.realMin, realMinPhi, frameIndex );
+			region.realMax = ApplyPhi( regionSource.realMax, regionTarget.realMax, realMaxPhi, frameIndex );
+			region.imagMin = ApplyPhi( regionSource.imagMin, regionTarget.imagMin, imagMinPhi, frameIndex );
+			region.imagMax = ApplyPhi( regionSource.imagMax, regionTarget.imagMax, imagMaxPhi, frameIndex );
+		}
+	}
+
 	return true;
 }
 
 //===========================================================================
-/*virtual*/ bool FractalPlugin::PostImageGeneration( wxImage* image )
+long double FractalPlugin::CalcPhi( long double A, long double B, long double eps, int frameCount )
+{
+	/*
+	long double ln_eps = log( eps );
+	long double ln_A_to_B = log( fabs( A - B ) );
+	long double ln_frameCount = log( long double( frameCount ) );
+	long double phi = ( ln_eps - ln_A_to_B ) / ln_frameCount;
+	*/
+
+	long double phi = 0.95;
+	while( true )
+	{
+		eps = pow( phi, long double( frameCount ) ) * fabs( A - B );
+		if( eps > 1e-8 )
+			phi *= 0.99;
+		else
+			break;
+	}
+
+	return phi;
+}
+
+//===========================================================================
+long double FractalPlugin::ApplyPhi( long double A, long double B, long double phi, int frameIndex )
+{
+	long double lerp = pow( phi, long double( frameIndex ) );
+	long double result = lerp * A + ( 1.0 - lerp ) * B;
+	return result;
+}
+
+//===========================================================================
+/*virtual*/ bool FractalPlugin::PostImageGeneration( wxImage* image, int frameIndex, int frameCount, bool animating )
 {
 	return true;
 }
@@ -118,19 +173,19 @@ void FractalPlugin::GenerateColorTable( void )
 //===========================================================================
 /*virtual*/ bool FractalPlugin::SubregionSelect( const wxRect& rect, const wxSize& size )
 {
-	double realMinLerp = double( rect.x ) / double( size.x );
-	double realMaxLerp = double( rect.x + rect.width ) / double( size.x );
+	long double realMinLerp = long double( rect.x ) / long double( size.x );
+	long double realMaxLerp = long double( rect.x + rect.width ) / long double( size.x );
 
-	double imagMinLerp = 1.0 - double( rect.y + rect.height ) / double( size.y );
-	double imagMaxLerp = 1.0 - double( rect.y ) / double( size.y );
+	long double imagMinLerp = 1.0 - long double( rect.y + rect.height ) / long double( size.y );
+	long double imagMaxLerp = 1.0 - long double( rect.y ) / long double( size.y );
 
-	double realDelta = realMax - realMin;
-	realMax = realMin + realMaxLerp * realDelta;
-	realMin = realMin + realMinLerp * realDelta;
+	long double realDelta = region.realMax - region.realMin;
+	region.realMax = region.realMin + realMaxLerp * realDelta;
+	region.realMin = region.realMin + realMinLerp * realDelta;
 
-	double imagDelta = imagMax - imagMin;
-	imagMax = imagMin + imagMaxLerp * imagDelta;
-	imagMin = imagMin + imagMinLerp * imagDelta;
+	long double imagDelta = region.imagMax - region.imagMin;
+	region.imagMax = region.imagMin + imagMaxLerp * imagDelta;
+	region.imagMin = region.imagMin + imagMinLerp * imagDelta;
 
 	// TODO: Fix the aspect ratio here of our window into the complex plane
 	//       so that it matches that of the given image size.
@@ -156,23 +211,23 @@ FractalPlugin::ImageGenerator::ImageGenerator( FractalPlugin* fractalPlugin )
 	// All members of the set are colored black in the complex plane.
 	color.Set( 0, 0, 0 );
 
-	double realZ = 0.0;
-	double imagZ = 0.0;
-	double realC = fractalPlugin->realMin + double( point.x ) / double( size.x ) * ( fractalPlugin->realMax - fractalPlugin->realMin );
-	double imagC = fractalPlugin->imagMin + ( 1.0 - double( point.y ) / double( size.y ) ) * ( fractalPlugin->imagMax - fractalPlugin->imagMin );
+	long double realZ = 0.0;
+	long double imagZ = 0.0;
+	long double realC = fractalPlugin->region.realMin + long double( point.x ) / long double( size.x ) * ( fractalPlugin->region.realMax - fractalPlugin->region.realMin );
+	long double imagC = fractalPlugin->region.imagMin + ( 1.0 - long double( point.y ) / long double( size.y ) ) * ( fractalPlugin->region.imagMax - fractalPlugin->region.imagMin );
 
 	int i;
 	for( i = 0; i < fractalPlugin->maxIters; i++ )
 	{
 		// Calculate Z <- Z^2 + C.
-		double real = realZ * realZ - imagZ * imagZ + realC;
-		double imag = 2.0 * realZ * imagZ + imagC;
+		long double real = realZ * realZ - imagZ * imagZ + realC;
+		long double imag = 2.0 * realZ * imagZ + imagC;
 		realZ = real;
 		imagZ = imag;
 
 		// It can be shown that if the magnitude of Z ever becomes greater than 2,
 		// then we have escaped the Mandelbrot set.
-		double squareMagnitude = realZ * realZ + imagZ * imagZ;
+		long double squareMagnitude = realZ * realZ + imagZ * imagZ;
 		if( squareMagnitude > 4.0 )
 			break;
 	}
@@ -185,6 +240,104 @@ FractalPlugin::ImageGenerator::ImageGenerator( FractalPlugin* fractalPlugin )
 	}
 
 	return true;
+}
+
+//===========================================================================
+void FractalPlugin::ResetRegion( void )
+{
+	region.realMin = -2.5;
+	region.realMax = 2.5;
+	region.imagMin = -2.5;
+	region.imagMax = 2.5;
+}
+
+//===========================================================================
+void FractalPlugin::SetTargetRegion( void )
+{
+	regionTarget = region;
+
+	ResetRegion();
+
+	regionSource = region;
+}
+
+//===========================================================================
+FractalPlugin::MenuEventHandler::MenuEventHandler( FractalPlugin* fractalPlugin )
+{
+	this->fractalPlugin = fractalPlugin;
+
+	ID_SetTargetRegion = -1;
+}
+
+//===========================================================================
+/*virtual*/ FractalPlugin::MenuEventHandler::~MenuEventHandler( void )
+{
+}
+
+//===========================================================================
+void FractalPlugin::MenuEventHandler::InsertMenu( wxMenuBar* menuBar, wxEvtHandler* updateUIHandler )
+{
+	int maxId = CalcMaxMenuId( menuBar );
+
+	ID_ResetRegion = ++maxId;
+	ID_SetTargetRegion = ++maxId;
+
+	wxMenu* fractalMenu = new wxMenu();
+	wxMenuItem* resetRegionMenuItem = new wxMenuItem( fractalMenu, ID_ResetRegion, "Reset Region", "Reset the region we view into the complex plane." );
+	wxMenuItem* setTargetRegionMenuItem = new wxMenuItem( fractalMenu, ID_SetTargetRegion, "Set Target Region", "Set the target region from fractal zoom animation." );
+	fractalMenu->Append( resetRegionMenuItem );
+	fractalMenu->Append( setTargetRegionMenuItem );
+
+	menuBar->Append( fractalMenu, "Fractal" );
+
+	menuBar->Bind( wxEVT_MENU, &MenuEventHandler::OnResetRegion, this, ID_ResetRegion );
+	menuBar->Bind( wxEVT_MENU, &MenuEventHandler::OnSetTargetRegion, this, ID_SetTargetRegion );
+	updateUIHandler->Bind( wxEVT_UPDATE_UI, &MenuEventHandler::OnUpdateMenuItemUI, this, ID_SetTargetRegion );
+}
+
+//===========================================================================
+void FractalPlugin::MenuEventHandler::RemoveMenu( wxMenuBar* menuBar, wxEvtHandler* updateUIHandler )
+{
+	if( updateUIHandler )
+	{
+		updateUIHandler->Unbind( wxEVT_UPDATE_UI, &MenuEventHandler::OnUpdateMenuItemUI, this, ID_SetTargetRegion );
+	}
+
+	if( menuBar )
+	{
+		int menuPos = menuBar->FindMenu( "Fractal" );
+		if( menuPos != wxNOT_FOUND )
+		{
+			wxMenu* fractalMenu = menuBar->Remove( menuPos );
+			delete fractalMenu;
+		}
+	}
+}
+
+//===========================================================================
+void FractalPlugin::MenuEventHandler::OnResetRegion( wxCommandEvent& event )
+{
+	fractalPlugin->ResetRegion();
+
+	wxMessageBox( "Region reset!" );
+}
+
+//===========================================================================
+void FractalPlugin::MenuEventHandler::OnSetTargetRegion( wxCommandEvent& event )
+{
+	fractalPlugin->SetTargetRegion();
+
+	wxMessageBox( wxString::Format( "Target region set!  [ rmin: %LG, rmax: %LG, imin: %LG, imax %LG ]",
+					fractalPlugin->regionTarget.realMin,
+					fractalPlugin->regionTarget.realMax,
+					fractalPlugin->regionTarget.imagMin,
+					fractalPlugin->regionTarget.imagMax ) );
+}
+
+//===========================================================================
+void FractalPlugin::MenuEventHandler::OnUpdateMenuItemUI( wxUpdateUIEvent& event )
+{
+	event.Enable( true );
 }
 
 // Fractal.cpp

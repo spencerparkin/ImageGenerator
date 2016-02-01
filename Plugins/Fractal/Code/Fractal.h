@@ -5,6 +5,7 @@
 #include <wx/gdicmn.h>
 #include <wx/image.h>
 #include <wx/menu.h>
+#include <wx/msgdlg.h>
 #include <igPlugin.h>
 
 //===========================================================================
@@ -22,8 +23,8 @@ public:
 
 	virtual wxString Name( void ) override;
 
-	virtual bool PreImageGeneration( wxImage* image ) override;
-	virtual bool PostImageGeneration( wxImage* image ) override;
+	virtual bool PreImageGeneration( wxImage* image, int frameIndex, int frameCount, bool animating ) override;
+	virtual bool PostImageGeneration( wxImage* image, int frameIndex, int frameCount, bool animating ) override;
 
 	virtual bool SubregionSelect( const wxRect& rect, const wxSize& size ) override;
 
@@ -44,15 +45,50 @@ public:
 
 private:
 
+	//===========================================================================
+	class MenuEventHandler : public wxEvtHandler
+	{
+	public:
+
+		MenuEventHandler( FractalPlugin* fractalPlugin );
+		virtual ~MenuEventHandler( void );
+
+		void InsertMenu( wxMenuBar* menuBar, wxEvtHandler* updateUIHandler );
+		void RemoveMenu( wxMenuBar* menuBar, wxEvtHandler* updateUIHandler );
+
+	private:
+
+		void OnResetRegion( wxCommandEvent& event );
+		void OnSetTargetRegion( wxCommandEvent& event );
+		void OnUpdateMenuItemUI( wxUpdateUIEvent& event );
+
+		int ID_ResetRegion;
+		int ID_SetTargetRegion;
+		FractalPlugin* fractalPlugin;
+	};
+
 	void GenerateColorTable( void );
+
+	long double CalcPhi( long double A, long double B, long double eps, int frameCount );
+	long double ApplyPhi( long double A, long double B, long double phi, int frameIndex );
+
+	void ResetRegion( void );
+	void SetTargetRegion( void );
 
 	wxColour* colorTable;
 	int colorTableSize;
 
-	double realMin, realMax;
-	double imagMin, imagMax;
+	struct Region
+	{
+		long double realMin, realMax;
+		long double imagMin, imagMax;
+	};
+
+	Region region, regionTarget, regionSource;
 
 	int maxIters;
+
+	MenuEventHandler menuEventHandler;
 };
 
 // Fractal.h

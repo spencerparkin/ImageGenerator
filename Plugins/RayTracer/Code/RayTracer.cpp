@@ -46,18 +46,7 @@ RayTracerPlugin::MenuEventHandler::MenuEventHandler( RayTracerPlugin* rayTracerP
 //===========================================================================
 void RayTracerPlugin::MenuEventHandler::InsertMenu( wxMenuBar* menuBar, wxEvtHandler* updateUIHandler )
 {
-	int maxID = -1;
-	for( unsigned int i = 0; i < menuBar->GetMenuCount(); i++ )
-	{
-		const wxMenu* menu = menuBar->GetMenu( i );
-		const wxMenuItemList& menuItemList = menu->GetMenuItems();
-		for( wxMenuItemList::const_iterator iter = menuItemList.begin(); iter != menuItemList.end(); iter++ )
-		{
-			const wxMenuItem* menuItem = *iter;
-			if( maxID < menuItem->GetId() )
-				maxID = menuItem->GetId();
-		}
-	}
+	int maxID = CalcMaxMenuId( menuBar );
 
 	ID_LoadScene = ++maxID;
 	ID_UnloadScene = ++maxID;
@@ -299,7 +288,7 @@ bool RayTracerPlugin::LoadElement( wxXmlNode* xmlNode )
 }
 
 //===========================================================================
-/*virtual*/ bool RayTracerPlugin::PreImageGeneration( wxImage* image )
+/*virtual*/ bool RayTracerPlugin::PreImageGeneration( wxImage* image, int frameIndex, int frameCount, bool animating )
 {
 	if( !scene )
 		return false;
@@ -312,7 +301,7 @@ bool RayTracerPlugin::LoadElement( wxXmlNode* xmlNode )
 }
 
 //===========================================================================
-/*virtual*/ bool RayTracerPlugin::PostImageGeneration( wxImage* image )
+/*virtual*/ bool RayTracerPlugin::PostImageGeneration( wxImage* image, int frameIndex, int frameCount, bool animating )
 {
 	if( antiAlias )
 		DeallocateOverSampleForImage( image );

@@ -21,8 +21,8 @@ public:
 
 	virtual wxString Name( void ) = 0;
 
-	virtual bool PreImageGeneration( wxImage* image ) { return true; };
-	virtual bool PostImageGeneration( wxImage* image ) { return true; };
+	virtual bool PreImageGeneration( wxImage* image, int frameIndex, int frameCount, bool animating ) { return true; };
+	virtual bool PostImageGeneration( wxImage* image, int frameIndex, int frameCount, bool animating ) { return true; };
 
 	virtual bool SubregionSelect( const wxRect& rect, const wxSize& size ) { return false; }
 
@@ -44,6 +44,24 @@ public:
 
 	virtual ImageGenerator* NewImageGenerator( void ) = 0;
 	virtual void DeleteImageGenerator( ImageGenerator* imageGenerator ) = 0;
+
+	static int CalcMaxMenuId( wxMenuBar* menuBar )
+	{
+		int maxId = 0;
+		for( unsigned int i = 0; i < menuBar->GetMenuCount(); i++ )
+		{
+			const wxMenu* menu = menuBar->GetMenu( i );
+			const wxMenuItemList& menuItemList = menu->GetMenuItems();
+			for( wxMenuItemList::const_iterator iter = menuItemList.begin(); iter != menuItemList.end(); iter++ )
+			{
+				const wxMenuItem* menuItem = *iter;
+				if( maxId < menuItem->GetId() )
+					maxId = menuItem->GetId();
+			}
+		}
+
+		return maxId;
+	}
 };
 
 // igPlugin.h

@@ -16,8 +16,8 @@ public:
 
 	virtual wxString Name( void ) override;
 
-	virtual bool PreImageGeneration( wxImage* image ) override;
-	virtual bool PostImageGeneration( wxImage* image ) override;
+	virtual bool PreImageGeneration( wxImage* image, int frameIndex, int frameCount, bool animating ) override;
+	virtual bool PostImageGeneration( wxImage* image, int frameIndex, int frameCount, bool animating ) override;
 
 	//===========================================================================
 	struct Sample

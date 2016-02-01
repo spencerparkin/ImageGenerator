@@ -234,7 +234,7 @@ bool igApp::DeleteImage( void )
 }
 
 //===========================================================================
-bool igApp::GenerateImage( int frameIndex /*= 0*/, bool giveProgress /*= true*/ )
+bool igApp::GenerateImage( int frameIndex /*= 0*/, bool giveProgress /*= true*/, bool animating /*= false*/ )
 {
 	bool success = false;
 
@@ -251,14 +251,14 @@ bool igApp::GenerateImage( int frameIndex /*= 0*/, bool giveProgress /*= true*/ 
 
 		image = new wxImage( options.imageSize, imageData, true );
 
-		if( !plugin->PreImageGeneration( image ) )
+		if( !plugin->PreImageGeneration( image, frameIndex, options.frameCount, animating ) )
 			break;
 
 		igThread::Manager manager;
 		if( !manager.GenerateImage( options.threadCount, frameIndex, options.frameCount, 100, giveProgress ) )
 			break;
 
-		if( !plugin->PostImageGeneration( image ) )
+		if( !plugin->PostImageGeneration( image, frameIndex, options.frameCount, animating ) )
 			break;
 
 		success = true;
@@ -346,7 +346,7 @@ bool igApp::GenerateVideo( const wxString& videoPath )
 		int frameIndex;
 		for( frameIndex = 0; frameIndex < options.frameCount; frameIndex++ )
 		{
-			if( !GenerateImage( frameIndex, false ) )
+			if( !GenerateImage( frameIndex, false, true ) )
 				break;
 
 			if( !StuffImageInFrame( frame, codecContext->pix_fmt ) )
