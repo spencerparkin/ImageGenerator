@@ -69,8 +69,7 @@ private:
 
 	void GenerateColorTable( void );
 
-	long double CalcPhi( long double A, long double B, long double eps, int frameCount );
-	long double ApplyPhi( long double A, long double B, long double phi, int frameIndex );
+	long double Zoom( long double source, long double target, long double zoomRate );
 
 	void ResetRegion( void );
 	void SetTargetRegion( void );

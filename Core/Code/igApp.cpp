@@ -288,7 +288,7 @@ bool igApp::GenerateVideo( const wxString& videoPath )
 
 		avcodec_register_all();
 
-		AVCodecID codecId = AV_CODEC_ID_H264; //AV_CODEC_ID_MPEG1VIDEO;
+		AVCodecID codecId = AV_CODEC_ID_MPEG4; //AV_CODEC_ID_H264; //AV_CODEC_ID_MPEG1VIDEO;
 		codec = avcodec_find_encoder( codecId );
 		if( !codec )
 		{
@@ -563,8 +563,15 @@ void igApp::ConvertSampleRGBtoYUV( float r, float g, float b, float& y, float& u
 	m[2][2] = -0.10001f;
 
 	y = m[0][0] * r + m[0][1] * g + m[0][2] * b;
-	u = m[1][0] * r + m[1][1] * g + m[1][2] * b;
-	v = m[2][0] * r + m[2][1] * g + m[2][2] * b;
+	u = m[1][0] * r + m[1][1] * g + m[1][2] * b + 0.5f;
+	v = m[2][0] * r + m[2][1] * g + m[2][2] * b + 0.5f;
+
+	if( y < 0.f )	y = 0.f;
+	if( y > 1.f )	y = 1.f;
+	if( u < 0.f )	u = 0.f;
+	if( u > 1.f )	u = 1.f;
+	if( v < 0.f )	v = 0.f;
+	if( v > 1.f )	v = 1.f;
 }
 
 // igApp.cpp

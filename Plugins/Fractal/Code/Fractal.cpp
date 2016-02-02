@@ -116,17 +116,15 @@ void FractalPlugin::GenerateColorTable( void )
 			region = regionSource;
 		else
 		{
-			long double eps = 1e-5;
+			// This controls how fast we zoom to the target region.  I've tried calculating it
+			// so that we hit the target region within some epsilon by the last frame, but I either
+			// failed or the calculation requires too much precision; most likely the former.
+			long double zoomRate = 0.95;
 
-			long double realMinPhi = CalcPhi( regionSource.realMin, regionTarget.realMin, eps, frameCount );
-			long double realMaxPhi = CalcPhi( regionSource.realMax, regionTarget.realMax, eps, frameCount );
-			long double imagMinPhi = CalcPhi( regionSource.imagMin, regionTarget.imagMin, eps, frameCount );
-			long double imagMaxPhi = CalcPhi( regionSource.imagMax, regionTarget.imagMax, eps, frameCount );
-
-			region.realMin = ApplyPhi( regionSource.realMin, regionTarget.realMin, realMinPhi, frameIndex );
-			region.realMax = ApplyPhi( regionSource.realMax, regionTarget.realMax, realMaxPhi, frameIndex );
-			region.imagMin = ApplyPhi( regionSource.imagMin, regionTarget.imagMin, imagMinPhi, frameIndex );
-			region.imagMax = ApplyPhi( regionSource.imagMax, regionTarget.imagMax, imagMaxPhi, frameIndex );
+			region.realMin = Zoom( region.realMin, regionTarget.realMin, zoomRate );
+			region.realMax = Zoom( region.realMax, regionTarget.realMax, zoomRate );
+			region.imagMin = Zoom( region.imagMin, regionTarget.imagMin, zoomRate );
+			region.imagMax = Zoom( region.imagMax, regionTarget.imagMax, zoomRate );
 		}
 	}
 
@@ -134,33 +132,9 @@ void FractalPlugin::GenerateColorTable( void )
 }
 
 //===========================================================================
-long double FractalPlugin::CalcPhi( long double A, long double B, long double eps, int frameCount )
+long double FractalPlugin::Zoom( long double source, long double target, long double zoomRate )
 {
-	/*
-	long double ln_eps = log( eps );
-	long double ln_A_to_B = log( fabs( A - B ) );
-	long double ln_frameCount = log( long double( frameCount ) );
-	long double phi = ( ln_eps - ln_A_to_B ) / ln_frameCount;
-	*/
-
-	long double phi = 0.95;
-	while( true )
-	{
-		eps = pow( phi, long double( frameCount ) ) * fabs( A - B );
-		if( eps > 1e-8 )
-			phi *= 0.99;
-		else
-			break;
-	}
-
-	return phi;
-}
-
-//===========================================================================
-long double FractalPlugin::ApplyPhi( long double A, long double B, long double phi, int frameIndex )
-{
-	long double lerp = pow( phi, long double( frameIndex ) );
-	long double result = lerp * A + ( 1.0 - lerp ) * B;
+	long double result = zoomRate * source + ( 1.0 - zoomRate ) * target;
 	return result;
 }
 
@@ -256,9 +230,13 @@ void FractalPlugin::SetTargetRegion( void )
 {
 	regionTarget = region;
 
-	ResetRegion();
+	long double realCenter = ( region.realMin + region.realMax ) / 2.0;
+	long double imagCenter = ( region.imagMin + region.imagMax ) / 2.0;
 
-	regionSource = region;
+	regionSource.realMin = realCenter - 2.5;
+	regionSource.realMax = realCenter + 2.5;
+	regionSource.imagMin = imagCenter - 2.5;
+	regionSource.imagMax = imagCenter + 2.5;
 }
 
 //===========================================================================
