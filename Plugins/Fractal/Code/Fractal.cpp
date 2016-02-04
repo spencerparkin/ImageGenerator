@@ -23,7 +23,7 @@ FractalPlugin::FractalPlugin( void ) : menuEventHandler( this )
 	ResetRegion();
 	SetTargetRegion();
 
-	maxIters = 5000;
+	maxIters = 500;
 }
 
 //===========================================================================
@@ -119,7 +119,7 @@ void FractalPlugin::GenerateColorTable( void )
 			// This controls how fast we zoom to the target region.  I've tried calculating it
 			// so that we hit the target region within some epsilon by the last frame, but I either
 			// failed or the calculation requires too much precision; most likely the former.
-			long double zoomRate = 0.95;
+			scalar_t zoomRate = 0.95;
 
 			region.realMin = Zoom( region.realMin, regionTarget.realMin, zoomRate );
 			region.realMax = Zoom( region.realMax, regionTarget.realMax, zoomRate );
@@ -132,9 +132,9 @@ void FractalPlugin::GenerateColorTable( void )
 }
 
 //===========================================================================
-long double FractalPlugin::Zoom( long double source, long double target, long double zoomRate )
+scalar_t FractalPlugin::Zoom( scalar_t source, scalar_t target, scalar_t zoomRate )
 {
-	long double result = zoomRate * source + ( 1.0 - zoomRate ) * target;
+	scalar_t result = zoomRate * source + ( 1.0 - zoomRate ) * target;
 	return result;
 }
 
@@ -147,17 +147,17 @@ long double FractalPlugin::Zoom( long double source, long double target, long do
 //===========================================================================
 /*virtual*/ bool FractalPlugin::SubregionSelect( const wxRect& rect, const wxSize& size )
 {
-	long double realMinLerp = long double( rect.x ) / long double( size.x );
-	long double realMaxLerp = long double( rect.x + rect.width ) / long double( size.x );
+	scalar_t realMinLerp = scalar_t( rect.x ) / scalar_t( size.x );
+	scalar_t realMaxLerp = scalar_t( rect.x + rect.width ) / scalar_t( size.x );
 
-	long double imagMinLerp = 1.0 - long double( rect.y + rect.height ) / long double( size.y );
-	long double imagMaxLerp = 1.0 - long double( rect.y ) / long double( size.y );
+	scalar_t imagMinLerp = 1.0 - scalar_t( rect.y + rect.height ) / scalar_t( size.y );
+	scalar_t imagMaxLerp = 1.0 - scalar_t( rect.y ) / scalar_t( size.y );
 
-	long double realDelta = region.realMax - region.realMin;
+	scalar_t realDelta = region.realMax - region.realMin;
 	region.realMax = region.realMin + realMaxLerp * realDelta;
 	region.realMin = region.realMin + realMinLerp * realDelta;
 
-	long double imagDelta = region.imagMax - region.imagMin;
+	scalar_t imagDelta = region.imagMax - region.imagMin;
 	region.imagMax = region.imagMin + imagMaxLerp * imagDelta;
 	region.imagMin = region.imagMin + imagMinLerp * imagDelta;
 
@@ -185,23 +185,23 @@ FractalPlugin::ImageGenerator::ImageGenerator( FractalPlugin* fractalPlugin )
 	// All members of the set are colored black in the complex plane.
 	color.Set( 0, 0, 0 );
 
-	long double realZ = 0.0;
-	long double imagZ = 0.0;
-	long double realC = fractalPlugin->region.realMin + long double( point.x ) / long double( size.x ) * ( fractalPlugin->region.realMax - fractalPlugin->region.realMin );
-	long double imagC = fractalPlugin->region.imagMin + ( 1.0 - long double( point.y ) / long double( size.y ) ) * ( fractalPlugin->region.imagMax - fractalPlugin->region.imagMin );
+	scalar_t realZ = 0.0;
+	scalar_t imagZ = 0.0;
+	scalar_t realC = fractalPlugin->region.realMin + scalar_t( point.x ) / scalar_t( size.x ) * ( fractalPlugin->region.realMax - fractalPlugin->region.realMin );
+	scalar_t imagC = fractalPlugin->region.imagMin + ( 1.0 - scalar_t( point.y ) / scalar_t( size.y ) ) * ( fractalPlugin->region.imagMax - fractalPlugin->region.imagMin );
 
 	int i;
 	for( i = 0; i < fractalPlugin->maxIters; i++ )
 	{
 		// Calculate Z <- Z^2 + C.
-		long double real = realZ * realZ - imagZ * imagZ + realC;
-		long double imag = 2.0 * realZ * imagZ + imagC;
+		scalar_t real = realZ * realZ - imagZ * imagZ + realC;
+		scalar_t imag = 2.0 * realZ * imagZ + imagC;
 		realZ = real;
 		imagZ = imag;
 
 		// It can be shown that if the magnitude of Z ever becomes greater than 2,
 		// then we have escaped the Mandelbrot set.
-		long double squareMagnitude = realZ * realZ + imagZ * imagZ;
+		scalar_t squareMagnitude = realZ * realZ + imagZ * imagZ;
 		if( squareMagnitude > 4.0 )
 			break;
 	}
@@ -230,8 +230,8 @@ void FractalPlugin::SetTargetRegion( void )
 {
 	regionTarget = region;
 
-	long double realCenter = ( region.realMin + region.realMax ) / 2.0;
-	long double imagCenter = ( region.imagMin + region.imagMax ) / 2.0;
+	scalar_t realCenter = ( region.realMin + region.realMax ) / 2.0;
+	scalar_t imagCenter = ( region.imagMin + region.imagMax ) / 2.0;
 
 	regionSource.realMin = realCenter - 2.5;
 	regionSource.realMax = realCenter + 2.5;
@@ -305,11 +305,13 @@ void FractalPlugin::MenuEventHandler::OnSetTargetRegion( wxCommandEvent& event )
 {
 	fractalPlugin->SetTargetRegion();
 
+	/*
 	wxMessageBox( wxString::Format( "Target region set!  [ rmin: %LG, rmax: %LG, imin: %LG, imax %LG ]",
 					fractalPlugin->regionTarget.realMin,
 					fractalPlugin->regionTarget.realMax,
 					fractalPlugin->regionTarget.imagMin,
 					fractalPlugin->regionTarget.imagMax ) );
+	*/
 }
 
 //===========================================================================

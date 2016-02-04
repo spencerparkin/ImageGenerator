@@ -7,6 +7,10 @@
 #include <wx/menu.h>
 #include <wx/msgdlg.h>
 #include <igPlugin.h>
+#include <boost/multiprecision/cpp_dec_float.hpp>
+
+//typedef long double scalar_t;
+typedef boost::multiprecision::cpp_dec_float_50 scalar_t;
 
 //===========================================================================
 class FractalPlugin : public igPlugin
@@ -69,7 +73,7 @@ private:
 
 	void GenerateColorTable( void );
 
-	long double Zoom( long double source, long double target, long double zoomRate );
+	scalar_t Zoom( scalar_t source, scalar_t target, scalar_t zoomRate );
 
 	void ResetRegion( void );
 	void SetTargetRegion( void );
@@ -79,8 +83,8 @@ private:
 
 	struct Region
 	{
-		long double realMin, realMax;
-		long double imagMin, imagMax;
+		scalar_t realMin, realMax;
+		scalar_t imagMin, imagMax;
 	};
 
 	Region region, regionTarget, regionSource;
