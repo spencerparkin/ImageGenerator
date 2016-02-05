@@ -212,12 +212,10 @@ bool RayTracerPlugin::LoadView( wxXmlNode* xmlNode, View* view /*= nullptr*/ )
 	{
 		view->eye = Scene::LoadVector( xmlNode, "eye", view->eye );
 		view->up = c3ga::unit( Scene::LoadVector( xmlNode, "up", view->up ) );
-		view->subject = c3ga::unit( Scene::LoadVector( xmlNode, "subject", view->subject ) );
+		view->subject = Scene::LoadVector( xmlNode, "subject", view->subject );
 		view->angle = Scene::LoadNumber( xmlNode, "angle", view->angle * 180.0 / M_PI ) * M_PI / 180.0;
 		view->focalLength = Scene::LoadNumber( xmlNode, "focalLength", view->focalLength );
-		view->frameTime = Scene::LoadNumber( xmlNode, "frameTime", 0.0 );
-
-		scene->Eye( view->eye );
+		view->frameTime = Scene::LoadNumber( xmlNode, "time", 0.0 );
 	}
 
 	return true;
@@ -320,7 +318,10 @@ bool RayTracerPlugin::LoadElement( wxXmlNode* xmlNode )
 
 	if( animationData->animating )
 	{
-		double frameTime = animationData->frameRate * double( animationData->frameIndex );
+		if( viewKeyList.size() == 0 )
+			return false;
+
+		double frameTime = double( animationData->frameIndex ) / animationData->frameRate;
 
 		View* view0 = nullptr;
 		View* view1 = nullptr;
@@ -340,7 +341,10 @@ bool RayTracerPlugin::LoadElement( wxXmlNode* xmlNode )
 		}
 
 		if( iter == viewKeyList.end() )
-			return false;
+		{
+			view0 = &*viewKeyList.begin();
+			view1 = &*viewKeyList.begin();
+		}
 
 		// TODO: Calculate our view here as a function of the frame we're on and our view key list.
 		//       Start with a lame interpolation as proof of concept, then move over to a spline with
@@ -354,6 +358,8 @@ bool RayTracerPlugin::LoadElement( wxXmlNode* xmlNode )
 		theView.subject = view0->subject + t * ( view1->subject - view0->subject );
 		theView.frameTime = frameTime;
 	}
+
+	scene->Eye( theView.eye );
 
 	// Our anti-aliasing method is simply a down-sampling from an over-sampled image.
 	if( antiAlias )
@@ -459,7 +465,7 @@ void RayTracerPlugin::ImageGenerator::CalculateColor( const wxPoint& point, cons
 {
 	const View& view = plugin->theView;
 
-	c3ga::vectorE3GA direction = c3ga::unit( view.subject - view.subject );
+	c3ga::vectorE3GA direction = c3ga::unit( view.subject - view.eye );
 
 	// Make a right-handed coordinate frame from our viewing parameters.
 	c3ga::vectorE3GA zAxis = -direction;

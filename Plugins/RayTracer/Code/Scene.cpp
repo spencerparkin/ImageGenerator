@@ -9,6 +9,8 @@ Scene::Scene( void )
 	maxRayBounceDepthCount = 5;
 
 	spaceColor.set( c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, 0.0, 0.0 );
+
+	eye.set( c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, 0.0, 0.0 );
 }
 
 //===========================================================================

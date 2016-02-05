@@ -56,46 +56,46 @@
 		<angle>36.0</angle>
 		<focalLength>10.0</focalLength>
 	</view>
-  <viewkeys>
-    <key index="0">
+  <viewKeys>
+    <view>
       <eye x="0.0" y="10.0" z="30.0"/>
       <up x="0.0" y="1.0" z="0.0"/>
       <subject x="0.0" y="0.0" z="0.0"/>
       <angle>36.0</angle>
       <focalLength>10.0</focalLength>
       <time>0.0</time>
-    </key>
-    <key index="1">
+    </view>
+    <view>
       <eye x="30.0" y="10.0" z="0.0"/>
       <up x="0.0" y="1.0" z="0.0"/>
       <subject x="0.0" y="0.0" z="0.0"/>
       <angle>36.0</angle>
       <focalLength>10.0</focalLength>
       <time>5.0</time>
-    </key>
-    <key index="2">
+    </view>
+    <view>
       <eye x="0.0" y="10.0" z="-30.0"/>
       <up x="0.0" y="1.0" z="0.0"/>
       <subject x="0.0" y="0.0" z="0.0"/>
       <angle>36.0</angle>
       <focalLength>10.0</focalLength>
       <time>10.0</time>
-    </key>
-    <key index="3">
+    </view>
+    <view>
       <eye x="-30.0" y="10.0" z="0.0"/>
       <up x="0.0" y="1.0" z="0.0"/>
       <subject x="0.0" y="0.0" z="0.0"/>
       <angle>36.0</angle>
       <focalLength>10.0</focalLength>
       <time>15.0</time>
-    </key>
-    <key index="4">
+    </view>
+    <view>
       <eye x="0.0" y="10.0" z="30.0"/>
       <up x="0.0" y="1.0" z="0.0"/>
       <subject x="0.0" y="0.0" z="0.0"/>
       <angle>36.0</angle>
       <focalLength>10.0</focalLength>
       <time>20.0</time>
-    </key>
-  </viewkeys>
+    </view>
+  </viewKeys>
 </scene>

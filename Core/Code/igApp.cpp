@@ -251,7 +251,7 @@ bool igApp::GenerateImage( int frameIndex /*= 0*/, bool giveProgress /*= true*/,
 
 		image = new wxImage( options.imageSize, imageData, true );
 
-		AnimationData animationData;
+		igPlugin::AnimationData animationData;
 		animationData.animating = animating;
 		animationData.frameIndex = frameIndex;
 		animationData.frameCount = options.frameCount;
@@ -261,10 +261,10 @@ bool igApp::GenerateImage( int frameIndex /*= 0*/, bool giveProgress /*= true*/,
 			break;
 
 		igThread::Manager manager;
-		if( !manager.GenerateImage( options.threadCount, frameIndex, options.frameCount, 100, giveProgress ) )
+		if( !manager.GenerateImage( options.threadCount, &animationData, 100, giveProgress ) )
 			break;
 
-		if( !plugin->PostImageGeneration( image, &animationData )
+		if( !plugin->PostImageGeneration( image, &animationData ) )
 			break;
 
 		success = true;
