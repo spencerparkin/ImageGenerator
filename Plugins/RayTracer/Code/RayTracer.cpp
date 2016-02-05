@@ -340,17 +340,22 @@ bool RayTracerPlugin::LoadElement( wxXmlNode* xmlNode )
 				break;
 		}
 
+		double t = 0.0;
+
 		if( iter == viewKeyList.end() )
 		{
 			view0 = &*viewKeyList.begin();
 			view1 = &*viewKeyList.begin();
 		}
+		else
+		{
+			t = ( frameTime - view0->frameTime ) / ( view1->frameTime - view0->frameTime );
+		}
 
 		// TODO: Calculate our view here as a function of the frame we're on and our view key list.
 		//       Start with a lame interpolation as proof of concept, then move over to a spline with
 		//       continuous derivatives.
-
-		double t = ( frameTime - view0->frameTime ) / ( view1->frameTime - view0->frameTime );
+		
 		theView.eye = view0->eye + t * ( view1->eye - view0->eye );
 		theView.angle = view0->angle + t * ( view1->angle - view0->angle );
 		theView.focalLength = view0->focalLength + t * ( view1->focalLength - view0->focalLength );
