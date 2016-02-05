@@ -251,14 +251,20 @@ bool igApp::GenerateImage( int frameIndex /*= 0*/, bool giveProgress /*= true*/,
 
 		image = new wxImage( options.imageSize, imageData, true );
 
-		if( !plugin->PreImageGeneration( image, frameIndex, options.frameCount, animating ) )
+		AnimationData animationData;
+		animationData.animating = animating;
+		animationData.frameIndex = frameIndex;
+		animationData.frameCount = options.frameCount;
+		animationData.frameRate = options.frameRate;
+
+		if( !plugin->PreImageGeneration( image, &animationData ) )
 			break;
 
 		igThread::Manager manager;
 		if( !manager.GenerateImage( options.threadCount, frameIndex, options.frameCount, 100, giveProgress ) )
 			break;
 
-		if( !plugin->PostImageGeneration( image, frameIndex, options.frameCount, animating ) )
+		if( !plugin->PostImageGeneration( image, &animationData )
 			break;
 
 		success = true;

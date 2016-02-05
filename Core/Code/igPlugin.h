@@ -21,8 +21,16 @@ public:
 
 	virtual wxString Name( void ) = 0;
 
-	virtual bool PreImageGeneration( wxImage* image, int frameIndex, int frameCount, bool animating ) { return true; };
-	virtual bool PostImageGeneration( wxImage* image, int frameIndex, int frameCount, bool animating ) { return true; };
+	struct AnimationData
+	{
+		bool animating;
+		int frameIndex;
+		int frameCount;
+		float frameRate;
+	};
+
+	virtual bool PreImageGeneration( wxImage* image, AnimationData* animationData ) { return true; };
+	virtual bool PostImageGeneration( wxImage* image, AnimationData* animationData ) { return true; };
 
 	virtual bool SubregionSelect( const wxRect& rect, const wxSize& size ) { return false; }
 
@@ -34,12 +42,12 @@ public:
 	class ImageGenerator
 	{
 	public:
-		ImageGenerator( void ) { frameIndex = 0; frameCount = 1; }
+		ImageGenerator( void ) { animationData = nullptr; }
 		virtual ~ImageGenerator( void ) {}
 
 		virtual bool GeneratePixel( const wxPoint& point, const wxSize& size, wxColour& color ) = 0;
 
-		int frameIndex, frameCount;
+		AnimationData* animationData;
 	};
 
 	virtual ImageGenerator* NewImageGenerator( void ) = 0;

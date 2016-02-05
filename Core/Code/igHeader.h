@@ -1,5 +1,7 @@
 // igHeader.h
 
+// TODO: Disolve this header; it slows down compilation.
+
 #include <wx/setup.h>
 #include <wx/app.h>
 #include <wx/frame.h>

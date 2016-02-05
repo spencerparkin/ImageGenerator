@@ -1,5 +1,7 @@
 // Header.h
 
+// STPTODO: Disolve this header; it makes compilation really slow.
+
 #include <wx/setup.h>
 #include <wx/colour.h>
 #include <wx/gdicmn.h>

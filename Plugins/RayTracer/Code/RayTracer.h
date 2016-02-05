@@ -16,8 +16,8 @@ public:
 
 	virtual wxString Name( void ) override;
 
-	virtual bool PreImageGeneration( wxImage* image, int frameIndex, int frameCount, bool animating ) override;
-	virtual bool PostImageGeneration( wxImage* image, int frameIndex, int frameCount, bool animating ) override;
+	virtual bool PreImageGeneration( wxImage* image, AnimationData* animationData ) override;
+	virtual bool PostImageGeneration( wxImage* image, AnimationData* animationData ) override;
 
 	//===========================================================================
 	struct Sample
@@ -76,22 +76,29 @@ private:
 		RayTracerPlugin* rayTracerPlugin;
 	};
 
+	struct View;
+
 	bool LoadScene( const wxString& sceneFile );
 	bool UnloadScene( void );
-	bool LoadView( wxXmlNode* xmlNode );
-	bool LoadElement( wxXmlNode* xmlNode );
+	bool LoadView( wxXmlNode* xmlNode, View* view = nullptr );
+	bool LoadViewKeys( wxXmlNode* xmlNode );
+	bool LoadElement( wxXmlNode* xmlViewKeysNode );
 
 	//===========================================================================
 	struct View
 	{
 		c3ga::vectorE3GA eye;
-		c3ga::vectorE3GA direction;
+		c3ga::vectorE3GA subject;
 		c3ga::vectorE3GA up;
 		double focalLength;
 		double angle;
+		double frameTime;
 	};
 
-	View view;
+	typedef std::list< View > ViewList;
+
+	View theView;
+	ViewList viewKeyList;
 	Scene* scene;
 	MenuEventHandler menuEventHandler;
 	bool antiAlias;

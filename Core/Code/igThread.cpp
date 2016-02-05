@@ -113,7 +113,7 @@ igThread::Manager::~Manager( void )
 }
 
 //===========================================================================
-bool igThread::Manager::GenerateImage( int threadCount, int frameIndex /*= 0*/, int frameCount /*= 1*/,
+bool igThread::Manager::GenerateImage( int threadCount, igPlugin::AnimationData* animationData,
 										int imageAreaDivisor /*= 100*/, bool giveProgress /*= true*/ )
 {
 	wxImage* image = wxGetApp().Image();
@@ -159,8 +159,7 @@ bool igThread::Manager::GenerateImage( int threadCount, int frameIndex /*= 0*/, 
 		igPlugin::ImageGenerator* imageGenerator = plugin->NewImageGenerator();
 		if( imageGenerator )
 		{
-			imageGenerator->frameIndex = frameIndex;
-			imageGenerator->frameCount = frameCount;
+			imageGenerator->animationData = animationData;
 			igThread* thread = new igThread( this, image, imageGenerator );
 			threadList.push_back( thread );
 			wxThreadError threadError = thread->Run();

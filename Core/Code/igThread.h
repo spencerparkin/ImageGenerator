@@ -20,7 +20,7 @@ public:
 		Manager( void );
 		~Manager( void );
 
-		bool GenerateImage( int threadCount, int frameIndex = 0, int frameCount = 1, int imageAreaDivisor = 100, bool giveProgress = true );
+		bool GenerateImage( int threadCount, igPlugin::AnimationData* animationData, int imageAreaDivisor = 100, bool giveProgress = true );
 
 	private:
 

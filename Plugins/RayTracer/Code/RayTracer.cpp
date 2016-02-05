@@ -180,6 +180,8 @@ bool RayTracerPlugin::LoadScene( const wxString& sceneFile )
 			LoadView( xmlNode );
 		else if( xmlNode->GetName() == "object" || xmlNode->GetName() == "light" )
 			LoadElement( xmlNode );
+		else if( xmlNode->GetName() == "viewKeys" )
+			LoadViewKeys( xmlNode );
 	}
 
 	return true;
@@ -194,23 +196,46 @@ bool RayTracerPlugin::UnloadScene( void )
 }
 
 //===========================================================================
-bool RayTracerPlugin::LoadView( wxXmlNode* xmlNode )
+bool RayTracerPlugin::LoadView( wxXmlNode* xmlNode, View* view /*= nullptr*/ )
 {
-	view.eye.set( c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, 0.0, 30.0 );
-	view.up.set( c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, 1.0, 0.0 );
-	view.direction = c3ga::unit( -view.eye );
-	view.angle = M_PI / 5.0;
-	view.focalLength = 10.0;
+	if( !view )
+		view = &theView;
+
+	view->eye.set( c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, 0.0, 30.0 );
+	view->up.set( c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, 1.0, 0.0 );
+	view->subject.set( c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, 0.0, 0.0 );
+	view->angle = M_PI / 5.0;
+	view->focalLength = 10.0;
+	view->frameTime = 0.0;
 
 	if( xmlNode )
 	{
-		view.eye = Scene::LoadVector( xmlNode, "eye", view.eye );
-		view.up = Scene::LoadVector( xmlNode, "up", view.up );
-		view.direction = c3ga::unit( Scene::LoadVector( xmlNode, "dir", view.direction ) );
-		view.angle = Scene::LoadNumber( xmlNode, "angle", view.angle * 180.0 / M_PI ) * M_PI / 180.0;
-		view.focalLength = Scene::LoadNumber( xmlNode, "focalLength", view.focalLength );
+		view->eye = Scene::LoadVector( xmlNode, "eye", view->eye );
+		view->up = c3ga::unit( Scene::LoadVector( xmlNode, "up", view->up ) );
+		view->subject = c3ga::unit( Scene::LoadVector( xmlNode, "subject", view->subject ) );
+		view->angle = Scene::LoadNumber( xmlNode, "angle", view->angle * 180.0 / M_PI ) * M_PI / 180.0;
+		view->focalLength = Scene::LoadNumber( xmlNode, "focalLength", view->focalLength );
+		view->frameTime = Scene::LoadNumber( xmlNode, "frameTime", 0.0 );
 
-		scene->Eye( view.eye );
+		scene->Eye( view->eye );
+	}
+
+	return true;
+}
+
+//===========================================================================
+bool RayTracerPlugin::LoadViewKeys( wxXmlNode* xmlViewKeysNode )
+{
+	for( wxXmlNode* xmlNode = xmlViewKeysNode->GetChildren(); xmlNode; xmlNode = xmlNode->GetNext() )
+	{
+		if( xmlNode->GetName() == "view" )
+		{
+			View viewKey;
+			if( !LoadView( xmlNode, &viewKey ) )
+				return false;
+
+			viewKeyList.push_back( viewKey );
+		}
 	}
 
 	return true;
@@ -288,10 +313,47 @@ bool RayTracerPlugin::LoadElement( wxXmlNode* xmlNode )
 }
 
 //===========================================================================
-/*virtual*/ bool RayTracerPlugin::PreImageGeneration( wxImage* image, int frameIndex, int frameCount, bool animating )
+/*virtual*/ bool RayTracerPlugin::PreImageGeneration( wxImage* image, AnimationData* animationData )
 {
 	if( !scene )
 		return false;
+
+	if( animationData->animating )
+	{
+		double frameTime = animationData->frameRate * double( animationData->frameIndex );
+
+		View* view0 = nullptr;
+		View* view1 = nullptr;
+
+		ViewList::iterator iter = viewKeyList.begin();
+		while( iter != viewKeyList.end() )
+		{
+			view0 = &( *iter );
+			iter++;
+			if( iter != viewKeyList.end() )
+				view1 = &( *iter );
+			else
+				break;
+
+			if( view0->frameTime <= frameTime && frameTime <= view1->frameTime )
+				break;
+		}
+
+		if( iter == viewKeyList.end() )
+			return false;
+
+		// TODO: Calculate our view here as a function of the frame we're on and our view key list.
+		//       Start with a lame interpolation as proof of concept, then move over to a spline with
+		//       continuous derivatives.
+
+		double t = ( frameTime - view0->frameTime ) / ( view1->frameTime - view0->frameTime );
+		theView.eye = view0->eye + t * ( view1->eye - view0->eye );
+		theView.angle = view0->angle + t * ( view1->angle - view0->angle );
+		theView.focalLength = view0->focalLength + t * ( view1->focalLength - view0->focalLength );
+		theView.up = c3ga::unit( view0->up + t * ( view1->up - view0->up ) );
+		theView.subject = view0->subject + t * ( view1->subject - view0->subject );
+		theView.frameTime = frameTime;
+	}
 
 	// Our anti-aliasing method is simply a down-sampling from an over-sampled image.
 	if( antiAlias )
@@ -301,7 +363,7 @@ bool RayTracerPlugin::LoadElement( wxXmlNode* xmlNode )
 }
 
 //===========================================================================
-/*virtual*/ bool RayTracerPlugin::PostImageGeneration( wxImage* image, int frameIndex, int frameCount, bool animating )
+/*virtual*/ bool RayTracerPlugin::PostImageGeneration( wxImage* image, AnimationData* animationData )
 {
 	if( antiAlias )
 		DeallocateOverSampleForImage( image );
@@ -395,11 +457,13 @@ void RayTracerPlugin::ImageGenerator::CalculateSample( const wxPoint& point, con
 //===========================================================================
 void RayTracerPlugin::ImageGenerator::CalculateColor( const wxPoint& point, const wxSize& size, wxColour& color )
 {
-	const View& view = plugin->view;
+	const View& view = plugin->theView;
+
+	c3ga::vectorE3GA direction = c3ga::unit( view.subject - view.subject );
 
 	// Make a right-handed coordinate frame from our viewing parameters.
-	c3ga::vectorE3GA zAxis = -view.direction;
-	c3ga::vectorE3GA yAxis = c3ga::unit( c3ga::lc( view.direction, c3ga::op( view.direction, view.up ) ) );
+	c3ga::vectorE3GA zAxis = -direction;
+	c3ga::vectorE3GA yAxis = c3ga::unit( c3ga::lc( direction, c3ga::op( direction, view.up ) ) );
 	c3ga::vectorE3GA xAxis = c3ga::lc( c3ga::op( zAxis, yAxis ), c3ga::trivectorE3GA( c3ga::trivectorE3GA::coord_e1e2e3, 1.0 ) );
 
 	// Calculate our viewing window on the viewing plane.
