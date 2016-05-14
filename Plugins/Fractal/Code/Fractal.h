@@ -9,8 +9,8 @@
 #include <igPlugin.h>
 #include <boost/multiprecision/cpp_dec_float.hpp>
 
-//typedef long double scalar_t;
-typedef boost::multiprecision::cpp_dec_float_50 scalar_t;
+typedef long double scalar_t;
+//typedef boost::multiprecision::cpp_dec_float_50 scalar_t;
 
 //===========================================================================
 class FractalPlugin : public igPlugin
