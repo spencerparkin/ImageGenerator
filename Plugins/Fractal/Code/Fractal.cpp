@@ -108,11 +108,11 @@ void FractalPlugin::GenerateColorTable( void )
 }
 
 //===========================================================================
-/*virtual*/ bool FractalPlugin::PreImageGeneration( wxImage* image, int frameIndex, int frameCount, bool animating )
+/*virtual*/ bool FractalPlugin::PreImageGeneration( wxImage* image, AnimationData* animationData )
 {
-	if( animating )
+	if( animationData->animating )
 	{
-		if( frameIndex == 0 )
+		if( animationData->frameIndex == 0 )
 			region = regionSource;
 		else
 		{
@@ -139,7 +139,7 @@ scalar_t FractalPlugin::Zoom( scalar_t source, scalar_t target, scalar_t zoomRat
 }
 
 //===========================================================================
-/*virtual*/ bool FractalPlugin::PostImageGeneration( wxImage* image, int frameIndex, int frameCount, bool animating )
+/*virtual*/ bool FractalPlugin::PostImageGeneration( wxImage* image, AnimationData* animationData )
 {
 	return true;
 }
