@@ -82,6 +82,9 @@
     <ClInclude Include="Code\Polynomials\Torus.h">
       <Filter>Code\Polynomials</Filter>
     </ClInclude>
+    <ClInclude Include="Code\Objects\SetOperation.h">
+      <Filter>Code\Objects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Code\Polynomial.cpp">
@@ -131,6 +134,9 @@
     </ClCompile>
     <ClCompile Include="Code\Polynomials\Torus.cpp">
       <Filter>Code\Polynomials</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Objects\SetOperation.cpp">
+      <Filter>Code\Objects</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
