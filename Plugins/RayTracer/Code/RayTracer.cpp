@@ -240,50 +240,51 @@ bool RayTracerPlugin::LoadViewKeys( wxXmlNode* xmlViewKeysNode )
 }
 
 //===========================================================================
-bool RayTracerPlugin::LoadElement( wxXmlNode* xmlNode )
+/*static*/ Scene::Element* RayTracerPlugin::CreateElement( wxXmlNode* xmlNode )
 {
-	bool success = false;
 	Scene::Element* element = 0;
 
-	do
+	wxString type;
+	if( !xmlNode->GetAttribute( "type", &type ) )
+		return nullptr;
+
+	if( type == "sphere" )				{ element = new Sphere(); }
+	else if( type == "plane" )			{ element = new Plane(); }
+	else if( type == "quadric" )		{ element = new Quadric(); }
+	else if( type == "cylindricalInv" )	{ element = new AlgebraicSurface( new CylindricalInversion() ); }
+	else if( type == "torus" )			{ element = new AlgebraicSurface( new Torus() ); }
+	else if( type == "doubleTorus" )	{ element = new AlgebraicSurface( new DoubleTorus() ); }
+	else if( type == "ambientLight" )	{ element = new AmbientLight(); }
+	else if( type == "pointLight" )		{ element = new PointLight(); }
+	else if( type == "setOperation" )	{ element = new SetOperation(); }
+
+	if( !element || !element->Configure( xmlNode ) )
 	{
-		wxString type;
-		if( !xmlNode->GetAttribute( "type", &type ) )
-			break;
-
-		bool isObject = false;
-		bool isLight = false;
-
-		if( type == "sphere" )				{ element = new Sphere(); isObject = true; }
-		else if( type == "plane" )			{ element = new Plane(); isObject = true; }
-		else if( type == "quadric" )		{ element = new Quadric(); isObject = true; }
-		else if( type == "cylindricalInv" )	{ element = new AlgebraicSurface( new CylindricalInversion() ); isObject = true; }
-		else if( type == "torus" )			{ element = new AlgebraicSurface( new Torus() ); isObject = true; }
-		else if( type == "doubleTorus" )	{ element = new AlgebraicSurface( new DoubleTorus() ); isObject = true; }
-		else if( type == "ambientLight" )	{ element = new AmbientLight(); isLight = true; }
-		else if( type == "pointLight" )		{ element = new PointLight(); isLight = true; }
-
-		if( !element || !( isObject || isLight ) )
-			break;
-
-		if( !element->Configure( xmlNode ) )
-			break;
-
-		if( xmlNode->GetName() == "object" )
-			scene->AddObject( ( Scene::Object* )element );
-		else if( xmlNode->GetName() == "light" )
-			scene->AddLight( ( Scene::Light* )element );
-		else
-			break;
-
-		success = true;
-	}
-	while( false );
-
-	if( !success )
 		delete element;
+		return nullptr;
+	}
 
-	return success;
+	return element;
+}
+
+//===========================================================================
+bool RayTracerPlugin::LoadElement( wxXmlNode* xmlNode )
+{
+	Scene::Element* element = CreateElement( wxXmlNode );
+	if( !element )
+		return false;
+	
+	if( xmlNode->GetName() == "object" && dynamic_cast< Scene::Object* >( element ) )
+		scene->AddObject( ( Scene::Object* )element );
+	else if( xmlNode->GetName() == "light" && dynamic_cast< Scene::Light* >( element ) )
+		scene->AddLight( ( Scene::Light* )element );
+	else
+	{
+		delete element;
+		return false;
+	}
+
+	return true;
 }
 
 //===========================================================================

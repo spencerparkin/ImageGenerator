@@ -46,6 +46,7 @@ class DoubleTorus;
 #include "Objects/Plane.h"
 #include "Objects/Quadric.h"
 #include "Objects/AlgebraicSurface.h"
+#include "Objects/SetOperation.h"
 #include "Polynomials/CylindricalInversion.h"
 #include "Polynomials/Torus.h"
 #include "Polynomials/DoubleTorus.h"

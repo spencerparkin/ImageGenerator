@@ -19,6 +19,8 @@
 *.tss
 *.sdf
 *.opensdf
+*.opendb
+*.VC.db
 
 # Intermediates and other built files
 Build/

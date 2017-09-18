@@ -46,6 +46,8 @@ public:
 	virtual igPlugin::ImageGenerator* NewImageGenerator( void ) override;
 	virtual void DeleteImageGenerator( igPlugin::ImageGenerator* imageGenerator ) override;
 
+	static Scene::Element* CreateElement( wxXmlNode* xmlNode )
+
 private:
 
 	//===========================================================================
@@ -82,7 +84,7 @@ private:
 	bool UnloadScene( void );
 	bool LoadView( wxXmlNode* xmlNode, View* view = nullptr );
 	bool LoadViewKeys( wxXmlNode* xmlNode );
-	bool LoadElement( wxXmlNode* xmlViewKeysNode );
+	bool LoadElement( wxXmlNode* xmlNode );
 
 	//===========================================================================
 	struct View
