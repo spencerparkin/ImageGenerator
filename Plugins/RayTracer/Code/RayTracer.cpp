@@ -14,6 +14,7 @@
 #include "Objects/Plane.h"
 #include "Objects/Quadric.h"
 #include "Objects/AlgebraicSurface.h"
+#include "Objects/SierpinskiTetrahedron.h"
 #include "Polynomials/CylindricalInversion.h"
 #include "Polynomials/DoubleTorus.h"
 #include "Polynomials/Torus.h"
@@ -272,14 +273,15 @@ bool RayTracerPlugin::LoadElement( wxXmlNode* xmlNode )
 		bool isObject = false;
 		bool isLight = false;
 
-		if( type == "sphere" )				{ element = new Sphere(); isObject = true; }
-		else if( type == "plane" )			{ element = new Plane(); isObject = true; }
-		else if( type == "quadric" )		{ element = new Quadric(); isObject = true; }
-		else if( type == "cylindricalInv" )	{ element = new AlgebraicSurface( new CylindricalInversion() ); isObject = true; }
-		else if( type == "torus" )			{ element = new AlgebraicSurface( new Torus() ); isObject = true; }
-		else if( type == "doubleTorus" )	{ element = new AlgebraicSurface( new DoubleTorus() ); isObject = true; }
-		else if( type == "ambientLight" )	{ element = new AmbientLight(); isLight = true; }
-		else if( type == "pointLight" )		{ element = new PointLight(); isLight = true; }
+		if( type == "sphere" )						{ element = new Sphere(); isObject = true; }
+		else if( type == "plane" )					{ element = new Plane(); isObject = true; }
+		else if( type == "quadric" )				{ element = new Quadric(); isObject = true; }
+		else if( type == "cylindricalInv" )			{ element = new AlgebraicSurface( new CylindricalInversion() ); isObject = true; }
+		else if( type == "torus" )					{ element = new AlgebraicSurface( new Torus() ); isObject = true; }
+		else if( type == "sierpinskiTetrahedron" )	{ element = new SierpinskiTetrahedron(); isObject = true; }
+		else if( type == "doubleTorus" )			{ element = new AlgebraicSurface( new DoubleTorus() ); isObject = true; }
+		else if( type == "ambientLight" )			{ element = new AmbientLight(); isLight = true; }
+		else if( type == "pointLight" )				{ element = new PointLight(); isLight = true; }
 
 		if( !element || !( isObject || isLight ) )
 			break;

@@ -79,6 +79,12 @@
     <ClInclude Include="Code\Polynomials\Torus.h">
       <Filter>Code\Polynomials</Filter>
     </ClInclude>
+    <ClInclude Include="Code\Objects\Fractal.h">
+      <Filter>Code\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Objects\SierpinskiTetrahedron.h">
+      <Filter>Code\Objects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Code\Polynomial.cpp">
@@ -129,6 +135,12 @@
     <ClCompile Include="Code\Polynomials\Torus.cpp">
       <Filter>Code\Polynomials</Filter>
     </ClCompile>
+    <ClCompile Include="Code\Objects\Fractal.cpp">
+      <Filter>Code\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Objects\SierpinskiTetrahedron.cpp">
+      <Filter>Code\Objects</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Xml Include="Scenes\CylindricalInversion.xml">
@@ -153,6 +165,9 @@
       <Filter>Scenes</Filter>
     </Xml>
     <Xml Include="Scenes\Torus.xml">
+      <Filter>Scenes</Filter>
+    </Xml>
+    <Xml Include="Scenes\SierpinskiTetrahedron.xml">
       <Filter>Scenes</Filter>
     </Xml>
   </ItemGroup>

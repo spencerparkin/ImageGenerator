@@ -103,8 +103,10 @@
     <ClInclude Include="Code\Lights\TriangleLight.h" />
     <ClInclude Include="Code\Objects\AlgebraicSurface.h" />
     <ClInclude Include="Code\Objects\Box.h" />
+    <ClInclude Include="Code\Objects\Fractal.h" />
     <ClInclude Include="Code\Objects\Plane.h" />
     <ClInclude Include="Code\Objects\Quadric.h" />
+    <ClInclude Include="Code\Objects\SierpinskiTetrahedron.h" />
     <ClInclude Include="Code\Objects\Sphere.h" />
     <ClInclude Include="Code\Polynomial.h" />
     <ClInclude Include="Code\Polynomials\CylindricalInversion.h" />
@@ -121,8 +123,10 @@
     <ClCompile Include="Code\Lights\AmbientLight.cpp" />
     <ClCompile Include="Code\Lights\PointLight.cpp" />
     <ClCompile Include="Code\Objects\AlgebraicSurface.cpp" />
+    <ClCompile Include="Code\Objects\Fractal.cpp" />
     <ClCompile Include="Code\Objects\Plane.cpp" />
     <ClCompile Include="Code\Objects\Quadric.cpp" />
+    <ClCompile Include="Code\Objects\SierpinskiTetrahedron.cpp" />
     <ClCompile Include="Code\Objects\Sphere.cpp" />
     <ClCompile Include="Code\Polynomial.cpp" />
     <ClCompile Include="Code\Polynomials\CylindricalInversion.cpp" />
@@ -138,6 +142,7 @@
     <Xml Include="Scenes\DoubleTorus.xml" />
     <Xml Include="Scenes\Quadrics.xml" />
     <Xml Include="Scenes\RefractiveSphere.xml" />
+    <Xml Include="Scenes\SierpinskiTetrahedron.xml" />
     <Xml Include="Scenes\TexturedPlane.xml" />
     <Xml Include="Scenes\TexturedSphere.xml" />
     <Xml Include="Scenes\ThreeSpheres.xml" />
