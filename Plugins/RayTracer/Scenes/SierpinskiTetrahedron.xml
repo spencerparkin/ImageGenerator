@@ -1,6 +1,11 @@
 <scene>
   <light type="ambientLight">
-    <intensity r="0.6" g="0.6" b="0.6"/>
+    <intensity r="0.2" g="0.2" b="0.2"/>
+  </light>
+  <light type="pointLight">
+    <intensity r="1.0" g="1.0" b="1.0"/>
+    <point x="0" y="20" z="0"/>
+    <shadow>0.0</shadow>
   </light>
   <object type="sierpinskiTetrahedron">
     <vertex0 x="-6.0" y="-5.0" z="0.0"/>

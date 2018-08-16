@@ -48,8 +48,18 @@ SierpinskiTetrahedron::SierpinskiTetrahedron( void )
 	if( !RayMarch( ray, surfacePoint.point, 64, 0.01 ) )
 		return false;
 	
-	// This is dumb, but do it for now...
-	surfacePoint.normal = -ray.direction;
+	double delta = 0.01;
+
+	c3ga::vectorE3GA xVec(c3ga::vectorE3GA::coord_e1_e2_e3, delta, 0.0, 0.0);
+	c3ga::vectorE3GA yVec(c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, delta, 0.0);
+	c3ga::vectorE3GA zVec(c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, 0.0, delta);
+
+	// I don't have any intuitive idea as to why this would work.  I got this from the internet.
+	surfacePoint.normal.m_e1 = DistanceEstimate( surfacePoint.point + xVec ) - DistanceEstimate( surfacePoint.point - xVec );
+	surfacePoint.normal.m_e2 = DistanceEstimate( surfacePoint.point + yVec ) - DistanceEstimate( surfacePoint.point - yVec );
+	surfacePoint.normal.m_e3 = DistanceEstimate( surfacePoint.point + zVec ) - DistanceEstimate( surfacePoint.point - zVec );
+
+	surfacePoint.normal = c3ga::unit( surfacePoint.normal );
 
 	surfacePoint.materialProperties = this->materialProperties;
 	surfacePoint.object = this;
