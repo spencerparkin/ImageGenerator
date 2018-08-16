@@ -7,14 +7,11 @@
     <point x="0" y="20" z="0"/>
     <shadow>0.0</shadow>
   </light>
-  <object type="sierpinskiTetrahedron">
-    <tetrahedron>
-      <vertex0 x="-6.0" y="-5.0" z="0.0"/>
-      <vertex1 x="6.0" y="-5.0" z="0.0"/>
-      <vertex2 x="0.0" y="5.0" z="0.0"/>
-      <vertex3 x="0.0" y="0.0" z="-6.0"/>
-    </tetrahedron>
-    <maxIterations>200</maxIterations>
+  <object type="tetrahedron">
+    <vertex0 x="-6.0" y="-5.0" z="0.0"/>
+    <vertex1 x="6.0" y="-5.0" z="0.0"/>
+    <vertex2 x="0.0" y="5.0" z="0.0"/>
+    <vertex3 x="0.0" y="0.0" z="-6.0"/>
     <material>
       <ambient r="1.0" g="0.0" b="0.0"/>
       <diffuse r="1.0" g="0.0" b="0.0"/>
@@ -23,9 +20,9 @@
     </material>
   </object>
   <view>
-    <eye x="10.0" y="0.0" z="20.0"/>
+    <eye x="20.0" y="0.0" z="20.0"/>
     <up x="0.0" y="1.0" z="0.0"/>
-    <dir x="-10.0" y="0.0" z="-20.0"/>
+    <dir x="-20.0" y="0.0" z="-20.0"/>
     <angle>36.0</angle>
     <focalLength>10.0</focalLength>
   </view>

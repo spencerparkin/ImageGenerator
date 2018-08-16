@@ -3,6 +3,7 @@
 #pragma once
 
 #include "Fractal.h"
+#include "Tetrahedron.h"
 
 //===========================================================================
 class SierpinskiTetrahedron : public Fractal
@@ -17,12 +18,10 @@ public:
 	virtual double DistanceEstimate( const c3ga::vectorE3GA& point ) const override;
 
 private:
-	struct Tetrahedron
-	{
-		c3ga::vectorE3GA vertex[4];
-	};
+	
 	Tetrahedron tetrahedron;
 	int maxIterations;
+	mutable std::list< Tetrahedron > tetrahedronList;
 };
 
 // SierpinskiTetrahedron.h

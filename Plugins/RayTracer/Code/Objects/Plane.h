@@ -20,7 +20,6 @@ public:
 	virtual bool CalculateSurfacePoint( const Scene::Ray& ray, const Scene& scene, Scene::SurfacePoint& surfacePoint ) const override;
 	virtual bool CalculateTextureCoordinates( const c3ga::vectorE3GA& point, c3ga::vectorE3GA& textureCoordinates ) const override;
 
-private:
 	c3ga::vectorE3GA center;
 	c3ga::vectorE3GA normal;
 	double textureScale;

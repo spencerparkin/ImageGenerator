@@ -15,6 +15,7 @@
 #include "Objects/Quadric.h"
 #include "Objects/AlgebraicSurface.h"
 #include "Objects/SierpinskiTetrahedron.h"
+#include "Objects/Tetrahedron.h"
 #include "Polynomials/CylindricalInversion.h"
 #include "Polynomials/DoubleTorus.h"
 #include "Polynomials/Torus.h"
@@ -279,6 +280,7 @@ bool RayTracerPlugin::LoadElement( wxXmlNode* xmlNode )
 		else if( type == "cylindricalInv" )			{ element = new AlgebraicSurface( new CylindricalInversion() ); isObject = true; }
 		else if( type == "torus" )					{ element = new AlgebraicSurface( new Torus() ); isObject = true; }
 		else if( type == "sierpinskiTetrahedron" )	{ element = new SierpinskiTetrahedron(); isObject = true; }
+		else if( type == "tetrahedron" )			{ element = new Tetrahedron(); isObject = true; }
 		else if( type == "doubleTorus" )			{ element = new AlgebraicSurface( new DoubleTorus() ); isObject = true; }
 		else if( type == "ambientLight" )			{ element = new AmbientLight(); isLight = true; }
 		else if( type == "pointLight" )				{ element = new PointLight(); isLight = true; }

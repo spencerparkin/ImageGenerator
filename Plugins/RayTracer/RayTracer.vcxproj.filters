@@ -85,6 +85,12 @@
     <ClInclude Include="Code\Objects\SierpinskiTetrahedron.h">
       <Filter>Code\Objects</Filter>
     </ClInclude>
+    <ClInclude Include="Code\Objects\Tetrahedron.h">
+      <Filter>Code\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Objects\Triangle.h">
+      <Filter>Code\Objects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Code\Polynomial.cpp">
@@ -141,6 +147,12 @@
     <ClCompile Include="Code\Objects\SierpinskiTetrahedron.cpp">
       <Filter>Code\Objects</Filter>
     </ClCompile>
+    <ClCompile Include="Code\Objects\Tetrahedron.cpp">
+      <Filter>Code\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Objects\Triangle.cpp">
+      <Filter>Code\Objects</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Xml Include="Scenes\CylindricalInversion.xml">
@@ -168,6 +180,9 @@
       <Filter>Scenes</Filter>
     </Xml>
     <Xml Include="Scenes\SierpinskiTetrahedron.xml">
+      <Filter>Scenes</Filter>
+    </Xml>
+    <Xml Include="Scenes\Tetrahedron.xml">
       <Filter>Scenes</Filter>
     </Xml>
   </ItemGroup>

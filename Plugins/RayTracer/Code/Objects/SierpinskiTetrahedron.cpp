@@ -17,8 +17,7 @@ SierpinskiTetrahedron::SierpinskiTetrahedron( void )
 /*virtual*/ Scene::Element* SierpinskiTetrahedron::Clone( void ) const
 {
 	SierpinskiTetrahedron* clone = new SierpinskiTetrahedron();
-	for( int i = 0; i < 4; i++ )
-		clone->tetrahedron.vertex[i] = tetrahedron.vertex[i];
+	clone->tetrahedron = tetrahedron;
 	clone->maxIterations = maxIterations;
 	return clone;
 }
@@ -32,10 +31,8 @@ SierpinskiTetrahedron::SierpinskiTetrahedron( void )
 	if( !materialProperties.Configure( Scene::FindNode( xmlNode, "material" ) ) )
 		return false;
 
-	tetrahedron.vertex[0] = Scene::LoadVector( xmlNode, "vertex0", tetrahedron.vertex[0] );
-	tetrahedron.vertex[1] = Scene::LoadVector( xmlNode, "vertex1", tetrahedron.vertex[1] );
-	tetrahedron.vertex[2] = Scene::LoadVector( xmlNode, "vertex2", tetrahedron.vertex[2] );
-	tetrahedron.vertex[3] = Scene::LoadVector( xmlNode, "vertex3", tetrahedron.vertex[3] );
+	if( !tetrahedron.Configure( Scene::FindNode( xmlNode, "tetrahedron" ) ) )
+		return false;
 
 	maxIterations = ( int )Scene::LoadNumber( xmlNode, "maxIterations", maxIterations );
 
@@ -45,21 +42,30 @@ SierpinskiTetrahedron::SierpinskiTetrahedron( void )
 //===========================================================================
 /*virtual*/ bool SierpinskiTetrahedron::CalculateSurfacePoint( const Scene::Ray& ray, const Scene& scene, Scene::SurfacePoint& surfacePoint ) const
 {
+	tetrahedronList.clear();
+
 	if( !RayMarch( ray, surfacePoint.point, 64, 0.01 ) )
 		return false;
-	
-	double delta = 0.01;
 
-	c3ga::vectorE3GA xVec(c3ga::vectorE3GA::coord_e1_e2_e3, delta, 0.0, 0.0);
-	c3ga::vectorE3GA yVec(c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, delta, 0.0);
-	c3ga::vectorE3GA zVec(c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, 0.0, delta);
+	// This was an utter failure to calculate a surface normal.
+	bool foundNormal = false;
+	for( std::list< Tetrahedron >::reverse_iterator iter = tetrahedronList.rbegin(); iter != tetrahedronList.rend(); iter++ )
+	{
+		const Tetrahedron& normalTetrahedron = *iter;
+		Scene::SurfacePoint normalSurfacePoint;
+		if( normalTetrahedron.CalculateSurfacePoint( ray, scene, normalSurfacePoint) )
+		{
+			surfacePoint.normal = normalSurfacePoint.normal;
+			foundNormal = true;
+			break;
+		}
+	}
 
-	// I don't have any intuitive idea as to why this would work.  I got this from the internet.
-	surfacePoint.normal.m_e1 = DistanceEstimate( surfacePoint.point + xVec ) - DistanceEstimate( surfacePoint.point - xVec );
-	surfacePoint.normal.m_e2 = DistanceEstimate( surfacePoint.point + yVec ) - DistanceEstimate( surfacePoint.point - yVec );
-	surfacePoint.normal.m_e3 = DistanceEstimate( surfacePoint.point + zVec ) - DistanceEstimate( surfacePoint.point - zVec );
-
-	surfacePoint.normal = c3ga::unit( surfacePoint.normal );
+	if( foundNormal == false )
+	{
+		int b = 0;
+		b++;
+	}
 
 	surfacePoint.materialProperties = this->materialProperties;
 	surfacePoint.object = this;
@@ -88,6 +94,8 @@ SierpinskiTetrahedron::SierpinskiTetrahedron( void )
 				k = j;
 			}
 		}
+
+		tetrahedronList.push_back( subTetrahedron );
 
 		distanceEstimate = minDistance;
 		i++;
