@@ -20,6 +20,7 @@
 *.sdf
 *.opensdf
 *.VC.*
+*.ipch
 
 # Intermediates and other built files
 Build/

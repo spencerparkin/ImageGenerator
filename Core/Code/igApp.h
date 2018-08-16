@@ -1,5 +1,10 @@
 // igApp.h
 
+#ifdef VIDEO_SUPPORT
+#	pragma comment(lib, "avcodec.lib")
+#	pragma comment(lib, "avutil.lib")
+#endif //VIDEO_SUPPORT
+
 //===========================================================================
 class igApp : public wxApp
 {
@@ -24,7 +29,9 @@ public:
 	bool GenerateImage( int frameIndex = 0, bool giveProgress = true, bool animating = false );
 	bool DeleteImage( void );
 
+#ifdef VIDEO_SUPPORT
 	bool GenerateVideo( const wxString& videoPath );
+#endif //VIDEO_SUPPORT
 
 	enum { COMPONENTS_PER_PIXEL = 3 };
 
@@ -52,10 +59,12 @@ private:
 	void SaveConfiguration( void );
 	void RestoreConfiguration( void );
 
+#ifdef VIDEO_SUPPORT
 	wxString GetFFMpegError( int ret );
 	bool StuffImageInFrame( AVFrame* frame, int pix_fmt );
 	bool GetSample( int i, int j, float& r, float& g, float& b );
 	void ConvertSampleRGBtoYUV( float r, float g, float b, float& y, float& u, float& v );
+#endif //VIDEO_SUPPORT
 
 	HMODULE pluginHandle;
 	igPlugin* plugin;

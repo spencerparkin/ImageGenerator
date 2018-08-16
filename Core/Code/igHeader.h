@@ -27,10 +27,12 @@
 
 #include <list>
 
+#ifdef VIDEO_SUPPORT
 extern "C" {
 #include <libavcodec/avcodec.h>
 #include <libavutil/imgutils.h>
 }
+#endif //VIDEO_SUPPORT
 
 class igPlugin;
 class igApp;

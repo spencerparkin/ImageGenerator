@@ -172,6 +172,7 @@ void igFrame::OnSaveImage( wxCommandEvent& event )
 //===========================================================================
 void igFrame::OnGenerateVideo( wxCommandEvent& event )
 {
+#ifdef VIDEO_SUPPORT
 	wxFileDialog fileDialog( this, "Save generated video",
 								wxEmptyString, wxEmptyString,
 								"MPEG file (*.mpeg)|*.mpeg",
@@ -183,6 +184,9 @@ void igFrame::OnGenerateVideo( wxCommandEvent& event )
 	wxString videoPath = fileDialog.GetPath();
 	if( !wxGetApp().GenerateVideo( videoPath ) )
 		wxMessageBox( "Failed to generate video." );
+#else
+	wxMessageBox( "No video support compiled in." );
+#endif //VIDEO_SUPPORT
 }
 
 //===========================================================================
@@ -220,7 +224,11 @@ void igFrame::OnUpdateMenuItemUI( wxUpdateUIEvent& event )
 		case ID_GenerateImage:
 		case ID_GenerateVideo:
 		{
+#ifdef VIDEO_SUPPORT
 			event.Enable( wxGetApp().Plugin() ? true : false );
+#else
+			event.Enable( false );
+#endif //VIDEO_SUPPORT
 			break;
 		}
 		case ID_SaveImage:

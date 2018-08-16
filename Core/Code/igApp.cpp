@@ -277,6 +277,8 @@ bool igApp::GenerateImage( int frameIndex /*= 0*/, bool giveProgress /*= true*/,
 	return success;
 }
 
+#ifdef VIDEO_SUPPORT
+
 bool igApp::GenerateVideo( const wxString& videoPath )
 {
 	bool success = false;
@@ -579,5 +581,7 @@ void igApp::ConvertSampleRGBtoYUV( float r, float g, float b, float& y, float& u
 	if( v < 0.f )	v = 0.f;
 	if( v > 1.f )	v = 1.f;
 }
+
+#endif //VIDEO_SUPPORT
 
 // igApp.cpp
