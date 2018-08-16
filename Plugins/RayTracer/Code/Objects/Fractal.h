@@ -14,7 +14,7 @@ public:
 	// Calculate a lower-bound on the minimum distance from the given point to the fractal.
 	virtual double DistanceEstimate( const c3ga::vectorE3GA& point ) const = 0;
 
-	bool RayMarch( const Scene::Ray& ray, c3ga::vectorE3GA& contactPoint, int maxIteration, double eps = 1e-7 ) const;
+	bool RayMarch( const Scene::Ray& ray, c3ga::vectorE3GA& contactPoint, int maxIteration, double eps = 1e-2 ) const;
 };
 
 // Fractal.h

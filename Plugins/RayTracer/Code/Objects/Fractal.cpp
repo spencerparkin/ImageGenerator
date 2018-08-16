@@ -13,7 +13,7 @@ Fractal::Fractal( void )
 }
 
 //===========================================================================
-bool Fractal::RayMarch( const Scene::Ray& ray, c3ga::vectorE3GA& contactPoint, int maxIteration, double eps /*= 1e-7*/ ) const
+bool Fractal::RayMarch( const Scene::Ray& ray, c3ga::vectorE3GA& contactPoint, int maxIteration, double eps /*= 1e-2*/ ) const
 {
 	Scene::Ray marchingRay = ray;
 
