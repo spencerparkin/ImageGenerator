@@ -26,6 +26,10 @@ bool Fractal::RayMarch( const Scene::Ray& ray, c3ga::vectorE3GA& contactPoint, i
 			contactPoint = marchingRay.point;
 			return true;
 		}
+
+		// If we've gone way beyond the scene, bail out.
+		if( c3ga::norm( marchingRay.point ) > 60.0 )
+			return false;
 	}
 
 	return false;

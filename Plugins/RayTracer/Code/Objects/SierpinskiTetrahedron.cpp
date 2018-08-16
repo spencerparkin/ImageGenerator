@@ -5,7 +5,7 @@
 //===========================================================================
 SierpinskiTetrahedron::SierpinskiTetrahedron( void )
 {
-	maxIterations = 32;
+	maxIterations = 100;
 }
 
 //===========================================================================
@@ -45,7 +45,7 @@ SierpinskiTetrahedron::SierpinskiTetrahedron( void )
 //===========================================================================
 /*virtual*/ bool SierpinskiTetrahedron::CalculateSurfacePoint( const Scene::Ray& ray, const Scene& scene, Scene::SurfacePoint& surfacePoint ) const
 {
-	if( !RayMarch( ray, surfacePoint.point, 32 ) )
+	if( !RayMarch( ray, surfacePoint.point, 64, 0.01 ) )
 		return false;
 	
 	// This is dumb, but do it for now...
