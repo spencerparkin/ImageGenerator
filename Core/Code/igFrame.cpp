@@ -220,8 +220,6 @@ void igFrame::OnUpdateMenuItemUI( wxUpdateUIEvent& event )
 			event.Enable( wxGetApp().Plugin() ? false : true );
 			break;
 		}
-		case ID_UnloadPlugin:
-		case ID_GenerateImage:
 		case ID_GenerateVideo:
 		{
 #ifdef VIDEO_SUPPORT
@@ -229,6 +227,12 @@ void igFrame::OnUpdateMenuItemUI( wxUpdateUIEvent& event )
 #else
 			event.Enable( false );
 #endif //VIDEO_SUPPORT
+			break;
+		}
+		case ID_UnloadPlugin:
+		case ID_GenerateImage:
+		{
+			event.Enable( wxGetApp().Plugin() ? true : false );
 			break;
 		}
 		case ID_SaveImage:
