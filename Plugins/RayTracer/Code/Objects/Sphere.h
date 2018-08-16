@@ -1,5 +1,9 @@
 // Sphere.h
 
+#pragma once
+
+#include "../Scene.h"
+
 //===========================================================================
 class Sphere : public Scene::Object
 {

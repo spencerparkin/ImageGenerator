@@ -1,6 +1,6 @@
 // Polynomial.cpp
 
-#include "Header.h"
+#include "Polynomial.h"
 
 //===========================================================================
 Polynomial::Polynomial( void )

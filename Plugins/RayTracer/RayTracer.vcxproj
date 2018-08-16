@@ -96,7 +96,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Code\c3ga\c3ga.h" />
-    <ClInclude Include="Code\Header.h" />
     <ClInclude Include="Code\Lights\AmbientLight.h" />
     <ClInclude Include="Code\Lights\DirectionalLight.h" />
     <ClInclude Include="Code\Lights\PointLight.h" />

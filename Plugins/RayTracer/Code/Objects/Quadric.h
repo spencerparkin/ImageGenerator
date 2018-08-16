@@ -1,5 +1,9 @@
 // Quadric.h
 
+#pragma once
+
+#include "../Scene.h"
+
 //===========================================================================
 class Quadric : public Scene::Object
 {

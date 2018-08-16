@@ -1,5 +1,9 @@
 // Torus.h
 
+#pragma once
+
+#include "../Polynomial.h"
+
 //===========================================================================
 class Torus : public Polynomial
 {

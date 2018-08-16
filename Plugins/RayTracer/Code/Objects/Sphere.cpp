@@ -1,6 +1,7 @@
 // Sphere.cpp
 
-#include "../Header.h"
+#include "Sphere.h"
+#include "../Quadratic.h"
 
 //===========================================================================
 Sphere::Sphere( void )

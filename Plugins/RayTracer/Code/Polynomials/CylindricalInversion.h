@@ -1,5 +1,9 @@
 // CylindricalInversion.h
 
+#pragma once
+
+#include "../Polynomial.h"
+
 //===========================================================================
 // The zero set of this polynomial is the inversion of a cylinder in a sphere.
 class CylindricalInversion : public Polynomial

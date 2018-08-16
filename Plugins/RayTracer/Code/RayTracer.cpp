@@ -1,6 +1,24 @@
 // RayTracer.cpp
 
-#include "Header.h"
+#include "RayTracer.h"
+#include <wx/setup.h>
+#include <wx/colour.h>
+#include <wx/gdicmn.h>
+#include <wx/image.h>
+#include <wx/utils.h>
+#include <wx/menu.h>
+#include <wx/filedlg.h>
+#include <wx/msgdlg.h>
+#include <wx/numdlg.h>
+#include "Objects/Sphere.h"
+#include "Objects/Plane.h"
+#include "Objects/Quadric.h"
+#include "Objects/AlgebraicSurface.h"
+#include "Polynomials/CylindricalInversion.h"
+#include "Polynomials/DoubleTorus.h"
+#include "Polynomials/Torus.h"
+#include "Lights/AmbientLight.h"
+#include "Lights/PointLight.h"
 
 //===========================================================================
 extern "C" __declspec( dllexport ) RayTracerPlugin* NewImageGeneratorPlugin( void )
@@ -44,7 +62,7 @@ RayTracerPlugin::MenuEventHandler::MenuEventHandler( RayTracerPlugin* rayTracerP
 }
 
 //===========================================================================
-void RayTracerPlugin::MenuEventHandler::InsertMenu( wxMenuBar* menuBar, wxEvtHandler* updateUIHandler )
+void RayTracerPlugin::MenuEventHandler::_InsertMenu( wxMenuBar* menuBar, wxEvtHandler* updateUIHandler )
 {
 	int maxID = CalcMaxMenuId( menuBar );
 
@@ -78,7 +96,7 @@ void RayTracerPlugin::MenuEventHandler::InsertMenu( wxMenuBar* menuBar, wxEvtHan
 }
 
 //===========================================================================
-void RayTracerPlugin::MenuEventHandler::RemoveMenu( wxMenuBar* menuBar, wxEvtHandler* updateUIHandler )
+void RayTracerPlugin::MenuEventHandler::_RemoveMenu( wxMenuBar* menuBar, wxEvtHandler* updateUIHandler )
 {
 	if( updateUIHandler )
 	{
@@ -289,7 +307,7 @@ bool RayTracerPlugin::LoadElement( wxXmlNode* xmlNode )
 //===========================================================================
 /*virtual*/ bool RayTracerPlugin::Initialize( wxMenuBar* menuBar, wxEvtHandler* updateUIHandler )
 {
-	menuEventHandler.InsertMenu( menuBar, updateUIHandler );
+	menuEventHandler._InsertMenu( menuBar, updateUIHandler );
 	return true;
 }
 
@@ -299,7 +317,7 @@ bool RayTracerPlugin::LoadElement( wxXmlNode* xmlNode )
 	UnloadScene();
 
 	if( menuBar )
-		menuEventHandler.RemoveMenu( menuBar, updateUIHandler );
+		menuEventHandler._RemoveMenu( menuBar, updateUIHandler );
 
 	return true;
 }

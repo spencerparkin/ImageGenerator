@@ -1,6 +1,7 @@
 // Quadratic.cpp
 
-#include "Header.h"
+#include "Quadratic.h"
+#include <math.h>
 
 //===========================================================================
 Quadratic::Quadratic( void )

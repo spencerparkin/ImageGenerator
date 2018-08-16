@@ -1,5 +1,12 @@
 // RayTracer.h
 
+#pragma once
+
+#include <wx/setup.h>
+#include <wx/menu.h>
+#include <igPlugin.h>
+#include "Scene.h"
+
 //===========================================================================
 class RayTracerPlugin : public igPlugin
 {
@@ -58,8 +65,8 @@ private:
 		MenuEventHandler( RayTracerPlugin* rayTracerPlugin );
 		virtual ~MenuEventHandler( void );
 
-		void InsertMenu( wxMenuBar* menuBar, wxEvtHandler* updateUIHandler );
-		void RemoveMenu( wxMenuBar* menuBar, wxEvtHandler* updateUIHandler );
+		void _InsertMenu( wxMenuBar* menuBar, wxEvtHandler* updateUIHandler );
+		void _RemoveMenu( wxMenuBar* menuBar, wxEvtHandler* updateUIHandler );
 
 	private:
 

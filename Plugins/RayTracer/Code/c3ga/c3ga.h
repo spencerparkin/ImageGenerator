@@ -67,7 +67,9 @@ DEALINGS IN THE SOFTWARE.
 #ifndef _C3GA_H_
 #define _C3GA_H_
 
-#define snprintf _snprintf
+#ifndef snprintf
+#	define snprintf _snprintf
+#endif //snprintf
 
 #include <stdio.h>
 #include <stdlib.h>

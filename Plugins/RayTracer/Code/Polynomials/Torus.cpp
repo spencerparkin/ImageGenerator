@@ -1,6 +1,6 @@
 // Torus.cpp
 
-#include "../Header.h"
+#include "Torus.h"
 
 //===========================================================================
 Torus::Torus( void )

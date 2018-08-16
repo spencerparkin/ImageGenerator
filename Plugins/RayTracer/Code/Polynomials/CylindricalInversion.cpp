@@ -1,6 +1,7 @@
 // CylindricalInversion.cpp
 
-#include "../Header.h"
+#include "CylindricalInversion.h"
+#include "../Scene.h"
 
 //===========================================================================
 CylindricalInversion::CylindricalInversion( void )

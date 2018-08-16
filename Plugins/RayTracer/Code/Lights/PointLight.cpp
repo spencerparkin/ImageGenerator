@@ -1,6 +1,6 @@
 // PointLight.cpp
 
-#include "../Header.h"
+#include "PointLight.h"
 
 //===========================================================================
 PointLight::PointLight( void )

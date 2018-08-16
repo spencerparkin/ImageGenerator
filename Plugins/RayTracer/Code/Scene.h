@@ -1,5 +1,12 @@
 // Scene.h
 
+#pragma once
+
+#include <wx/xml/xml.h>
+#include <wx/image.h>
+#include <list>
+#include "c3ga/c3ga.h"
+
 //===========================================================================
 class Scene
 {

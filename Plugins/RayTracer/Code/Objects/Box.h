@@ -1,5 +1,9 @@
 // Box.h
 
+#pragma once
+
+#include "../Scene.h"
+
 //===========================================================================
 class Box : public Scene::Object
 {

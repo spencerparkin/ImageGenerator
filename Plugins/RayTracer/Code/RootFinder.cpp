@@ -1,6 +1,7 @@
 // RootFinder.cpp
 
-#include "Header.h"
+#include "RootFinder.h"
+#include <math.h>
 
 //===========================================================================
 RootFinder::RootFinder( ContinuousFunction* continuousFunction )

@@ -1,5 +1,9 @@
 // PointLight.h
 
+#pragma once
+
+#include "../Scene.h"
+
 //===========================================================================
 class PointLight : public Scene::Light
 {

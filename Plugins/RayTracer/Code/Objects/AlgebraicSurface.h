@@ -1,5 +1,10 @@
 // AlgebraicSurface.h
 
+#pragma once
+
+#include "../Scene.h"
+#include "../Polynomial.h"
+
 //===========================================================================
 class AlgebraicSurface : public Scene::Object
 {

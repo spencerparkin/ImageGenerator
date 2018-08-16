@@ -1,6 +1,7 @@
 // AlgebraicSurface.cpp
 
-#include "../Header.h"
+#include "AlgebraicSurface.h"
+#include "../RootFinder.h"
 
 //===========================================================================
 AlgebraicSurface::AlgebraicSurface( void )

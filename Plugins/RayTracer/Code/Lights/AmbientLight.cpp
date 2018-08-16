@@ -1,6 +1,6 @@
 // AmbientLight.cpp
 
-#include "../Header.h"
+#include "AmbientLight.h"
 
 //===========================================================================
 AmbientLight::AmbientLight( void )

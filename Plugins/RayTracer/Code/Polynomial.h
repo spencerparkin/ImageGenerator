@@ -1,5 +1,11 @@
 // Polynomial.h
 
+#pragma once
+
+#include <stdio.h>
+#include "c3ga/c3ga.h"
+#include <wx/xml/xml.h>
+
 //===========================================================================
 // Here we mean a polynomial in three variables x, y and z.
 // Class derivatives determine the degree.

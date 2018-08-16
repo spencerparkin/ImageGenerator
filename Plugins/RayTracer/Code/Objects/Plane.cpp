@@ -1,6 +1,6 @@
 // Plane.cpp
 
-#include "../Header.h"
+#include "Plane.h"
 
 //===========================================================================
 Plane::Plane( void )

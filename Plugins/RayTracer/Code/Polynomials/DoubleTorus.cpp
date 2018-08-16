@@ -1,6 +1,6 @@
 // DoubleTorus.cpp
 
-#include "../Header.h"
+#include "DoubleTorus.h"
 
 //===========================================================================
 DoubleTorus::DoubleTorus( void )

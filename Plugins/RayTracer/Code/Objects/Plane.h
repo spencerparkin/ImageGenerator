@@ -1,5 +1,9 @@
 // Plane.h
 
+#pragma once
+
+#include "../Scene.h"
+
 //===========================================================================
 class Plane : public Scene::Object
 {
