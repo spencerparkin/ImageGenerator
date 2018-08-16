@@ -19,6 +19,8 @@ bool Fractal::RayMarch( const Scene::Ray& ray, c3ga::vectorE3GA& contactPoint, i
 
 	for( int i = 0; i < maxIteration; i++ )
 	{
+		PrepareForDistanceEstimate();
+
 		double distance = DistanceEstimate( marchingRay.point );
 		marchingRay.point = marchingRay.CalculateRayPoint( distance );
 		if( distance < eps )
@@ -33,6 +35,11 @@ bool Fractal::RayMarch( const Scene::Ray& ray, c3ga::vectorE3GA& contactPoint, i
 	}
 
 	return false;
+}
+
+//===========================================================================
+/*virtual*/ void Fractal::PrepareForDistanceEstimate(void) const
+{
 }
 
 // Fractal.cpp

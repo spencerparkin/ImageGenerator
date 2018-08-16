@@ -5,7 +5,8 @@
   <light type="pointLight">
     <intensity r="1.0" g="1.0" b="1.0"/>
     <point x="0" y="20" z="0"/>
-    <shadow>0.0</shadow>
+    <!-- Don't do any shadowing, because the fractal is too self-obstructing. -->
+    <shadow>1.0</shadow>
   </light>
   <object type="sierpinskiTetrahedron">
     <tetrahedron>
@@ -23,9 +24,9 @@
     </material>
   </object>
   <view>
-    <eye x="10.0" y="0.0" z="20.0"/>
+    <eye x="20.0" y="0.0" z="10.0"/>
     <up x="0.0" y="1.0" z="0.0"/>
-    <dir x="-10.0" y="0.0" z="-20.0"/>
+    <dir x="-20.0" y="0.0" z="-10.0"/>
     <angle>36.0</angle>
     <focalLength>10.0</focalLength>
   </view>

@@ -16,6 +16,7 @@ public:
 	virtual bool Configure( wxXmlNode* xmlNode ) override;
 	virtual bool CalculateSurfacePoint( const Scene::Ray& ray, const Scene& scene, Scene::SurfacePoint& surfacePoint ) const override;
 	virtual double DistanceEstimate( const c3ga::vectorE3GA& point ) const override;
+	virtual void PrepareForDistanceEstimate( void ) const override;
 
 private:
 	

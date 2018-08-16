@@ -40,15 +40,18 @@ SierpinskiTetrahedron::SierpinskiTetrahedron( void )
 }
 
 //===========================================================================
-/*virtual*/ bool SierpinskiTetrahedron::CalculateSurfacePoint( const Scene::Ray& ray, const Scene& scene, Scene::SurfacePoint& surfacePoint ) const
+/*virtual*/ void SierpinskiTetrahedron::PrepareForDistanceEstimate(void) const
 {
 	tetrahedronList.clear();
+}
 
+//===========================================================================
+/*virtual*/ bool SierpinskiTetrahedron::CalculateSurfacePoint( const Scene::Ray& ray, const Scene& scene, Scene::SurfacePoint& surfacePoint ) const
+{
 	if( !RayMarch( ray, surfacePoint.point, 64, 0.01 ) )
 		return false;
 
-	// This was an utter failure to calculate a surface normal.
-	bool foundNormal = false;
+	/*bool foundNormal = false;
 	for( std::list< Tetrahedron >::reverse_iterator iter = tetrahedronList.rbegin(); iter != tetrahedronList.rend(); iter++ )
 	{
 		const Tetrahedron& normalTetrahedron = *iter;
@@ -63,8 +66,22 @@ SierpinskiTetrahedron::SierpinskiTetrahedron( void )
 
 	if( foundNormal == false )
 	{
-		int b = 0;
-		b++;
+		surfacePoint.normal.set(c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, 0.0, 0.0);
+	}*/
+
+	std::list< Tetrahedron >::iterator iter = tetrahedronList.begin();
+	iter++;
+	iter++;
+	iter++;
+	const Tetrahedron& normalTetrahedron = *iter;
+	Scene::SurfacePoint normalSurfacePoint;
+	if( normalTetrahedron.CalculateSurfacePoint( ray, scene, normalSurfacePoint ) )
+	{
+		surfacePoint.normal = normalSurfacePoint.normal;
+	}
+	else
+	{
+		surfacePoint.normal.set(c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, 0.0, 0.0);
 	}
 
 	surfacePoint.materialProperties = this->materialProperties;
