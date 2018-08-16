@@ -69,13 +69,21 @@ SierpinskiTetrahedron::SierpinskiTetrahedron( void )
 		surfacePoint.normal.set(c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, 0.0, 0.0);
 	}*/
 
-	std::list< Tetrahedron >::iterator iter = tetrahedronList.begin();
-	iter++;
-	iter++;
-	iter++;
-	const Tetrahedron& normalTetrahedron = *iter;
+	bool foundTetrahedron = false;
+	Tetrahedron normalTetrahedron;
+	for( std::list< Tetrahedron >::iterator iter = tetrahedronList.begin(); iter != tetrahedronList.end(); iter++ )
+	{
+		normalTetrahedron = *iter;
+		double volume = normalTetrahedron.Volume();
+		if( volume < 0.1 )
+		{
+			foundTetrahedron = true;
+			break;
+		}
+	}
+
 	Scene::SurfacePoint normalSurfacePoint;
-	if( normalTetrahedron.CalculateSurfacePoint( ray, scene, normalSurfacePoint ) )
+	if(foundTetrahedron && normalTetrahedron.CalculateSurfacePoint( ray, scene, normalSurfacePoint ) )
 	{
 		surfacePoint.normal = normalSurfacePoint.normal;
 	}
