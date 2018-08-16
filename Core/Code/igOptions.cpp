@@ -94,6 +94,11 @@ igOptionsDialog::igOptionsDialog( wxWindow* parent, const igApp::Options& option
 	boxSizer->Add( threadStaticBox, 1, wxEXPAND | wxLEFT | wxRIGHT, 10 );
 	boxSizer->Add( videoStaticBox, 1, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 10 );
 
+#ifndef VIDEO_SUPPORT
+	frameCountText->Enable(false);
+	frameRateText->Enable(false);
+#endif //!VIDEO_SUPPORT
+
 	wxSizer* sizer = CreateSeparatedButtonSizer( wxOK | wxCANCEL );
 	if( sizer )
 		boxSizer->Add( sizer, 1, wxEXPAND | wxALL, 10 );

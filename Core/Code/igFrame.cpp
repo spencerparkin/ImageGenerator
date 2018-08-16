@@ -276,7 +276,7 @@ void igFrame::OnAbout( wxCommandEvent& event )
 	aboutDialogInfo.SetName( "Image Generator" );
 	aboutDialogInfo.SetVersion( "v1.0" );
 	aboutDialogInfo.SetDescription( "Generate an image on multiple threads." );
-	aboutDialogInfo.SetCopyright( "Copyright (C) 2013, 2016" );
+	aboutDialogInfo.SetCopyright( "Copyright (C) 2013, 2016, 2018" );
 	aboutDialogInfo.AddDeveloper( "Spencer T. Parkin" );
 	aboutDialogInfo.SetLicense( "Not licensed!" );
 
