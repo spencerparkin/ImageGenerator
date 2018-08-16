@@ -70,6 +70,8 @@ public:
 
 		return maxId;
 	}
+
+	wxString path;
 };
 
 // igPlugin.h

@@ -95,6 +95,11 @@ void igApp::SaveConfiguration( void )
 	regConfig.Write( "framePosY", frameLayout.pos.y );
 	regConfig.Write( "frameSizeX", frameLayout.size.x );
 	regConfig.Write( "frameSizeY", frameLayout.size.y );
+
+	if( plugin )
+		regConfig.Write( "pluginPath", plugin->path );
+	else
+		regConfig.Write( "pluginPath", "" );
 }
 
 //===========================================================================
@@ -112,6 +117,11 @@ void igApp::RestoreConfiguration( void )
 	regConfig.Read( "framePosY", &frameLayout.pos.y, -1 );
 	regConfig.Read( "frameSizeX", &frameLayout.size.x, -1 );
 	regConfig.Read( "frameSizeY", &frameLayout.size.y, -1 );
+
+	wxString path;
+	regConfig.Read( "pluginPath", &path );
+	if( path.Length() > 0 )
+		LoadPlugin( path );
 }
 
 //===========================================================================
@@ -135,12 +145,12 @@ void igApp::RestoreConfiguration( void )
 //===========================================================================
 /*virtual*/ int igApp::OnExit( void )
 {
+	SaveConfiguration();
+
 	if( plugin || pluginHandle != NULL )
 		UnloadPlugin( true );
 
 	DeleteImage();
-
-	SaveConfiguration();
 
 	return wxApp::OnExit();
 }
@@ -171,6 +181,7 @@ bool igApp::LoadPlugin( const wxString& pluginPath )
 		if( !plugin->Initialize( menuBar, frame ) )
 			break;
 
+		plugin->path = pluginPath;
 		success = true;
 	}
 	while( false );
