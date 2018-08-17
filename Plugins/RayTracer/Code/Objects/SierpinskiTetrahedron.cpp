@@ -5,7 +5,7 @@
 //===========================================================================
 SierpinskiTetrahedron::SierpinskiTetrahedron( void )
 {
-	maxIterations = 100;
+	maxDepth = 10;
 }
 
 //===========================================================================
@@ -18,7 +18,7 @@ SierpinskiTetrahedron::SierpinskiTetrahedron( void )
 {
 	SierpinskiTetrahedron* clone = new SierpinskiTetrahedron();
 	clone->tetrahedron = tetrahedron;
-	clone->maxIterations = maxIterations;
+	clone->maxDepth = maxDepth;
 	return clone;
 }
 
@@ -34,73 +34,68 @@ SierpinskiTetrahedron::SierpinskiTetrahedron( void )
 	if( !tetrahedron.Configure( Scene::FindNode( xmlNode, "tetrahedron" ) ) )
 		return false;
 
-	maxIterations = ( int )Scene::LoadNumber( xmlNode, "maxIterations", maxIterations );
+	maxDepth = ( int )Scene::LoadNumber( xmlNode, "maxDepth", maxDepth );
 
 	return true;
 }
 
 //===========================================================================
-/*virtual*/ void SierpinskiTetrahedron::PrepareForDistanceEstimate(void) const
-{
-	tetrahedronList.clear();
-}
-
-//===========================================================================
 /*virtual*/ bool SierpinskiTetrahedron::CalculateSurfacePoint( const Scene::Ray& ray, const Scene& scene, Scene::SurfacePoint& surfacePoint ) const
 {
-	if( !RayMarch( ray, surfacePoint.point, 64, 0.01 ) )
+	if( !tetrahedron.CalculateSurfacePoint( ray, scene, surfacePoint ) )
 		return false;
 
-	/*bool foundNormal = false;
-	for( std::list< Tetrahedron >::reverse_iterator iter = tetrahedronList.rbegin(); iter != tetrahedronList.rend(); iter++ )
+	Tetrahedron subTetrahedron = tetrahedron;
+
+	struct Hit
 	{
-		const Tetrahedron& normalTetrahedron = *iter;
-		Scene::SurfacePoint normalSurfacePoint;
-		if( normalTetrahedron.CalculateSurfacePoint( ray, scene, normalSurfacePoint) )
+		Tetrahedron tetrahedron;
+		Scene::SurfacePoint surfacePoint;
+	};
+
+	for( int i = 0; i < maxDepth; i++ )
+	{
+		std::list< Hit > hitList;
+
+		for( int j = 0; j < 4; j++ )
 		{
-			surfacePoint.normal = normalSurfacePoint.normal;
-			foundNormal = true;
-			break;
+			Hit hit;
+			hit.tetrahedron = subTetrahedron;
+
+			for( int k = 0; k < 4; k++ )
+				if( k != j )
+					hit.tetrahedron.vertex[k] = hit.tetrahedron.vertex[k] + 0.5 * ( hit.tetrahedron.vertex[j] - hit.tetrahedron.vertex[k] );
+
+			if( hit.tetrahedron.CalculateSurfacePoint( ray, scene, hit.surfacePoint ) )
+				hitList.push_back( hit );
 		}
-	}
 
-	if( foundNormal == false )
-	{
-		surfacePoint.normal.set(c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, 0.0, 0.0);
-	}*/
+		if( hitList.size() == 0 )
+			return false;
 
-	bool foundTetrahedron = false;
-	Tetrahedron normalTetrahedron;
-	for( std::list< Tetrahedron >::iterator iter = tetrahedronList.begin(); iter != tetrahedronList.end(); iter++ )
-	{
-		normalTetrahedron = *iter;
-		double volume = normalTetrahedron.Volume();
-		if( volume < 0.1 )
+		double minDistance = 9999999.0;
+		for( std::list< Hit >::iterator iter = hitList.begin(); iter != hitList.end(); iter++ )
 		{
-			foundTetrahedron = true;
-			break;
+			const Hit& hit = *iter;
+			double distance = c3ga::norm( scene.Eye() - hit.surfacePoint.point );
+			if( distance < minDistance )
+			{
+				minDistance = distance;
+				surfacePoint = hit.surfacePoint;
+				subTetrahedron = hit.tetrahedron;
+			}
 		}
-	}
-
-	Scene::SurfacePoint normalSurfacePoint;
-	if(foundTetrahedron && normalTetrahedron.CalculateSurfacePoint( ray, scene, normalSurfacePoint ) )
-	{
-		surfacePoint.normal = normalSurfacePoint.normal;
-	}
-	else
-	{
-		surfacePoint.normal.set(c3ga::vectorE3GA::coord_e1_e2_e3, 0.0, 0.0, 0.0);
 	}
 
 	surfacePoint.materialProperties = this->materialProperties;
 	surfacePoint.object = this;
-
 	return true;
 }
 
 //===========================================================================
 /*virtual*/ double SierpinskiTetrahedron::DistanceEstimate( const c3ga::vectorE3GA& point ) const
 {
+	int maxIterations = 100;
 	double distanceEstimate = 0.0;
 	Tetrahedron subTetrahedron = tetrahedron;
 	int i = 0;
@@ -119,8 +114,6 @@ SierpinskiTetrahedron::SierpinskiTetrahedron( void )
 				k = j;
 			}
 		}
-
-		tetrahedronList.push_back( subTetrahedron );
 
 		distanceEstimate = minDistance;
 		i++;
